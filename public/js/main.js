@@ -124,13 +124,26 @@ function renderCategoryTiles() {
   if (!container) return;
   container.innerHTML = DEPARTMENTS.map(
     (d) => `
-    <a class="category-tile category-tile--${d.id}" href="#shop" data-category="${d.category}" data-audience="${d.audience}" data-reveal>
+    <a class="category-tile category-tile--${d.id} dept-link" href="#shop" data-category="${d.category}" data-audience="${d.audience}" data-reveal>
       <span class="category-tile__icon">${categoryIconSvg(d.category || 'apparel')}</span>
       <span class="category-tile__text">
         <span class="category-tile__label">${t(d.labelKey)}</span>
         <span class="category-tile__blurb">${t(d.blurbKey)}</span>
       </span>
       <span class="category-tile__cta">Shop now <svg class="icon icon--sm"><use href="#icon-arrow-right"></use></svg></span>
+    </a>
+  `
+  ).join('');
+}
+
+function renderAdBannerCategories() {
+  const container = document.getElementById('ad-banner-categories');
+  if (!container) return;
+  container.innerHTML = DEPARTMENTS.map(
+    (d) => `
+    <a class="ad-banner__chip dept-link" href="#shop" data-category="${d.category}" data-audience="${d.audience}">
+      ${categoryIconSvg(d.category || 'apparel')}
+      <span>${t(d.labelKey)}</span>
     </a>
   `
   ).join('');
@@ -358,13 +371,14 @@ function wireEvents({ quickViewModal }) {
       return;
     }
 
-    const deptTile = e.target.closest('.category-tiles [data-category][data-audience]');
+    const deptTile = e.target.closest('.dept-link[data-category][data-audience]');
     if (deptTile) {
       e.preventDefault();
       activeCategory = deptTile.dataset.category;
       activeAudience = deptTile.dataset.audience;
       syncPillState();
       renderGrid();
+      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
 
@@ -375,6 +389,7 @@ function wireEvents({ quickViewModal }) {
       activeAudience = '';
       syncPillState();
       renderGrid();
+      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
 
@@ -439,6 +454,7 @@ function wireEvents({ quickViewModal }) {
 
   document.addEventListener('languagechange', () => {
     renderCategoryTiles();
+    renderAdBannerCategories();
     renderGrid();
     renderCart();
   });
@@ -463,6 +479,7 @@ function init() {
   initLanguageToggle();
 
   renderCategoryTiles();
+  renderAdBannerCategories();
   renderStoreLocations();
   renderTestimonials();
   renderCart();

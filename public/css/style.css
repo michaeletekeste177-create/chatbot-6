@@ -509,6 +509,104 @@ img { max-width: 100%; display: block; }
 }
 .category-tile:hover .category-tile__cta { opacity: 1; transform: translateY(0); }
 
+/* ---------------- Advertising banner ---------------- */
+.ad-banner {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-sale);
+  margin: var(--space-7) auto;
+  max-width: calc(var(--max-width) + var(--space-8));
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+}
+.ad-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255,255,255,0.16) 1.5px, transparent 1.5px);
+  background-size: 26px 26px;
+}
+.ad-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 20%, rgba(255,255,255,0.18), transparent 50%);
+}
+
+.ad-banner__decor {
+  position: absolute;
+  color: rgba(255,255,255,0.14);
+  pointer-events: none;
+  z-index: 0;
+}
+.ad-banner__decor .icon { width: 100%; height: 100%; stroke-width: 1; }
+.ad-banner__decor--1 { top: 8%; left: 6%; width: 110px; height: 110px; transform: rotate(-10deg); }
+.ad-banner__decor--2 { bottom: 10%; left: 14%; width: 80px; height: 80px; transform: rotate(14deg); }
+.ad-banner__decor--3 { top: 15%; right: 8%; width: 130px; height: 130px; transform: rotate(-8deg); }
+
+.ad-banner__content { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+
+.ad-banner__badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-4);
+  backdrop-filter: blur(6px);
+}
+
+.ad-banner__eyebrow { color: rgba(255,255,255,0.85); }
+.ad-banner__heading { color: #fff; font-size: var(--fs-2xl); margin-bottom: var(--space-3); }
+.ad-banner__subcopy { color: rgba(255,255,255,0.9); font-size: var(--fs-md); margin-bottom: var(--space-6); }
+
+.ad-banner__categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.ad-banner__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.ad-banner__chip .icon { width: 18px; height: 18px; }
+.ad-banner__chip:hover { background: rgba(255,255,255,0.28); transform: translateY(-2px); }
+
+.ad-banner__cta {
+  font-size: var(--fs-md);
+  padding: 1rem 2.2rem;
+  background: #fff;
+  color: var(--color-accent-dark);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.ad-banner__cta:hover { background: #fff; box-shadow: 0 14px 36px rgba(0,0,0,0.28); }
+.ad-banner__cta-divider { opacity: 0.5; }
+
+@media (max-width: 640px) {
+  .ad-banner { padding: var(--space-7) var(--space-4); border-radius: var(--radius-md); }
+  .ad-banner__heading { font-size: var(--fs-xl); }
+  .ad-banner__decor { display: none; }
+}
+
 /* ---------------- Promo split ---------------- */
 .promo-split {
   display: grid;

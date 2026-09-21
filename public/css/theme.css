@@ -37,6 +37,10 @@
   --gradient-hero: linear-gradient(120deg, var(--color-primary-dark) 0%, var(--color-primary) 55%, #2c6b4e 100%);
   --gradient-accent: linear-gradient(120deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
   --gradient-fade-surface: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--color-surface) 100%);
+  /* Warm sale/promo gradient — deliberately distinct from the brand's
+     evergreen hero and kept away from Eritrea's national flag colors,
+     so the ad banner reads as a store promotion, not a flag graphic. */
+  --gradient-sale: linear-gradient(120deg, var(--color-accent-dark) 0%, var(--color-rose) 65%, #8a3d4a 100%);
 
   /* Department card accents — one gradient pair per homepage
      department card (Women/Men/Kids/Cosmetics/Books/Electronics). */
