@@ -2,7 +2,7 @@
 //
 // One Supabase client for the whole backend, created with the
 // SERVICE ROLE key. This key bypasses Row Level Security, which is
-// exactly what the server needs to write orders/products — and
+// exactly what the server needs to write click_events/products — and
 // exactly why it must never be sent to the browser. The frontend
 // only ever talks to *our* API, never to Supabase directly.
 

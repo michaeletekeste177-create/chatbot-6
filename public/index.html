@@ -46,12 +46,13 @@
     <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-store" viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 9v10h16V9M4 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
     <symbol id="icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M9 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 4h6v6M20 4l-9 9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="icon-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1L6.6 19.3l1.3-6-4.6-4.1 6.1-.6z" fill="currentColor"/></symbol>
   </svg>
 
   <!-- ================= ANNOUNCEMENT BAR ================= -->
   <div class="announcement-bar">
-    <p>Free pickup at any Hibretfamily store &nbsp;·&nbsp; Secure checkout &nbsp;·&nbsp; New arrivals every week</p>
+    <p>Curated picks across 6 departments &nbsp;·&nbsp; Straight to trusted retailers &nbsp;·&nbsp; New finds every week</p>
   </div>
 
   <!-- ================= HEADER ================= -->
@@ -83,15 +84,6 @@
           <input id="search-input" type="search" placeholder="Search products…" aria-label="Search products" autocomplete="off" />
           <div class="search-results" id="search-results" hidden></div>
         </form>
-
-        <a class="icon-btn" href="#" aria-label="Account">
-          <svg class="icon"><use href="#icon-user"></use></svg>
-        </a>
-
-        <button class="icon-btn cart-toggle" id="cart-toggle" aria-label="Open cart" aria-controls="cart-drawer">
-          <svg class="icon"><use href="#icon-cart"></use></svg>
-          <span class="badge cart-count">0</span>
-        </button>
       </div>
     </div>
   </header>
@@ -153,7 +145,7 @@
           <div class="hero-slide__content">
             <p class="eyebrow">Beyond fashion</p>
             <h1>Electronics, books &amp; beauty essentials</h1>
-            <p class="hero-slide__copy">Everything the household needs, backed by the same secure checkout and easy returns.</p>
+            <p class="hero-slide__copy">Everything the household needs, one trusted click away — you check out directly with the retailer.</p>
             <div class="hero-cta">
               <a class="btn btn--accent" href="#shop">Explore essentials</a>
             </div>
@@ -162,8 +154,8 @@
         <div class="hero-slide hero-slide--3">
           <div class="hero-slide__content">
             <p class="eyebrow">Online + in person</p>
-            <h1>Order online, pick up in store</h1>
-            <p class="hero-slide__copy">Three Hibretfamily locations ready for fitting, returns and friendly advice.</p>
+            <h1>Browse online, get advice in person</h1>
+            <p class="hero-slide__copy">Three Hibretfamily locations, ready with friendly styling advice while you shop our picks from trusted retailers.</p>
             <div class="hero-cta">
               <a class="btn btn--accent" href="#stores">See our locations</a>
             </div>
@@ -182,15 +174,15 @@
     <section class="trust-strip">
       <div class="trust-item" data-reveal>
         <svg class="icon"><use href="#icon-truck"></use></svg>
-        <span>Fast delivery &amp; in-store pickup</span>
+        <span>Ships directly from trusted retailers</span>
       </div>
       <div class="trust-item" data-reveal>
         <svg class="icon"><use href="#icon-shield"></use></svg>
-        <span>Secure, PCI-compliant payments</span>
+        <span>You check out securely on the retailer's site</span>
       </div>
       <div class="trust-item" data-reveal>
         <svg class="icon"><use href="#icon-refresh"></use></svg>
-        <span>Easy 14-day returns</span>
+        <span>Each retailer's own return policy applies</span>
       </div>
       <div class="trust-item" data-reveal>
         <svg class="icon"><use href="#icon-store"></use></svg>
@@ -214,7 +206,7 @@
 
         <a href="#shop" class="btn btn--accent dept-link ad-banner__cta" data-category="" data-audience="">
           <span>Shop Now</span>
-          <span class="ad-banner__cta-divider" aria-hidden="true">/</span>
+          <span class="cta-divider" aria-hidden="true">/</span>
           <span lang="ti">ሕጂ ዓድግ</span>
         </a>
       </div>
@@ -248,11 +240,11 @@
       <div class="section__header" data-reveal>
         <p class="eyebrow">Full catalog</p>
         <h2>Shop everything</h2>
-        <p class="section__subtitle">Filter by department and audience — prices and stock always come straight from our live catalog.</p>
+        <p class="section__subtitle">Filter by department and audience — every card links straight to the retailer that actually sells it.</p>
       </div>
 
       <p class="demo-banner" id="demo-banner" hidden>
-        You're viewing a demo catalog. Connect the Hibretfamily backend (see README) to show live products, stock and pricing.
+        You're viewing a demo catalog. Connect the Hibretfamily backend (see README) to show real curated products and their store links.
       </p>
 
       <div class="filter-bar">
@@ -350,8 +342,8 @@
         <h4>Customer service</h4>
         <a href="#stores">Store locations</a>
         <a href="#newsletter">Contact us</a>
-        <a href="#">Shipping &amp; returns</a>
-        <a href="#">Order tracking</a>
+        <a href="#">How it works</a>
+        <a href="#">Affiliate disclosure</a>
       </div>
 
       <div class="footer-col">
@@ -363,30 +355,11 @@
 
     <div class="site-footer__bottom">
       <p>© <span id="current-year"></span> Hibretfamily. All rights reserved.</p>
-      <p class="payment-icons" aria-label="Accepted payment methods">Visa · Mastercard · Stripe secure checkout</p>
+      <p class="payment-icons">As an affiliate, Hibretfamily may earn a commission from qualifying purchases made through outbound links.</p>
     </div>
   </footer>
 
   <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
-
-  <!-- ================= CART DRAWER ================= -->
-  <aside class="cart-drawer" id="cart-drawer" aria-hidden="true" aria-label="Shopping cart">
-    <div class="cart-drawer__header">
-      <h3>Your cart</h3>
-      <button class="icon-btn" id="cart-close" aria-label="Close cart">
-        <svg class="icon"><use href="#icon-close"></use></svg>
-      </button>
-    </div>
-    <div class="cart-drawer__items" id="cart-items"></div>
-    <div class="cart-drawer__footer">
-      <div class="cart-drawer__total">
-        <span>Total</span>
-        <strong id="cart-total">$0.00</strong>
-      </div>
-      <button class="btn btn--primary btn--block" id="checkout-button" disabled>Secure checkout</button>
-      <p class="state-message" id="checkout-state" hidden></p>
-    </div>
-  </aside>
 
   <!-- ================= QUICK VIEW MODAL ================= -->
   <div class="modal" id="quick-view-modal" aria-hidden="true">

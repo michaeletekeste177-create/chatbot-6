@@ -38,32 +38,6 @@ export function initMobileNav() {
   });
 }
 
-export function initDrawer({ toggleId, drawerId, closeId }) {
-  const toggle = document.getElementById(toggleId);
-  const drawer = document.getElementById(drawerId);
-  const closeBtn = document.getElementById(closeId);
-  if (!drawer) return { open: () => {}, close: () => {} };
-
-  const open = () => {
-    drawer.classList.add('open');
-    drawer.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('no-scroll');
-  };
-  const close = () => {
-    drawer.classList.remove('open');
-    drawer.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('no-scroll');
-  };
-
-  toggle?.addEventListener('click', open);
-  closeBtn?.addEventListener('click', close);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-
-  return { open, close };
-}
-
 export function initModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return { open: () => {}, close: () => {} };

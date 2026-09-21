@@ -1,18 +1,22 @@
 // public/js/main.js
 //
-// Wires config + cart + catalog + generic UI helpers together and
-// renders the actual product markup. This is the only module that
-// knows about both the DOM structure of index.html and the shape of
-// product data.
+// Wires config + catalog + generic UI helpers together and renders
+// the actual product markup. This is the only module that knows both
+// the DOM structure of index.html and the shape of product data.
+//
+// Hibretfamily is an affiliate storefront: there is no cart, no
+// checkout, no price of our own to show. Every product card is just a
+// curated pointer — clicking "Shop Now / ሕጂ ዓድግ" sends the shopper
+// straight to the external store (through our click-tracking redirect
+// when a real backend is connected; straight to the demo link when
+// previewing offline — see shopUrl() below).
 
 import { API_BASE, CATEGORIES, DEPARTMENTS, STORE_LOCATIONS, TESTIMONIALS } from './config.js';
-import { Cart, formatPrice } from './cart.js';
 import { fetchProducts, getProductById, isUsingDemoData } from './catalog.js';
 import { t, initLanguageToggle } from './i18n.js';
 import {
   initHeaderScroll,
   initMobileNav,
-  initDrawer,
   initModal,
   initScrollReveal,
   initHeroSlider,
@@ -21,7 +25,6 @@ import {
   showToast,
 } from './ui.js';
 
-const cart = new Cart();
 let activeCategory = '';
 let activeAudience = '';
 
@@ -30,11 +33,6 @@ const el = {
   gridState: document.getElementById('grid-state'),
   categoryPills: document.getElementById('category-pills'),
   audiencePills: document.getElementById('audience-pills'),
-  cartItems: document.getElementById('cart-items'),
-  cartTotal: document.getElementById('cart-total'),
-  cartCount: document.querySelectorAll('.cart-count'),
-  checkoutBtn: document.getElementById('checkout-button'),
-  checkoutState: document.getElementById('checkout-state'),
   quickView: document.getElementById('quick-view-body'),
   searchForm: document.getElementById('search-form'),
   searchInput: document.getElementById('search-input'),
@@ -45,7 +43,7 @@ const el = {
 };
 
 // ---------------------------------------------------------------------
-// Label helpers (translated where we have a mapping, raw fallback)
+// Label & link helpers (translated where we have a mapping, raw fallback)
 // ---------------------------------------------------------------------
 
 function categoryIconSvg(category) {
@@ -63,9 +61,29 @@ function audienceLabel(audience) {
   return t(`aud_${audience}`);
 }
 
+// Demo products carry their own (Amazon search) link and have no
+// backend to proxy through; real catalog products never expose their
+// affiliate_url to the browser at all (see server/routes/products.js)
+// — clicking always goes through the click-tracking redirect instead.
+function shopUrl(product) {
+  return product.demo ? product.affiliate_url : `${API_BASE}/track-click?productId=${encodeURIComponent(product.id)}`;
+}
+
 // ---------------------------------------------------------------------
 // Rendering
 // ---------------------------------------------------------------------
+
+function shopNowLinkHTML(product, { bilingual = false, extraClass = '' } = {}) {
+  const label = bilingual
+    ? `<span>Shop Now</span><span class="cta-divider" aria-hidden="true">/</span><span lang="ti">ሕጂ ዓድግ</span>`
+    : `<span>${t('shop_now')}</span>`;
+  return `
+    <a class="btn btn--accent shop-now-link ${extraClass}" href="${shopUrl(product)}" target="_blank" rel="noopener noreferrer sponsored" aria-label="${t('shop_now')}: ${product.name}">
+      <svg class="icon icon--sm" aria-hidden="true"><use href="#icon-external"></use></svg>
+      ${label}
+    </a>
+  `;
+}
 
 function productCardHTML(product) {
   const audienceTag = product.audience && product.audience !== 'unisex' ? audienceLabel(product.audience) : '';
@@ -83,12 +101,7 @@ function productCardHTML(product) {
       <div class="product-card__body">
         <span class="product-card__category">${categoryLabel(product.category)}</span>
         <h3 class="product-card__name">${product.name}</h3>
-        <div class="product-card__row">
-          <span class="price-tag">${formatPrice(product.price_cents, product.currency)}</span>
-          <button class="btn btn--icon btn--add" data-add-to-cart="${product.id}" aria-label="Add ${product.name} to cart">
-            <svg class="icon" aria-hidden="true"><use href="#icon-cart"></use></svg>
-          </button>
-        </div>
+        ${shopNowLinkHTML(product, { extraClass: 'btn--block' })}
       </div>
     </article>
   `;
@@ -194,40 +207,6 @@ function renderTestimonials() {
   ).join('');
 }
 
-function renderCart() {
-  el.cartCount.forEach((elm) => (elm.textContent = String(cart.count)));
-
-  if (cart.items.length === 0) {
-    el.cartItems.innerHTML = '<p class="state-message">Your cart is empty. Start shopping to add items.</p>';
-    el.checkoutBtn.disabled = true;
-  } else {
-    el.cartItems.innerHTML = cart.items
-      .map(
-        (item) => `
-      <div class="cart-item">
-        <div class="cart-item__info">
-          <strong>${item.name}</strong>
-          <span class="cart-item__category">${categoryLabel(item.category)}</span>
-        </div>
-        <div class="cart-item__controls">
-          <button class="qty-btn" data-qty="-1" data-id="${item.productId}" aria-label="Decrease quantity">−</button>
-          <span>${item.quantity}</span>
-          <button class="qty-btn" data-qty="1" data-id="${item.productId}" aria-label="Increase quantity">+</button>
-        </div>
-        <div class="cart-item__price">${formatPrice(item.price_cents * item.quantity, item.currency)}</div>
-        <button class="cart-item__remove" data-remove="${item.productId}" aria-label="Remove ${item.name}">
-          <svg class="icon icon--sm" aria-hidden="true"><use href="#icon-close"></use></svg>
-        </button>
-      </div>
-    `
-      )
-      .join('');
-    el.checkoutBtn.disabled = false;
-  }
-
-  el.cartTotal.textContent = formatPrice(cart.totalCents, cart.currency);
-}
-
 function renderQuickView(product) {
   if (!el.quickView) return;
   const audienceTag = audienceLabel(product.audience);
@@ -242,65 +221,16 @@ function renderQuickView(product) {
     <div class="quick-view__info">
       <span class="product-card__category">${categoryLabel(product.category)}${audienceTag && product.audience !== 'unisex' ? ` · ${audienceTag}` : ''}</span>
       <h2>${product.name}</h2>
-      <p class="price-tag price-tag--lg">${formatPrice(product.price_cents, product.currency)}</p>
-      <p class="quick-view__desc">${product.description || 'No description available yet.'}</p>
-      <button class="btn btn--primary" data-add-to-cart="${product.id}" data-close-modal>Add to cart</button>
+      <p class="quick-view__desc">Available now from a trusted external retailer. Clicking through opens their site in a new tab, where you'll complete your purchase directly with them.</p>
+      ${shopNowLinkHTML(product, { bilingual: true, extraClass: 'quick-view__cta' })}
     </div>
   `;
+  el.quickView.querySelector('.shop-now-link')?.setAttribute('data-close-modal', '');
 }
 
 // ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
-
-async function addToCart(id) {
-  let product = getProductById(id);
-  if (!product) {
-    await fetchProducts();
-    product = getProductById(id);
-  }
-  if (!product) return;
-  cart.add(product);
-  showToast(`Added “${product.name}” to your cart`);
-}
-
-function animateAddButton(btn) {
-  const use = btn.querySelector('use');
-  if (!use) return;
-  const original = use.getAttribute('href');
-  btn.classList.add('btn--added');
-  use.setAttribute('href', '#icon-check');
-  setTimeout(() => {
-    btn.classList.remove('btn--added');
-    use.setAttribute('href', original);
-  }, 1100);
-}
-
-async function startCheckout() {
-  if (cart.items.length === 0) return;
-  el.checkoutBtn.disabled = true;
-  el.checkoutState.textContent = 'Redirecting to secure checkout…';
-  el.checkoutState.hidden = false;
-
-  try {
-    const res = await fetch(`${API_BASE}/checkout/create-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        items: cart.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-      }),
-    });
-    if (!res.ok) throw new Error('Checkout request failed');
-    const { url } = await res.json();
-    window.location.href = url;
-  } catch (err) {
-    console.error(err);
-    el.checkoutState.textContent = isUsingDemoData()
-      ? 'This is a demo catalog — connect the Hibretfamily backend to enable real checkout.'
-      : 'Could not start checkout. Please try again in a moment.';
-    el.checkoutBtn.disabled = false;
-  }
-}
 
 function handleSearch(query) {
   if (!el.searchResults) return;
@@ -318,7 +248,7 @@ function handleSearch(query) {
             (p) => `
         <button class="search-result" data-quick-view="${p.id}">
           <span>${p.name}</span>
-          <span class="search-result__price">${formatPrice(p.price_cents, p.currency)}</span>
+          <span class="search-result__category">${categoryLabel(p.category)}</span>
         </button>
       `
           )
@@ -354,13 +284,6 @@ function subscribeToNewsletter(email) {
 
 function wireEvents({ quickViewModal }) {
   document.body.addEventListener('click', (e) => {
-    const addBtn = e.target.closest('[data-add-to-cart]');
-    if (addBtn) {
-      addToCart(addBtn.dataset.addToCart);
-      if (addBtn.classList.contains('btn--icon')) animateAddButton(addBtn);
-      return;
-    }
-
     const quickViewBtn = e.target.closest('[data-quick-view]');
     if (quickViewBtn) {
       const product = getProductById(quickViewBtn.dataset.quickView);
@@ -392,18 +315,6 @@ function wireEvents({ quickViewModal }) {
       document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
-
-    const removeBtn = e.target.closest('[data-remove]');
-    if (removeBtn) {
-      cart.remove(removeBtn.dataset.remove);
-      return;
-    }
-
-    const qtyBtn = e.target.closest('[data-qty]');
-    if (qtyBtn) {
-      const item = cart.items.find((i) => i.productId === qtyBtn.dataset.id);
-      if (item) cart.updateQuantity(item.productId, item.quantity + Number(qtyBtn.dataset.qty));
-    }
   });
 
   el.categoryPills?.addEventListener('click', (e) => {
@@ -421,9 +332,6 @@ function wireEvents({ quickViewModal }) {
     syncPillState();
     renderGrid();
   });
-
-  el.checkoutBtn?.addEventListener('click', startCheckout);
-  cart.onChange(renderCart);
 
   el.searchForm?.addEventListener('submit', (e) => e.preventDefault());
   el.searchInput?.addEventListener('input', (e) => handleSearch(e.target.value));
@@ -456,7 +364,6 @@ function wireEvents({ quickViewModal }) {
     renderCategoryTiles();
     renderAdBannerCategories();
     renderGrid();
-    renderCart();
   });
 }
 
@@ -482,7 +389,6 @@ function init() {
   renderAdBannerCategories();
   renderStoreLocations();
   renderTestimonials();
-  renderCart();
   renderGrid();
 
   initHeaderScroll();
@@ -492,7 +398,6 @@ function init() {
   initTestimonialSlider('testimonials');
   initBackToTop();
 
-  initDrawer({ toggleId: 'cart-toggle', drawerId: 'cart-drawer', closeId: 'cart-close' });
   const quickViewModal = initModal('quick-view-modal');
 
   wireEvents({ quickViewModal });

@@ -1,7 +1,15 @@
 // server/routes/products.js
 //
 // Public, read-only catalog endpoints. Anyone can browse; nothing
-// here touches money, so it's safe to leave unauthenticated.
+// here touches money — Hibretfamily is an affiliate storefront with
+// no inventory or price of its own.
+//
+// Deliberately NOT selected: affiliate_url. The real external link
+// only ever gets read server-side, inside routes/track.js, right
+// before it logs the click and redirects — so a click can't reach the
+// external store without first being counted for commission
+// reconciliation, and the raw links aren't sitting in a public API
+// response for anyone to scrape and reuse untracked.
 
 const express = require('express');
 const { supabase } = require('../config/supabase');
@@ -28,8 +36,7 @@ router.get('/', async (req, res) => {
 
   let query = supabase
     .from('products')
-    .select('id, name, description, category, audience, price_cents, currency, stock, image_url')
-    .eq('is_active', true)
+    .select('id, name, category, audience, image_url')
     .order('created_at', { ascending: false })
     .range(Number(offset), Number(offset) + Number(limit) - 1);
 
@@ -56,9 +63,8 @@ router.get('/:id', async (req, res) => {
 
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, description, category, audience, price_cents, currency, stock, image_url')
+    .select('id, name, category, audience, image_url')
     .eq('id', id)
-    .eq('is_active', true)
     .single();
 
   if (error || !data) {

@@ -2,7 +2,10 @@
 //
 // Single source of truth for non-secret, front-end-only configuration.
 // Nothing in this file is sensitive — it only ever talks to our own
-// backend's public API, never to Supabase or Stripe directly.
+// backend's public API, never to Supabase directly. Hibretfamily is
+// an affiliate storefront: it holds no inventory, so nothing here
+// carries a price or stock count — every product is a curated link
+// out to the store that actually sells it.
 
 export const SITE = {
   name: 'Hibretfamily',
@@ -88,6 +91,7 @@ export const I18N = {
     banner_eyebrow: 'Limited-Time Offer',
     banner_heading: 'Season Sale — Up to 30% Off',
     banner_subcopy: "Fresh season markdowns across Women's, Men's and Kids' fashion, plus Cosmetics, Books and Electronics — for a limited time only.",
+    shop_now: 'Shop Now',
   },
   ti: {
     nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ዕዳጋ',
@@ -112,6 +116,7 @@ export const I18N = {
     banner_eyebrow: 'ፍሉይ ቅናሽ',
     banner_heading: 'ናይ ወቕቲ ቅናሽ — ክሳብ 30%',
     banner_subcopy: 'ሓድሽ ናይ ወቕቲ ቅናሽ ኣብ ክዳውንቲ ደቂ ኣንስትዮ፡ ደቂ ተባዕትዮን ቆልዑን፡ ከምኡውን ኣብ ኮስመቲክስ፡ መጻሕፍትን ኤሌክትሮኒክስን — ንውሱን ግዜ ጥራይ።',
+    shop_now: 'ሕጂ ዓድግ',
   },
 };
 
@@ -140,21 +145,21 @@ export const STORE_LOCATIONS = [
 
 export const TESTIMONIALS = [
   {
-    quote: 'The only store where I can grab school shoes for the kids, a book for myself and a new blender — all in one trip.',
+    quote: 'I stopped opening five different apps to compare deals — Hibretfamily already points me to the right one, for the kids’ shoes, a book, or a new blender.',
     author: 'Selam T.',
-    role: 'Verified customer',
+    role: 'Verified shopper',
     rating: 5,
   },
   {
-    quote: 'Ordered online in the evening, picked it up at the Harnet Avenue store the next morning. Genuinely convenient.',
+    quote: 'I click "Shop Now" and I’m straight on the retailer’s page, ready to check out. No extra accounts, no middleman slowing things down.',
     author: 'Dawit M.',
-    role: 'Verified customer',
+    role: 'Verified shopper',
     rating: 5,
   },
   {
-    quote: 'Their cosmetics section is surprisingly well curated, and checkout is fast and secure.',
+    quote: 'Their cosmetics picks are surprisingly well curated, and every link takes me somewhere I already trust.',
     author: 'Rahel A.',
-    role: 'Verified customer',
+    role: 'Verified shopper',
     rating: 4,
   },
 ];
@@ -162,51 +167,54 @@ export const TESTIMONIALS = [
 // ---------------------------------------------------------------------
 // Demo catalog — used ONLY when the backend can't be reached, so the
 // storefront still looks and works fully when previewed on its own
-// (e.g. opened as a static site before the backend is deployed).
-// Shape matches exactly what GET /api/products returns.
+// (e.g. opened as a static site before the backend is deployed). Shape
+// matches what GET /api/products returns, PLUS an `affiliate_url` the
+// real API deliberately never sends (see server/routes/products.js) —
+// demo mode has no backend to proxy the click through, so it links
+// straight out. Each `affiliate_url` here is a real, working Amazon
+// *search* link (not a fabricated product page); wire up real
+// product-specific affiliate links, including your own Associates
+// tag, once you're editing actual catalog rows in Supabase.
 // ---------------------------------------------------------------------
 export const DEMO_PRODUCTS = [
-  p('Tailored Wool Blazer', 'apparel', 'women', 8900, 'Warm-tone tailored blazer, fully lined.'),
-  p('Classic Oxford Shirt', 'apparel', 'men', 3200, 'Crisp cotton oxford, regular fit.'),
-  p('Kids Rainbow Hoodie', 'apparel', 'kids', 1800, 'Soft fleece hoodie with front pocket.'),
-  p('Everyday Linen Dress', 'apparel', 'women', 4200, 'Breathable linen blend, midi length.'),
-  p('Slim Chino Trousers', 'apparel', 'men', 2900, 'Stretch-cotton chino, tapered leg.'),
-  p('Kids Denim Overalls', 'apparel', 'kids', 2100, 'Durable denim, adjustable straps.'),
-  p('Cropped Puffer Jacket', 'apparel', 'women', 5600, 'Lightweight fill, water-resistant shell.'),
-  p('Merino Wool Sweater', 'apparel', 'men', 4700, 'Breathable merino, crew neck.'),
+  p('Tailored Wool Blazer', 'apparel', 'women'),
+  p('Classic Oxford Shirt', 'apparel', 'men'),
+  p('Kids Rainbow Hoodie', 'apparel', 'kids'),
+  p('Everyday Linen Dress', 'apparel', 'women'),
+  p('Slim Chino Trousers', 'apparel', 'men'),
+  p('Kids Denim Overalls', 'apparel', 'kids'),
+  p('Cropped Puffer Jacket', 'apparel', 'women'),
+  p('Merino Wool Sweater', 'apparel', 'men'),
 
-  p('Leather Ankle Boots', 'shoes', 'women', 6200, 'Genuine leather, block heel.'),
-  p('Classic Court Sneakers', 'shoes', 'men', 3900, 'Everyday low-top sneaker.'),
-  p('Kids Light-Up Trainers', 'shoes', 'kids', 2500, 'Cushioned sole, light-up heel.'),
-  p('Suede Chelsea Boots', 'shoes', 'unisex', 5400, 'Elastic side panel, pull tab.'),
+  p('Leather Ankle Boots', 'shoes', 'women'),
+  p('Classic Court Sneakers', 'shoes', 'men'),
+  p('Kids Light-Up Trainers', 'shoes', 'kids'),
+  p('Suede Chelsea Boots', 'shoes', 'unisex'),
 
-  p('Noise-Cancelling Headphones', 'electronics', 'unisex', 7900, 'Over-ear, 30-hour battery life.'),
-  p('Smart Fitness Watch', 'electronics', 'unisex', 6500, 'Heart-rate, sleep & activity tracking.'),
-  p('Portable Bluetooth Speaker', 'electronics', 'unisex', 3400, 'Water-resistant, 12-hour playback.'),
-  p('4-Slice Toaster', 'electronics', 'unisex', 2800, 'Wide slots, 6 browning settings.'),
+  p('Noise-Cancelling Headphones', 'electronics', 'unisex'),
+  p('Smart Fitness Watch', 'electronics', 'unisex'),
+  p('Portable Bluetooth Speaker', 'electronics', 'unisex'),
+  p('4-Slice Toaster', 'electronics', 'unisex'),
 
-  p('The Art of Everyday Cooking', 'books', 'unisex', 1500, 'Illustrated recipes for busy families.'),
-  p('Bedtime Tales for Little Ones', 'books', 'kids', 900, 'A collection of gentle bedtime stories.'),
-  p('Habits That Stick', 'books', 'unisex', 1200, 'Practical guide to lasting habits.'),
-  p('Atlas of the World', 'books', 'kids', 1700, 'Large-format illustrated atlas for young explorers.'),
+  p('The Art of Everyday Cooking', 'books', 'unisex'),
+  p('Bedtime Tales for Little Ones', 'books', 'kids'),
+  p('Habits That Stick', 'books', 'unisex'),
+  p('Atlas of the World', 'books', 'kids'),
 
-  p('Hydrating Face Serum', 'cosmetics', 'women', 2200, 'Vitamin C + hyaluronic acid blend.'),
-  p('Matte Lipstick Set', 'cosmetics', 'women', 1800, 'Set of 3 long-wear matte shades.'),
-  p('Men’s Grooming Kit', 'cosmetics', 'men', 2600, 'Beard oil, balm and travel comb.'),
-  p('Gentle Kids Shampoo', 'cosmetics', 'kids', 900, 'Tear-free formula, chamomile scent.'),
+  p('Hydrating Face Serum', 'cosmetics', 'women'),
+  p('Matte Lipstick Set', 'cosmetics', 'women'),
+  p('Men’s Grooming Kit', 'cosmetics', 'men'),
+  p('Gentle Kids Shampoo', 'cosmetics', 'kids'),
 ];
 
-function p(name, category, audience, price_cents, description) {
+function p(name, category, audience) {
   return {
     id: `demo-${slug(name)}`,
     name,
     category,
     audience,
-    price_cents,
-    currency: 'usd',
-    description,
-    stock: 12,
     image_url: null,
+    affiliate_url: `https://www.amazon.com/s?k=${encodeURIComponent(name)}`,
     demo: true,
   };
 }

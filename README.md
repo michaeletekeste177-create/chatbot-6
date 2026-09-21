@@ -1,8 +1,11 @@
 # Hibretfamily
 
-A full-stack storefront for **Hibretfamily** — a family department store
-selling the latest fashion for women, men and children, plus shoes,
-electronics, books and cosmetics, both online and in physical stores.
+**Hibretfamily is an affiliate storefront.** It holds no inventory and takes
+no payments — it's a curated catalog of fashion (women, men, kids), shoes,
+electronics, books and cosmetics that links out to the external stores
+(e.g. Amazon) that actually sell each item. Every "Shop Now / ሕጂ ዓድግ" click
+is logged for commission reconciliation, then redirected to that item's
+real store.
 
 ```
 public/            static frontend — no build step required
@@ -11,31 +14,34 @@ public/            static frontend — no build step required
 │   ├── theme.css       ← EVERY color/font/spacing value. Edit this to re-theme.
 │   └── style.css       component styles, reads theme.css tokens only
 └── js/
-    ├── config.js       site config, categories, store locations, demo data
-    ├── cart.js         cart state (localStorage)
+    ├── config.js       site config, categories, store locations, demo data, i18n
     ├── catalog.js       fetches products from the backend, with demo fallback
-    ├── ui.js            nav, drawers, modal, sliders, toasts (generic DOM helpers)
+    ├── i18n.js          English / Eritrean Tigrinya toggle
+    ├── ui.js            nav, modal, sliders, toasts (generic DOM helpers)
     └── main.js          wires everything together, renders the page
 
-server/             Node.js/Express backend — the secure payment layer
+server/             Node.js/Express backend — catalog + click tracking
 ├── config/supabase.js  Supabase client (service-role key, server-only)
 ├── routes/
-│   ├── products.js     GET /api/products, /api/products/:id
-│   └── checkout.js     POST /api/checkout/create-session, Stripe webhook
+│   ├── products.js     GET /api/products, /api/products/:id (no price/stock — see below)
+│   └── track.js         GET /api/track-click?productId=... — logs the click, then redirects
 └── server.js            app entry point
 
-supabase/schema.sql  products, orders, order_items, customers + Row Level Security
+supabase/schema.sql  products, click_events + Row Level Security
 scripts/verify-env.sh  checks Node/npm are installed
 ```
 
-## Why there's a backend at all (not just Supabase + Stripe from the browser)
+## Why there's a backend at all (not just a raw link on each card)
 
-The frontend **never** holds a Supabase service key or a Stripe secret key —
-it only calls our own `/api/*` routes. At checkout the browser sends product
-IDs and quantities; **prices are always re-read from Supabase on the
-server** before a Stripe Checkout Session is created, so a tampered
-client-side price can never reach Stripe. Order status is only ever flipped
-to "paid" by a signature-verified Stripe webhook, never by the browser.
+The frontend never links directly to a product's real affiliate URL — every
+"Shop Now" button points at our own `/api/track-click?productId=...` instead.
+`GET /api/products` deliberately never returns the raw affiliate link either.
+That link is only ever read server-side, inside `track.js`, which logs a row
+to `click_events` (product, timestamp, referrer, user agent) and *then*
+redirects (302) to the real store. That's what makes commission
+reconciliation possible, and it keeps the curated links from being trivially
+scraped out of the public API. It's a plain `<a href>` under the hood, so it
+still works with JavaScript disabled.
 
 ## Frontend — running it on its own
 
@@ -49,22 +55,27 @@ npx http-server public -p 8080
 
 If it can't reach the backend, it automatically shows a curated **demo
 catalog** (see `public/js/config.js` → `DEMO_PRODUCTS`) so the site always
-looks and works fully, with a small banner noting it's demo data. This is
-what lets you preview or deploy the frontend independently of the backend.
+looks and works fully, with a small banner noting it's demo data. Demo
+products link straight to an Amazon search for that product name (a real,
+working link, not a fabricated one) since there's no backend to proxy
+the click through in that mode — wire up real per-product affiliate links
+(with your own Associates tag) once you're editing actual catalog rows.
 
-## Backend — full setup (catalog + payments)
+## Backend — full setup (catalog + click tracking)
 
 1. **Check your environment**
    ```bash
    bash scripts/verify-env.sh
    ```
 2. **Create the Supabase schema** — paste `supabase/schema.sql` into the
-   Supabase SQL editor (or `supabase db push`).
+   Supabase SQL editor (or `supabase db push`). This creates `products`
+   (name, category, audience, image_url, affiliate_url) and `click_events`
+   (the outbound-click log) — no orders, no customers, no price/stock.
 3. **Configure and run the backend**
    ```bash
    cd server
    cp .env.example .env
-   # fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+   # fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
    npm install
    npm run dev
    ```
@@ -73,10 +84,10 @@ what lets you preview or deploy the frontend independently of the backend.
    set `window.HIBRETFAMILY_API_BASE` to your backend URL (defaults to
    `http://localhost:4000/api`), or edit `API_BASE` directly in
    `public/js/config.js`.
-5. **Stripe webhook (local dev)**
-   ```bash
-   stripe listen --forward-to localhost:4000/api/checkout/webhook
-   ```
+5. **Add products** — insert rows into `products` via the Supabase table
+   editor: `name`, `category` (apparel/shoes/electronics/books/cosmetics),
+   `audience` (women/men/kids/unisex), `image_url`, and `affiliate_url`
+   (your real, tagged affiliate link for that item).
 
 ## Re-theming after deployment
 
@@ -93,16 +104,16 @@ live deployment, without touching `style.css`, the JS, or the backend.
   CloudFront). Point it at `public/` as the publish directory.
 - **Backend**: any Node host (Render, Railway, Fly.io, a VM). Set the same
   environment variables as `server/.env.example`, plus `CLIENT_URL`
-  pointing at your deployed frontend origin (used for CORS and Stripe's
-  success/cancel redirect URLs).
-- **Database**: Supabase (hosted Postgres + auth + Row Level Security),
-  already modeled in `supabase/schema.sql`.
+  pointing at your deployed frontend origin (used for CORS).
+- **Database**: Supabase (hosted Postgres + Row Level Security), already
+  modeled in `supabase/schema.sql`.
 
 ## Roadmap / next steps
 
-- Wire real product photography and inventory into Supabase.
-- Add a lightweight authenticated admin view for managing products/orders
-  (the schema and RLS policies already separate customer vs. service-role
-  access to make this straightforward).
-- Add customer accounts (Supabase Auth) so `orders`/`customers` RLS
-  policies come into use.
+- Wire real product photography and real, tagged affiliate links into
+  Supabase in place of the demo catalog.
+- Build a small internal report (or reuse Supabase's table view) over
+  `click_events` for commission reconciliation against each affiliate
+  network's own reporting.
+- Add a lightweight authenticated admin view for managing `products` rows
+  without going through the Supabase dashboard directly.
