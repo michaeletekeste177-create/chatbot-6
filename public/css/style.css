@@ -767,6 +767,7 @@ img { max-width: 100%; display: block; }
   font-size: var(--fs-sm);
 }
 
+.newsletter-success[hidden] { display: none; }
 .newsletter-success {
   margin-top: var(--space-4);
   padding: 0.85rem var(--space-5);

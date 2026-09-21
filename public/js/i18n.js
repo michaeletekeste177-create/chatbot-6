@@ -1,14 +1,21 @@
 // public/js/i18n.js
 //
-// Minimal English/Tigrinya toggle for navigation and department labels.
-// Anything marked `data-i18n="key"` in the DOM gets its text swapped on
-// language change; anything rendered dynamically (department cards,
-// product category chips) should call `t(key)` itself and re-render on
-// the `languagechange` event.
+// Minimal English/Eritrean-Tigrinya toggle for navigation and
+// department labels. Anything marked `data-i18n="key"` in the DOM
+// gets its text swapped on language change; anything rendered
+// dynamically (department cards, product category chips) should call
+// `t(key)` itself and re-render on the `languagechange` event.
+//
+// Internally the language code stays the short 'ti' (matches
+// I18N/localStorage/data-lang everywhere), but the `<html lang>`
+// attribute we publish is the fuller BCP47 tag 'ti-ER' — Tigrinya as
+// used in Eritrea — so browsers, screen readers and search engines see
+// the country context explicitly.
 
 import { I18N } from './config.js';
 
 const STORAGE_KEY = 'hibretfamily_lang';
+const HTML_LANG_TAG = { en: 'en', ti: 'ti-ER' };
 let currentLang = safeGet() || 'en';
 
 function safeGet() {
@@ -45,7 +52,7 @@ export function setLang(lang) {
   if (!I18N[lang] || lang === currentLang) return;
   currentLang = lang;
   safeSet(lang);
-  document.documentElement.lang = lang === 'ti' ? 'ti' : 'en';
+  document.documentElement.lang = HTML_LANG_TAG[lang] || lang;
   applyTranslations();
   document.querySelectorAll('[data-lang]').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -55,7 +62,7 @@ export function setLang(lang) {
 }
 
 export function initLanguageToggle() {
-  document.documentElement.lang = currentLang === 'ti' ? 'ti' : 'en';
+  document.documentElement.lang = HTML_LANG_TAG[currentLang] || currentLang;
   applyTranslations();
   document.querySelectorAll('[data-lang]').forEach((btn) => {
     const isActive = btn.dataset.lang === currentLang;

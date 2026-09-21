@@ -48,11 +48,17 @@
   --dept-electronics-1:#16324a; --dept-electronics-2:#2e6b8c;
 
   /* ---------------- Typography ---------------- */
-  /* Noto Sans Ethiopic covers Tigrinya/Ge'ez glyphs; browsers fall
-     back to it automatically per-character, so English and Tigrinya
-     text can sit side by side without a separate stylesheet. */
-  --font-heading: 'Playfair Display', 'Noto Sans Ethiopic', 'Georgia', 'Times New Roman', serif;
-  --font-body: 'Inter', 'Noto Sans Ethiopic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* --font-geez holds Google Fonts' family name for Ge'ez-script glyphs
+     (the script Eritrean Tigrinya is written in — Hibretfamily's second
+     storefront language). "Noto Sans Ethiopic" is that font's fixed,
+     third-party registered name and must be requested verbatim for the
+     glyphs to load; it does not imply anything about which country this
+     site serves. Browsers fall back to it automatically per character,
+     so English and Tigrinya text can sit side by side with no separate
+     stylesheet. */
+  --font-geez: 'Noto Sans Ethiopic';
+  --font-heading: 'Playfair Display', var(--font-geez), 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter', var(--font-geez), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --fs-xs:   0.75rem;
   --fs-sm:   0.875rem;

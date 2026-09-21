@@ -8,7 +8,7 @@ export const SITE = {
   name: 'Hibretfamily',
   tagline: 'Fashion, tech and everyday essentials for the whole family',
   email: 'hello@hibretfamily.com',
-  phone: '+251 911 000 000',
+  phone: '+291 7 123 456',
   social: {
     instagram: '#',
     facebook: '#',
@@ -49,10 +49,20 @@ export const DEPARTMENTS = [
 ];
 
 // ---------------------------------------------------------------------
-// i18n — English + Tigrinya (ትግርኛ). Scoped to navigation, department
-// and filter labels per the storefront's bilingual requirement. Every
-// label a customer uses to browse departments has a Tigrinya mapping;
-// product data itself stays in whatever language the catalog is entered in.
+// i18n — English + Eritrean Tigrinya (ትግርኛ). Scoped to navigation,
+// department and filter labels per the storefront's bilingual
+// requirement. Every label a customer uses to browse departments has
+// a Tigrinya mapping; product data itself stays in whatever language
+// the catalog is entered in.
+//
+// Wording follows the standard Tigrinya spoken and written in Eritrea
+// (e.g. "ድኳን" for shop/store, "ዕዳጋ" for market — everyday Eritrean
+// usage — rather than Tigray-region conventions). This was drafted by
+// an AI assistant, not a certified native speaker: it's a solid
+// starting point, but a native Eritrean Tigrinya speaker should still
+// proofread these strings before they go live in production. All of
+// it lives in this one object, so a reviewer only has to edit the
+// `ti` block below.
 // ---------------------------------------------------------------------
 export const I18N = {
   en: {
@@ -75,17 +85,17 @@ export const I18N = {
     aud_women: 'Women', aud_men: 'Men', aud_kids: 'Kids', aud_unisex: 'Everyone',
   },
   ti: {
-    nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ንግዲ',
+    nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ዕዳጋ',
     nav_stores: 'ድኳናት', nav_about: 'ብዛዕባና', nav_stores_full: 'ድኳናትና',
     nav_about_full: 'ብዛዕባ ሂብረትፋሚሊ', nav_contact: 'ርኸቡና',
 
     dept_women: 'ደቂ ኣንስትዮ', dept_men: 'ደቂ ተባዕትዮ', dept_kids: 'ቆልዑ',
     dept_cosmetics: 'ኮስመቲክስ', dept_books: 'መጻሕፍቲ', dept_electronics: 'ኤሌክትሮኒክስ',
-    blurb_women: 'ቀሚሽን ጫማን ካልእን',
-    blurb_men: 'ሸሚዝ፣ ስረን ጫማን',
-    blurb_kids: 'ንቆልዑ ዝኸውን ውሁብ ክዳውንቲ',
-    blurb_cosmetics: 'መዋቢ ንብረትን ክንክን ቆርበትን',
-    blurb_books: 'ንዅሎም ዕድመታት ዝኸውን ዛንታታት',
+    blurb_women: 'ቀሚሽን ጫማን ንደቂ ኣንስትዮ',
+    blurb_men: 'ካምቻን ስረን ጫማን',
+    blurb_kids: 'ምችው ክዳውንትን ጫማን ንቆልዑ',
+    blurb_cosmetics: 'መሸለምያን ክንክን ቆርበትን',
+    blurb_books: 'ዛንታታት ንዅሎም ዕድመታት',
     blurb_electronics: 'ናይ ገዛ ኤሌክትሮኒክስ',
 
     pill_all: 'ኩሉ ክፍልታት', pill_everyone: 'ንኹሉ',
@@ -99,22 +109,22 @@ export const I18N = {
 // rendered as-is on the "Visit us" section and needs no backend.
 export const STORE_LOCATIONS = [
   {
-    name: 'Hibretfamily — Bole Flagship',
-    address: 'Bole Road, near Edna Mall, Addis Ababa',
+    name: 'Hibretfamily — Harnet Flagship',
+    address: 'Harnet Avenue, near Cinema Roma, Asmara',
     hours: 'Mon–Sat 9:00–20:00, Sun 10:00–18:00',
-    phone: '+251 911 000 001',
+    phone: '+291 7 123 457',
   },
   {
-    name: 'Hibretfamily — Piassa',
-    address: 'Churchill Ave, Piassa, Addis Ababa',
+    name: 'Hibretfamily — Sematat',
+    address: 'Sematat Avenue, Asmara',
     hours: 'Mon–Sat 9:00–19:00',
-    phone: '+251 911 000 002',
+    phone: '+291 7 123 458',
   },
   {
-    name: 'Hibretfamily — Mekelle',
-    address: 'Hawelti, Mekelle',
+    name: 'Hibretfamily — Massawa',
+    address: 'Taulud Island, Massawa',
     hours: 'Mon–Sat 9:00–19:00',
-    phone: '+251 911 000 003',
+    phone: '+291 7 123 459',
   },
 ];
 
@@ -126,7 +136,7 @@ export const TESTIMONIALS = [
     rating: 5,
   },
   {
-    quote: 'Ordered online in the evening, picked it up at the Bole store the next morning. Genuinely convenient.',
+    quote: 'Ordered online in the evening, picked it up at the Harnet Avenue store the next morning. Genuinely convenient.',
     author: 'Dawit M.',
     role: 'Verified customer',
     rating: 5,
