@@ -35,6 +35,66 @@ export const AUDIENCES = [
   { id: 'unisex', label: 'Everyone' },
 ];
 
+// The six homepage "shop by department" cards. Women/Men/Kids filter by
+// audience (spanning both apparel and shoes); the other three filter by
+// category directly. `labelKey`/`blurbKey` resolve through I18N below,
+// so switching language re-labels these cards without touching the data.
+export const DEPARTMENTS = [
+  { id: 'women',       category: '',            audience: 'women', icon: 'shirt',   labelKey: 'dept_women',       blurbKey: 'blurb_women' },
+  { id: 'men',         category: '',            audience: 'men',   icon: 'shirt',   labelKey: 'dept_men',         blurbKey: 'blurb_men' },
+  { id: 'kids',        category: '',            audience: 'kids',  icon: 'shirt',   labelKey: 'dept_kids',        blurbKey: 'blurb_kids' },
+  { id: 'cosmetics',   category: 'cosmetics',    audience: '',      icon: 'sparkle', labelKey: 'dept_cosmetics',   blurbKey: 'blurb_cosmetics' },
+  { id: 'books',       category: 'books',        audience: '',      icon: 'book',    labelKey: 'dept_books',       blurbKey: 'blurb_books' },
+  { id: 'electronics', category: 'electronics',  audience: '',      icon: 'device',  labelKey: 'dept_electronics', blurbKey: 'blurb_electronics' },
+];
+
+// ---------------------------------------------------------------------
+// i18n — English + Tigrinya (ትግርኛ). Scoped to navigation, department
+// and filter labels per the storefront's bilingual requirement. Every
+// label a customer uses to browse departments has a Tigrinya mapping;
+// product data itself stays in whatever language the catalog is entered in.
+// ---------------------------------------------------------------------
+export const I18N = {
+  en: {
+    nav_women: 'Women', nav_men: 'Men', nav_kids: 'Kids', nav_shop: 'Shop all',
+    nav_stores: 'Stores', nav_about: 'About', nav_stores_full: 'Our stores',
+    nav_about_full: 'About Hibretfamily', nav_contact: 'Contact',
+
+    dept_women: 'Women', dept_men: 'Men', dept_kids: 'Kids',
+    dept_cosmetics: 'Cosmetics', dept_books: 'Books', dept_electronics: 'Electronics',
+    blurb_women: 'Dresses, tailoring & shoes',
+    blurb_men: 'Shirts, trousers & shoes',
+    blurb_kids: 'Playful, durable everyday wear',
+    blurb_cosmetics: 'Skincare & beauty',
+    blurb_books: 'Stories for every age',
+    blurb_electronics: 'Audio, gadgets & home tech',
+
+    pill_all: 'All departments', pill_everyone: 'Everyone',
+    cat_apparel: 'Apparel', cat_shoes: 'Shoes', cat_electronics: 'Electronics',
+    cat_books: 'Books', cat_cosmetics: 'Cosmetics',
+    aud_women: 'Women', aud_men: 'Men', aud_kids: 'Kids', aud_unisex: 'Everyone',
+  },
+  ti: {
+    nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ንግዲ',
+    nav_stores: 'ድኳናት', nav_about: 'ብዛዕባና', nav_stores_full: 'ድኳናትና',
+    nav_about_full: 'ብዛዕባ ሂብረትፋሚሊ', nav_contact: 'ርኸቡና',
+
+    dept_women: 'ደቂ ኣንስትዮ', dept_men: 'ደቂ ተባዕትዮ', dept_kids: 'ቆልዑ',
+    dept_cosmetics: 'ኮስመቲክስ', dept_books: 'መጻሕፍቲ', dept_electronics: 'ኤሌክትሮኒክስ',
+    blurb_women: 'ቀሚሽን ጫማን ካልእን',
+    blurb_men: 'ሸሚዝ፣ ስረን ጫማን',
+    blurb_kids: 'ንቆልዑ ዝኸውን ውሁብ ክዳውንቲ',
+    blurb_cosmetics: 'መዋቢ ንብረትን ክንክን ቆርበትን',
+    blurb_books: 'ንዅሎም ዕድመታት ዝኸውን ዛንታታት',
+    blurb_electronics: 'ናይ ገዛ ኤሌክትሮኒክስ',
+
+    pill_all: 'ኩሉ ክፍልታት', pill_everyone: 'ንኹሉ',
+    cat_apparel: 'ክዳውንቲ', cat_shoes: 'ጫማ', cat_electronics: 'ኤሌክትሮኒክስ',
+    cat_books: 'መጻሕፍቲ', cat_cosmetics: 'ኮስመቲክስ',
+    aud_women: 'ደቂ ኣንስትዮ', aud_men: 'ደቂ ተባዕትዮ', aud_kids: 'ቆልዑ', aud_unisex: 'ንኹሉ',
+  },
+};
+
 // Offline / in-person store locations. Edit freely — this list is
 // rendered as-is on the "Visit us" section and needs no backend.
 export const STORE_LOCATIONS = [

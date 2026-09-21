@@ -5,9 +5,10 @@
 // knows about both the DOM structure of index.html and the shape of
 // product data.
 
-import { API_BASE, CATEGORIES, STORE_LOCATIONS, TESTIMONIALS } from './config.js';
+import { API_BASE, CATEGORIES, DEPARTMENTS, STORE_LOCATIONS, TESTIMONIALS } from './config.js';
 import { Cart, formatPrice } from './cart.js';
 import { fetchProducts, getProductById, isUsingDemoData } from './catalog.js';
+import { t, initLanguageToggle } from './i18n.js';
 import {
   initHeaderScroll,
   initMobileNav,
@@ -44,7 +45,7 @@ const el = {
 };
 
 // ---------------------------------------------------------------------
-// Rendering
+// Label helpers (translated where we have a mapping, raw fallback)
 // ---------------------------------------------------------------------
 
 function categoryIconSvg(category) {
@@ -53,7 +54,21 @@ function categoryIconSvg(category) {
   return `<svg class="icon" aria-hidden="true"><use href="#icon-${icon}"></use></svg>`;
 }
 
+function categoryLabel(category) {
+  return t(`cat_${category}`);
+}
+
+function audienceLabel(audience) {
+  if (!audience) return '';
+  return t(`aud_${audience}`);
+}
+
+// ---------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------
+
 function productCardHTML(product) {
+  const audienceTag = product.audience && product.audience !== 'unisex' ? audienceLabel(product.audience) : '';
   return `
     <article class="product-card" data-reveal>
       <button class="product-card__media" data-quick-view="${product.id}" aria-label="Quick view ${product.name}">
@@ -62,13 +77,14 @@ function productCardHTML(product) {
             ? `<img src="${product.image_url}" alt="${product.name}" loading="lazy" />`
             : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
         }
+        ${audienceTag ? `<span class="product-card__audience">${audienceTag}</span>` : ''}
         <span class="product-card__quickview">Quick view</span>
       </button>
       <div class="product-card__body">
-        <span class="product-card__category">${product.category}</span>
+        <span class="product-card__category">${categoryLabel(product.category)}</span>
         <h3 class="product-card__name">${product.name}</h3>
         <div class="product-card__row">
-          <span class="product-card__price">${formatPrice(product.price_cents, product.currency)}</span>
+          <span class="price-tag">${formatPrice(product.price_cents, product.currency)}</span>
           <button class="btn btn--icon btn--add" data-add-to-cart="${product.id}" aria-label="Add ${product.name} to cart">
             <svg class="icon" aria-hidden="true"><use href="#icon-cart"></use></svg>
           </button>
@@ -106,12 +122,15 @@ async function renderGrid() {
 function renderCategoryTiles() {
   const container = document.getElementById('category-tiles');
   if (!container) return;
-  container.innerHTML = CATEGORIES.map(
-    (c) => `
-    <a class="category-tile" href="#shop" data-filter-category="${c.id}" data-reveal>
-      <span class="category-tile__icon">${categoryIconSvg(c.id)}</span>
-      <span class="category-tile__label">${c.label}</span>
-      <span class="category-tile__blurb">${c.blurb}</span>
+  container.innerHTML = DEPARTMENTS.map(
+    (d) => `
+    <a class="category-tile category-tile--${d.id}" href="#shop" data-category="${d.category}" data-audience="${d.audience}" data-reveal>
+      <span class="category-tile__icon">${categoryIconSvg(d.category || 'apparel')}</span>
+      <span class="category-tile__text">
+        <span class="category-tile__label">${t(d.labelKey)}</span>
+        <span class="category-tile__blurb">${t(d.blurbKey)}</span>
+      </span>
+      <span class="category-tile__cta">Shop now <svg class="icon icon--sm"><use href="#icon-arrow-right"></use></svg></span>
     </a>
   `
   ).join('');
@@ -132,15 +151,31 @@ function renderStoreLocations() {
   ).join('');
 }
 
+function initials(name) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
 function renderTestimonials() {
   const track = document.querySelector('.testimonial-track');
   if (!track) return;
   track.innerHTML = TESTIMONIALS.map(
-    (t) => `
+    (tm) => `
     <div class="testimonial-card">
-      <div class="testimonial-card__stars" aria-hidden="true">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
-      <p class="testimonial-card__quote">“${t.quote}”</p>
-      <p class="testimonial-card__author">${t.author} <span>${t.role}</span></p>
+      <span class="testimonial-card__quotemark" aria-hidden="true">“</span>
+      <div class="testimonial-card__stars" aria-hidden="true">
+        ${Array.from({ length: 5 }, (_, i) => `<svg class="icon icon--sm ${i < tm.rating ? 'is-filled' : 'is-empty'}"><use href="#icon-star"></use></svg>`).join('')}
+      </div>
+      <p class="testimonial-card__quote">${tm.quote}</p>
+      <div class="testimonial-card__byline">
+        <span class="testimonial-card__avatar">${initials(tm.author)}</span>
+        <p class="testimonial-card__author">${tm.author} <span>${tm.role}</span></p>
+      </div>
     </div>
   `
   ).join('');
@@ -159,7 +194,7 @@ function renderCart() {
       <div class="cart-item">
         <div class="cart-item__info">
           <strong>${item.name}</strong>
-          <span class="cart-item__category">${item.category}</span>
+          <span class="cart-item__category">${categoryLabel(item.category)}</span>
         </div>
         <div class="cart-item__controls">
           <button class="qty-btn" data-qty="-1" data-id="${item.productId}" aria-label="Decrease quantity">−</button>
@@ -182,6 +217,7 @@ function renderCart() {
 
 function renderQuickView(product) {
   if (!el.quickView) return;
+  const audienceTag = audienceLabel(product.audience);
   el.quickView.innerHTML = `
     <div class="quick-view__media">
       ${
@@ -191,9 +227,9 @@ function renderQuickView(product) {
       }
     </div>
     <div class="quick-view__info">
-      <span class="product-card__category">${product.category}${product.audience ? ` · ${product.audience}` : ''}</span>
+      <span class="product-card__category">${categoryLabel(product.category)}${audienceTag && product.audience !== 'unisex' ? ` · ${audienceTag}` : ''}</span>
       <h2>${product.name}</h2>
-      <p class="quick-view__price">${formatPrice(product.price_cents, product.currency)}</p>
+      <p class="price-tag price-tag--lg">${formatPrice(product.price_cents, product.currency)}</p>
       <p class="quick-view__desc">${product.description || 'No description available yet.'}</p>
       <button class="btn btn--primary" data-add-to-cart="${product.id}" data-close-modal>Add to cart</button>
     </div>
@@ -213,6 +249,18 @@ async function addToCart(id) {
   if (!product) return;
   cart.add(product);
   showToast(`Added “${product.name}” to your cart`);
+}
+
+function animateAddButton(btn) {
+  const use = btn.querySelector('use');
+  if (!use) return;
+  const original = use.getAttribute('href');
+  btn.classList.add('btn--added');
+  use.setAttribute('href', '#icon-check');
+  setTimeout(() => {
+    btn.classList.remove('btn--added');
+    use.setAttribute('href', original);
+  }, 1100);
 }
 
 async function startCheckout() {
@@ -266,16 +314,37 @@ function handleSearch(query) {
   });
 }
 
+const NEWSLETTER_KEY = 'hibretfamily_newsletter_subscribers';
+
+function subscribeToNewsletter(email) {
+  let list = [];
+  try {
+    list = JSON.parse(localStorage.getItem(NEWSLETTER_KEY) || '[]');
+  } catch {
+    list = [];
+  }
+  const alreadySubscribed = list.includes(email);
+  if (!alreadySubscribed) {
+    list.push(email);
+    try {
+      localStorage.setItem(NEWSLETTER_KEY, JSON.stringify(list));
+    } catch {
+      // ignore — subscription still "succeeds" for this session
+    }
+  }
+  return { alreadySubscribed };
+}
+
 // ---------------------------------------------------------------------
 // Event wiring
 // ---------------------------------------------------------------------
 
-function wireEvents({ cartDrawer, quickViewModal }) {
+function wireEvents({ quickViewModal }) {
   document.body.addEventListener('click', (e) => {
     const addBtn = e.target.closest('[data-add-to-cart]');
     if (addBtn) {
       addToCart(addBtn.dataset.addToCart);
-      renderCart();
+      if (addBtn.classList.contains('btn--icon')) animateAddButton(addBtn);
       return;
     }
 
@@ -289,10 +358,21 @@ function wireEvents({ cartDrawer, quickViewModal }) {
       return;
     }
 
+    const deptTile = e.target.closest('.category-tiles [data-category][data-audience]');
+    if (deptTile) {
+      e.preventDefault();
+      activeCategory = deptTile.dataset.category;
+      activeAudience = deptTile.dataset.audience;
+      syncPillState();
+      renderGrid();
+      return;
+    }
+
     const filterBtn = e.target.closest('[data-filter-category]');
     if (filterBtn) {
       e.preventDefault();
       activeCategory = filterBtn.dataset.filterCategory;
+      activeAudience = '';
       syncPillState();
       renderGrid();
       return;
@@ -340,8 +420,27 @@ function wireEvents({ cartDrawer, quickViewModal }) {
 
   el.newsletterForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    showToast('Thanks for subscribing! Watch your inbox for Hibretfamily updates.');
-    e.target.reset();
+    const input = e.target.querySelector('input[type="email"]');
+    const email = input?.value.trim();
+    if (!email) return;
+
+    const { alreadySubscribed } = subscribeToNewsletter(email);
+    const form = e.target;
+    const successEl = document.getElementById('newsletter-success');
+    form.hidden = true;
+    if (successEl) {
+      successEl.hidden = false;
+      successEl.textContent = alreadySubscribed
+        ? `${email} is already on the list — thanks for being a Hibretfamily regular!`
+        : `You're in! We'll send new arrivals and offers to ${email}.`;
+    }
+    showToast(alreadySubscribed ? 'Already subscribed' : 'Subscribed to Hibretfamily updates');
+  });
+
+  document.addEventListener('languagechange', () => {
+    renderCategoryTiles();
+    renderGrid();
+    renderCart();
   });
 }
 
@@ -361,6 +460,8 @@ function syncPillState() {
 function init() {
   if (el.yearEl) el.yearEl.textContent = String(new Date().getFullYear());
 
+  initLanguageToggle();
+
   renderCategoryTiles();
   renderStoreLocations();
   renderTestimonials();
@@ -374,10 +475,10 @@ function init() {
   initTestimonialSlider('testimonials');
   initBackToTop();
 
-  const cartDrawer = initDrawer({ toggleId: 'cart-toggle', drawerId: 'cart-drawer', closeId: 'cart-close' });
+  initDrawer({ toggleId: 'cart-toggle', drawerId: 'cart-drawer', closeId: 'cart-close' });
   const quickViewModal = initModal('quick-view-modal');
 
-  wireEvents({ cartDrawer, quickViewModal });
+  wireEvents({ quickViewModal });
 }
 
 document.addEventListener('DOMContentLoaded', init);

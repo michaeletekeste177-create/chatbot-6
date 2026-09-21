@@ -38,9 +38,21 @@
   --gradient-accent: linear-gradient(120deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
   --gradient-fade-surface: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--color-surface) 100%);
 
+  /* Department card accents — one gradient pair per homepage
+     department card (Women/Men/Kids/Cosmetics/Books/Electronics). */
+  --dept-women-1:      #7a3b53; --dept-women-2:      #c98a9c;
+  --dept-men-1:        #1c2f4a; --dept-men-2:        #3b5a82;
+  --dept-kids-1:       #c97a2e; --dept-kids-2:       #f0b35e;
+  --dept-cosmetics-1:  #b3555a; --dept-cosmetics-2:  #e8a5ab;
+  --dept-books-1:      #5c3d2e; --dept-books-2:      #a97b52;
+  --dept-electronics-1:#16324a; --dept-electronics-2:#2e6b8c;
+
   /* ---------------- Typography ---------------- */
-  --font-heading: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Noto Sans Ethiopic covers Tigrinya/Ge'ez glyphs; browsers fall
+     back to it automatically per-character, so English and Tigrinya
+     text can sit side by side without a separate stylesheet. */
+  --font-heading: 'Playfair Display', 'Noto Sans Ethiopic', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter', 'Noto Sans Ethiopic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --fs-xs:   0.75rem;
   --fs-sm:   0.875rem;
