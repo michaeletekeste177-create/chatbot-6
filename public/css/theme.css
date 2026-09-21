@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Hibretfamily — theme.css
+
+   EVERY color, font, spacing and shape value the storefront uses lives
+   here as a CSS custom property. To re-skin the site after it's live —
+   new season colors, a new logo font, tighter spacing — edit ONLY this
+   file. Nothing else needs to change, there is no build step, and
+   because it's plain CSS (not executable code) a designer or store
+   manager can safely edit it without any risk of introducing a
+   security issue. style.css never hardcodes a color, font or spacing
+   value; it only ever reads var(--...) from here.
+   ========================================================================== */
+
+:root {
+  /* ---------------- Brand palette ---------------- */
+  --color-ink:            #16231d;   /* primary text */
+  --color-ink-soft:       #5c6b62;   /* secondary text */
+  --color-bg:             #faf7f1;   /* page background, warm ivory */
+  --color-surface:        #ffffff;   /* cards, header, modals */
+  --color-surface-alt:    #f1ece2;   /* subtle section backgrounds */
+  --color-border:         #e6e0d3;
+
+  --color-primary:        #10402f;   /* deep evergreen — brand core */
+  --color-primary-dark:   #0a2c20;
+  --color-primary-light:  #1c5c44;
+  --color-accent:         #d68a3a;   /* warm amber — CTAs, highlights */
+  --color-accent-dark:    #b8721f;
+  --color-accent-soft:    #f4e3c8;
+
+  --color-rose:           #b3555a;   /* cosmetics / sale accents */
+  --color-info:           #2f6690;
+  --color-success:        #2f7a4f;
+  --color-danger:         #c0392b;
+  --color-star:           #e0a53a;
+
+  /* Gradients (hero, banners) */
+  --gradient-hero: linear-gradient(120deg, var(--color-primary-dark) 0%, var(--color-primary) 55%, #2c6b4e 100%);
+  --gradient-accent: linear-gradient(120deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
+  --gradient-fade-surface: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--color-surface) 100%);
+
+  /* ---------------- Typography ---------------- */
+  --font-heading: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --fs-xs:   0.75rem;
+  --fs-sm:   0.875rem;
+  --fs-base: 1rem;
+  --fs-md:   1.125rem;
+  --fs-lg:   1.375rem;
+  --fs-xl:   1.85rem;
+  --fs-2xl:  2.5rem;
+  --fs-3xl:  3.4rem;
+
+  --lh-tight: 1.15;
+  --lh-normal: 1.55;
+
+  /* ---------------- Spacing scale ---------------- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.5rem;
+  --space-6:  2rem;
+  --space-7:  3rem;
+  --space-8:  4.5rem;
+  --space-9:  6rem;
+
+  /* ---------------- Shape & elevation ---------------- */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 3px rgba(16, 32, 24, 0.08);
+  --shadow-md: 0 8px 24px rgba(16, 32, 24, 0.10);
+  --shadow-lg: 0 20px 48px rgba(16, 32, 24, 0.16);
+
+  /* ---------------- Layout ---------------- */
+  --max-width: 1280px;
+  --header-height: 76px;
+  --announcement-height: 40px;
+
+  /* ---------------- Motion ---------------- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 0.15s var(--ease);
+  --transition-base: 0.25s var(--ease);
+  --transition-slow: 0.5s var(--ease);
+}
+
+/* Optional dark mode: still driven entirely by tokens above being
+   re-pointed, so re-theming stays a pure CSS-variable exercise. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --color-ink:         #f2f0ea;
+    --color-ink-soft:    #b7c2ba;
+    --color-bg:          #10140f;
+    --color-surface:     #182019;
+    --color-surface-alt: #1e2620;
+    --color-border:      #2b332c;
+  }
+}

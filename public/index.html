@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hibretfamily — Fashion, Tech &amp; Family Essentials</title>
+  <meta name="description" content="Hibretfamily is a family department store — the latest fashion for women, men and children, shoes, electronics, books and cosmetics. Shop online or visit us in person." />
+  <meta name="theme-color" content="#10402f" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310402f'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Georgia,serif' fill='%23d68a3a' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ================= SVG ICON SPRITE ================= -->
+  <svg style="display:none">
+    <symbol id="icon-shirt" viewBox="0 0 24 24"><path d="M8 3l4 2 4-2 5 4-3 3-2-1v11H6V9l-2 1-3-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-shoe" viewBox="0 0 24 24"><path d="M3 17c0-2 1-3 3-4l4-2 3-3 2 1-1 2 3 1c3 1 5 2 6 4v1H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-device" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 20h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 4.5C6 3.5 9 3.5 12 5c3-1.5 6-1.5 8-.5v14c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 5v14" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="icon-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/><path d="M3 4h2l2.4 11.2a2 2 0 002 1.8h7.6a2 2 0 002-1.6L21 8H6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c1.5-4 5-5.5 7.5-5.5s6 1.5 7.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9.3-9C1 7.8 2.6 4.5 6 4.5c2 0 3.6 1.2 4.5 2.6 1-1.4 2.6-2.6 4.5-2.6 3.4 0 5 3.3 3.3 6.5C19 15.5 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="icon-map-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M6 3h3l1.5 4L8.5 9c1 2.5 3 4.5 5.5 5.5l2-2 4 1.5v3c0 1.1-.9 2-2 2C10.5 19 5 13.5 5 6c0-1.1.9-2 2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 6h11v9H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 10h4l3 3v2h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="18" cy="17.5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0113.6-5.7M20 12a8 8 0 01-13.6 5.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M17 4v4h-4M7 20v-4h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-store" viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 9v10h16V9M4 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <!-- ================= ANNOUNCEMENT BAR ================= -->
+  <div class="announcement-bar">
+    <p>Free pickup at any Hibretfamily store &nbsp;·&nbsp; Secure checkout &nbsp;·&nbsp; New arrivals every week</p>
+  </div>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header">
+    <div class="site-header__inner">
+      <button class="icon-btn nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <svg class="icon"><use href="#icon-menu"></use></svg>
+      </button>
+
+      <a href="#top" class="logo">Hibretfamily</a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#categories">Women</a>
+        <a href="#categories">Men</a>
+        <a href="#categories">Kids</a>
+        <a href="#shop">Shop all</a>
+        <a href="#stores">Stores</a>
+        <a href="#about">About</a>
+      </nav>
+
+      <div class="header-actions">
+        <form class="search-box" id="search-form" role="search">
+          <svg class="icon"><use href="#icon-search"></use></svg>
+          <input id="search-input" type="search" placeholder="Search products…" aria-label="Search products" autocomplete="off" />
+          <div class="search-results" id="search-results" hidden></div>
+        </form>
+
+        <a class="icon-btn" href="#" aria-label="Account">
+          <svg class="icon"><use href="#icon-user"></use></svg>
+        </a>
+
+        <button class="icon-btn cart-toggle" id="cart-toggle" aria-label="Open cart" aria-controls="cart-drawer">
+          <svg class="icon"><use href="#icon-cart"></use></svg>
+          <span class="badge cart-count">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MOBILE NAV ================= -->
+  <div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="mobile-nav__panel">
+      <div class="mobile-nav__header">
+        <span class="logo">Hibretfamily</span>
+        <button class="icon-btn" id="mobile-nav-close" aria-label="Close menu">
+          <svg class="icon"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+      <nav class="mobile-nav__links">
+        <a href="#categories">Women</a>
+        <a href="#categories">Men</a>
+        <a href="#categories">Kids</a>
+        <a href="#shop">Shop all</a>
+        <a href="#stores">Our stores</a>
+        <a href="#about">About Hibretfamily</a>
+        <a href="#newsletter">Contact</a>
+      </nav>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="top">
+      <div class="hero-slider" id="hero-slider">
+        <div class="hero-slide hero-slide--1 active">
+          <div class="hero-slide__content">
+            <p class="eyebrow">New season</p>
+            <h1>Style for every member of the family</h1>
+            <p class="hero-slide__copy">Apparel and shoes for women, men and kids — curated in one place, ready online or in-store.</p>
+            <div class="hero-cta">
+              <a class="btn btn--accent" href="#shop">Shop the collection</a>
+              <a class="btn btn--ghost-light" href="#stores">Find a store</a>
+            </div>
+          </div>
+        </div>
+        <div class="hero-slide hero-slide--2">
+          <div class="hero-slide__content">
+            <p class="eyebrow">Beyond fashion</p>
+            <h1>Electronics, books &amp; beauty essentials</h1>
+            <p class="hero-slide__copy">Everything the household needs, backed by the same secure checkout and easy returns.</p>
+            <div class="hero-cta">
+              <a class="btn btn--accent" href="#shop">Explore essentials</a>
+            </div>
+          </div>
+        </div>
+        <div class="hero-slide hero-slide--3">
+          <div class="hero-slide__content">
+            <p class="eyebrow">Online + in person</p>
+            <h1>Order online, pick up in store</h1>
+            <p class="hero-slide__copy">Three Hibretfamily locations ready for fitting, returns and friendly advice.</p>
+            <div class="hero-cta">
+              <a class="btn btn--accent" href="#stores">See our locations</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-dots">
+          <button class="hero-dot active" aria-label="Slide 1"></button>
+          <button class="hero-dot" aria-label="Slide 2"></button>
+          <button class="hero-dot" aria-label="Slide 3"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TRUST STRIP ================= -->
+    <section class="trust-strip">
+      <div class="trust-item" data-reveal>
+        <svg class="icon"><use href="#icon-truck"></use></svg>
+        <span>Fast delivery &amp; in-store pickup</span>
+      </div>
+      <div class="trust-item" data-reveal>
+        <svg class="icon"><use href="#icon-shield"></use></svg>
+        <span>Secure, PCI-compliant payments</span>
+      </div>
+      <div class="trust-item" data-reveal>
+        <svg class="icon"><use href="#icon-refresh"></use></svg>
+        <span>Easy 14-day returns</span>
+      </div>
+      <div class="trust-item" data-reveal>
+        <svg class="icon"><use href="#icon-store"></use></svg>
+        <span>3 stores across Ethiopia</span>
+      </div>
+    </section>
+
+    <!-- ================= CATEGORIES ================= -->
+    <section class="section" id="categories">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Shop by category</p>
+        <h2>Everything the family needs</h2>
+      </div>
+      <div class="category-tiles" id="category-tiles"></div>
+    </section>
+
+    <!-- ================= PROMO SPLIT ================= -->
+    <section class="promo-split">
+      <a href="#shop" class="promo-panel promo-panel--fashion" data-filter-category="apparel" data-reveal>
+        <span class="eyebrow">New arrivals</span>
+        <h3>Fashion for women, men &amp; kids</h3>
+        <span class="promo-panel__link">Shop apparel <svg class="icon icon--sm"><use href="#icon-arrow-right"></use></svg></span>
+      </a>
+      <a href="#shop" class="promo-panel promo-panel--tech" data-filter-category="electronics" data-reveal>
+        <span class="eyebrow">Everyday tech</span>
+        <h3>Electronics that make life easier</h3>
+        <span class="promo-panel__link">Shop electronics <svg class="icon icon--sm"><use href="#icon-arrow-right"></use></svg></span>
+      </a>
+    </section>
+
+    <!-- ================= SHOP / CATALOG ================= -->
+    <section class="section section--alt" id="shop">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Full catalog</p>
+        <h2>Shop everything</h2>
+        <p class="section__subtitle">Filter by department and audience — prices and stock always come straight from our live catalog.</p>
+      </div>
+
+      <p class="demo-banner" id="demo-banner" hidden>
+        You're viewing a demo catalog. Connect the Hibretfamily backend (see README) to show live products, stock and pricing.
+      </p>
+
+      <div class="filter-bar">
+        <div class="pill-group" id="category-pills">
+          <button class="pill active" data-category="">All departments</button>
+          <button class="pill" data-category="apparel">Apparel</button>
+          <button class="pill" data-category="shoes">Shoes</button>
+          <button class="pill" data-category="electronics">Electronics</button>
+          <button class="pill" data-category="books">Books</button>
+          <button class="pill" data-category="cosmetics">Cosmetics</button>
+        </div>
+        <div class="pill-group pill-group--ghost" id="audience-pills">
+          <button class="pill pill--ghost active" data-audience="">Everyone</button>
+          <button class="pill pill--ghost" data-audience="women">Women</button>
+          <button class="pill pill--ghost" data-audience="men">Men</button>
+          <button class="pill pill--ghost" data-audience="kids">Kids</button>
+        </div>
+      </div>
+
+      <p class="state-message" id="grid-state">Loading products…</p>
+      <div class="product-grid" id="product-grid" aria-live="polite" aria-busy="true"></div>
+    </section>
+
+    <!-- ================= STORES ================= -->
+    <section class="section" id="stores">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Online + offline</p>
+        <h2>Visit us in person</h2>
+        <p class="section__subtitle">Try things on, pick up online orders, or get styling advice from our team.</p>
+      </div>
+      <div class="store-list" id="store-list"></div>
+    </section>
+
+    <!-- ================= TESTIMONIALS ================= -->
+    <section class="section section--alt" id="testimonials">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Loved by families</p>
+        <h2>What our customers say</h2>
+      </div>
+      <div class="testimonial-carousel">
+        <button class="testimonial-nav testimonial-nav--prev" aria-label="Previous testimonial">‹</button>
+        <div class="testimonial-viewport">
+          <div class="testimonial-track"></div>
+        </div>
+        <button class="testimonial-nav testimonial-nav--next" aria-label="Next testimonial">›</button>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section class="section about" id="about">
+      <div class="about__content" data-reveal>
+        <p class="eyebrow">Our story</p>
+        <h2>One family store, five departments</h2>
+        <p>Hibretfamily ("hibret" — unity, in Amharic) started as a single neighborhood shop and grew into a full department store: fashion and shoes for every age, electronics for the home, books for curious minds, and cosmetics for everyday confidence. Whatever the errand, it's one trip — online or at any of our stores.</p>
+      </div>
+    </section>
+
+    <!-- ================= NEWSLETTER ================= -->
+    <section class="newsletter" id="newsletter">
+      <div class="newsletter__inner" data-reveal>
+        <h2>Get new arrivals &amp; offers first</h2>
+        <p>One email a week, no spam. Unsubscribe anytime.</p>
+        <form class="newsletter-form" id="newsletter-form">
+          <input type="email" required placeholder="you@example.com" aria-label="Email address" />
+          <button class="btn btn--accent" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="site-footer__grid">
+      <div class="footer-brand">
+        <span class="logo logo--light">Hibretfamily</span>
+        <p>Fashion, tech and everyday essentials for the whole family — online and in-store.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram">IG</a>
+          <a href="#" aria-label="Facebook">FB</a>
+          <a href="#" aria-label="TikTok">TT</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="#shop" data-filter-category="apparel">Apparel</a>
+        <a href="#shop" data-filter-category="shoes">Shoes</a>
+        <a href="#shop" data-filter-category="electronics">Electronics</a>
+        <a href="#shop" data-filter-category="books">Books</a>
+        <a href="#shop" data-filter-category="cosmetics">Cosmetics</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Customer service</h4>
+        <a href="#stores">Store locations</a>
+        <a href="#newsletter">Contact us</a>
+        <a href="#">Shipping &amp; returns</a>
+        <a href="#">Order tracking</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Get in touch</h4>
+        <p>hello@hibretfamily.com</p>
+        <p>+251 911 000 000</p>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© <span id="current-year"></span> Hibretfamily. All rights reserved.</p>
+      <p class="payment-icons" aria-label="Accepted payment methods">Visa · Mastercard · Stripe secure checkout</p>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+  <!-- ================= CART DRAWER ================= -->
+  <aside class="cart-drawer" id="cart-drawer" aria-hidden="true" aria-label="Shopping cart">
+    <div class="cart-drawer__header">
+      <h3>Your cart</h3>
+      <button class="icon-btn" id="cart-close" aria-label="Close cart">
+        <svg class="icon"><use href="#icon-close"></use></svg>
+      </button>
+    </div>
+    <div class="cart-drawer__items" id="cart-items"></div>
+    <div class="cart-drawer__footer">
+      <div class="cart-drawer__total">
+        <span>Total</span>
+        <strong id="cart-total">$0.00</strong>
+      </div>
+      <button class="btn btn--primary btn--block" id="checkout-button" disabled>Secure checkout</button>
+      <p class="state-message" id="checkout-state" hidden></p>
+    </div>
+  </aside>
+
+  <!-- ================= QUICK VIEW MODAL ================= -->
+  <div class="modal" id="quick-view-modal" aria-hidden="true">
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Product quick view">
+      <button class="icon-btn modal__close" data-close-modal aria-label="Close">
+        <svg class="icon"><use href="#icon-close"></use></svg>
+      </button>
+      <div class="quick-view" id="quick-view-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+// public/js/config.js
+//
+// Single source of truth for non-secret, front-end-only configuration.
+// Nothing in this file is sensitive — it only ever talks to our own
+// backend's public API, never to Supabase or Stripe directly.
+
+export const SITE = {
+  name: 'Hibretfamily',
+  tagline: 'Fashion, tech and everyday essentials for the whole family',
+  email: 'hello@hibretfamily.com',
+  phone: '+251 911 000 000',
+  social: {
+    instagram: '#',
+    facebook: '#',
+    tiktok: '#',
+  },
+};
+
+// Point this at your deployed backend. Falls back to localhost for
+// local development against `server/`.
+export const API_BASE = window.HIBRETFAMILY_API_BASE || 'http://localhost:4000/api';
+
+export const CATEGORIES = [
+  { id: 'apparel',     label: 'Apparel',     icon: 'shirt',   blurb: 'Everyday & occasion wear' },
+  { id: 'shoes',       label: 'Shoes',       icon: 'shoe',    blurb: 'Sneakers, heels & boots' },
+  { id: 'electronics', label: 'Electronics', icon: 'device',  blurb: 'Audio, gadgets & accessories' },
+  { id: 'books',       label: 'Books',       icon: 'book',    blurb: 'Stories for every age' },
+  { id: 'cosmetics',   label: 'Cosmetics',   icon: 'sparkle', blurb: 'Skincare & beauty' },
+];
+
+export const AUDIENCES = [
+  { id: 'women', label: 'Women' },
+  { id: 'men',   label: 'Men' },
+  { id: 'kids',  label: 'Kids' },
+  { id: 'unisex', label: 'Everyone' },
+];
+
+// Offline / in-person store locations. Edit freely — this list is
+// rendered as-is on the "Visit us" section and needs no backend.
+export const STORE_LOCATIONS = [
+  {
+    name: 'Hibretfamily — Bole Flagship',
+    address: 'Bole Road, near Edna Mall, Addis Ababa',
+    hours: 'Mon–Sat 9:00–20:00, Sun 10:00–18:00',
+    phone: '+251 911 000 001',
+  },
+  {
+    name: 'Hibretfamily — Piassa',
+    address: 'Churchill Ave, Piassa, Addis Ababa',
+    hours: 'Mon–Sat 9:00–19:00',
+    phone: '+251 911 000 002',
+  },
+  {
+    name: 'Hibretfamily — Mekelle',
+    address: 'Hawelti, Mekelle',
+    hours: 'Mon–Sat 9:00–19:00',
+    phone: '+251 911 000 003',
+  },
+];
+
+export const TESTIMONIALS = [
+  {
+    quote: 'The only store where I can grab school shoes for the kids, a book for myself and a new blender — all in one trip.',
+    author: 'Selam T.',
+    role: 'Verified customer',
+    rating: 5,
+  },
+  {
+    quote: 'Ordered online in the evening, picked it up at the Bole store the next morning. Genuinely convenient.',
+    author: 'Dawit M.',
+    role: 'Verified customer',
+    rating: 5,
+  },
+  {
+    quote: 'Their cosmetics section is surprisingly well curated, and checkout is fast and secure.',
+    author: 'Rahel A.',
+    role: 'Verified customer',
+    rating: 4,
+  },
+];
+
+// ---------------------------------------------------------------------
+// Demo catalog — used ONLY when the backend can't be reached, so the
+// storefront still looks and works fully when previewed on its own
+// (e.g. opened as a static site before the backend is deployed).
+// Shape matches exactly what GET /api/products returns.
+// ---------------------------------------------------------------------
+export const DEMO_PRODUCTS = [
+  p('Tailored Wool Blazer', 'apparel', 'women', 8900, 'Warm-tone tailored blazer, fully lined.'),
+  p('Classic Oxford Shirt', 'apparel', 'men', 3200, 'Crisp cotton oxford, regular fit.'),
+  p('Kids Rainbow Hoodie', 'apparel', 'kids', 1800, 'Soft fleece hoodie with front pocket.'),
+  p('Everyday Linen Dress', 'apparel', 'women', 4200, 'Breathable linen blend, midi length.'),
+  p('Slim Chino Trousers', 'apparel', 'men', 2900, 'Stretch-cotton chino, tapered leg.'),
+  p('Kids Denim Overalls', 'apparel', 'kids', 2100, 'Durable denim, adjustable straps.'),
+  p('Cropped Puffer Jacket', 'apparel', 'women', 5600, 'Lightweight fill, water-resistant shell.'),
+  p('Merino Wool Sweater', 'apparel', 'men', 4700, 'Breathable merino, crew neck.'),
+
+  p('Leather Ankle Boots', 'shoes', 'women', 6200, 'Genuine leather, block heel.'),
+  p('Classic Court Sneakers', 'shoes', 'men', 3900, 'Everyday low-top sneaker.'),
+  p('Kids Light-Up Trainers', 'shoes', 'kids', 2500, 'Cushioned sole, light-up heel.'),
+  p('Suede Chelsea Boots', 'shoes', 'unisex', 5400, 'Elastic side panel, pull tab.'),
+
+  p('Noise-Cancelling Headphones', 'electronics', 'unisex', 7900, 'Over-ear, 30-hour battery life.'),
+  p('Smart Fitness Watch', 'electronics', 'unisex', 6500, 'Heart-rate, sleep & activity tracking.'),
+  p('Portable Bluetooth Speaker', 'electronics', 'unisex', 3400, 'Water-resistant, 12-hour playback.'),
+  p('4-Slice Toaster', 'electronics', 'unisex', 2800, 'Wide slots, 6 browning settings.'),
+
+  p('The Art of Everyday Cooking', 'books', 'unisex', 1500, 'Illustrated recipes for busy families.'),
+  p('Bedtime Tales for Little Ones', 'books', 'kids', 900, 'A collection of gentle bedtime stories.'),
+  p('Habits That Stick', 'books', 'unisex', 1200, 'Practical guide to lasting habits.'),
+  p('Atlas of the World', 'books', 'kids', 1700, 'Large-format illustrated atlas for young explorers.'),
+
+  p('Hydrating Face Serum', 'cosmetics', 'women', 2200, 'Vitamin C + hyaluronic acid blend.'),
+  p('Matte Lipstick Set', 'cosmetics', 'women', 1800, 'Set of 3 long-wear matte shades.'),
+  p('Men’s Grooming Kit', 'cosmetics', 'men', 2600, 'Beard oil, balm and travel comb.'),
+  p('Gentle Kids Shampoo', 'cosmetics', 'kids', 900, 'Tear-free formula, chamomile scent.'),
+];
+
+function p(name, category, audience, price_cents, description) {
+  return {
+    id: `demo-${slug(name)}`,
+    name,
+    category,
+    audience,
+    price_cents,
+    currency: 'usd',
+    description,
+    stock: 12,
+    image_url: null,
+    demo: true,
+  };
+}
+
+function slug(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
