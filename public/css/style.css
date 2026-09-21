@@ -746,8 +746,15 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-lg);
   padding: var(--space-5);
 }
-.store-card h3 { font-size: var(--fs-md); }
+.store-card h3 { font-size: var(--fs-md); margin-bottom: var(--space-1); }
 .store-card p { display: flex; align-items: center; font-size: var(--fs-sm); margin-bottom: var(--space-2); }
+.store-card__honor {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-accent-dark);
+  margin-bottom: var(--space-3);
+}
+.store-card__gloss { color: var(--color-ink-soft); font-size: var(--fs-xs); margin-left: var(--space-1); }
 
 /* ---------------- Testimonials ---------------- */
 .testimonial-carousel { display: flex; align-items: center; gap: var(--space-4); }

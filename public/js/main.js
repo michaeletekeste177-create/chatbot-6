@@ -169,7 +169,8 @@ function renderStoreLocations() {
     (s) => `
     <div class="store-card" data-reveal>
       <h3>${s.name}</h3>
-      <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-map-pin"></use></svg>${s.address}</p>
+      ${s.honorTi ? `<p class="store-card__honor" lang="ti">${s.honorTi}</p>` : ''}
+      <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-map-pin"></use></svg>${s.address}${s.addressTi ? ` <span class="store-card__gloss" lang="ti">(${s.addressTi})</span>` : ''}</p>
       <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-clock"></use></svg>${s.hours}</p>
       <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-phone"></use></svg>${s.phone}</p>
     </div>

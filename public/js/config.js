@@ -122,22 +122,39 @@ export const I18N = {
 
 // Offline / in-person store locations. Edit freely — this list is
 // rendered as-is on the "Visit us" section and needs no backend.
+//
+// `addressTi` is the Tigrinya gloss of `address`, shown alongside it in
+// parentheses (see renderStoreLocations in main.js). Word order follows
+// Tigrinya's noun-then-name construct — "ጎደና ሓርነት" (Avenue [of] Harnet),
+// not the reversed "ሓርነት ጎደና" — the same pattern used for "ጎደና ሰማዕታት"
+// (Sematat Avenue) and "ደሴት ጣውሎት" (Taulud Island) below.
+//
+// `honorTi` is each city's honorific tagline: Asmara's is often
+// described as the country's foremost showcase of modernist
+// architecture and national identity; Massawa, the historic Red Sea
+// port, as its "pearl" and a hub of international transit traffic.
 export const STORE_LOCATIONS = [
   {
     name: 'Hibretfamily — Harnet Flagship',
     address: 'Harnet Avenue, near Cinema Roma, Asmara',
+    addressTi: 'ጎደና ሓርነት፣ ጥቓ ሲነማ ሮማ፣ ኣስመራ',
+    honorTi: 'ቀንዲ ማእከል ንድፊ ሃገራዊ መንነት',
     hours: 'Mon–Sat 9:00–20:00, Sun 10:00–18:00',
     phone: '+291 7 123 457',
   },
   {
     name: 'Hibretfamily — Sematat',
     address: 'Sematat Avenue, Asmara',
+    addressTi: 'ጎደና ሰማዕታት፣ ኣስመራ',
+    honorTi: 'ቀንዲ ማእከል ንድፊ ሃገራዊ መንነት',
     hours: 'Mon–Sat 9:00–19:00',
     phone: '+291 7 123 458',
   },
   {
     name: 'Hibretfamily — Massawa',
     address: 'Taulud Island, Massawa',
+    addressTi: 'ደሴት ጣውሎት፣ ምጽዋዕ',
+    honorTi: 'ናይ ቀይሕ ባሕሪ ዕንቁ - ማእከል ኣህጉራዊ መተሓላለፊ ትራፊክ',
     hours: 'Mon–Sat 9:00–19:00',
     phone: '+291 7 123 459',
   },
