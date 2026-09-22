@@ -2,14 +2,16 @@
 //
 // Single source of truth for non-secret, front-end-only configuration.
 // Nothing in this file is sensitive — it only ever talks to our own
-// backend's public API, never to Supabase directly. Hibretfamily is
-// an affiliate storefront: it holds no inventory, so nothing here
-// carries a price or stock count — every product is a curated link
-// out to the store that actually sells it.
+// backend's public API, never to Supabase or Stripe directly.
+//
+// Hibretfamily is a multi-vendor MARKETPLACE: independent sellers list
+// and price their own products; Hibretfamily takes a commission and
+// never holds a buyer's payment even briefly (see server/routes/checkout.js
+// for the Stripe Connect split that makes that true).
 
 export const SITE = {
   name: 'Hibretfamily',
-  tagline: 'Fashion, tech and everyday essentials for the whole family',
+  tagline: 'Eritrea’s marketplace, connecting local sellers to the world',
   email: 'hello@hibretfamily.com',
   phone: '+291 7 123 456',
   social: {
@@ -18,6 +20,45 @@ export const SITE = {
     tiktok: '#',
   },
 };
+
+// The landmarks Hibretfamily's brand and store honors are drawn from
+// (see STORE_LOCATIONS below and the "Our inspiration" note in
+// index.html's about section).
+export const INSPIRATION = ['Harnet Avenue (Asmara)', 'Massawa Port Heritage', 'Sematat Avenue'];
+
+// The two seller plans (business_model.tiers). `costLabelKey`/
+// `targetKey` resolve through I18N; the actual commission percentages
+// and subscription price live on the backend (server/routes/checkout.js,
+// server/routes/subscriptions.js) and in your Stripe Dashboard — both
+// are placeholders pending a real pricing decision.
+export const SELLER_TIERS = [
+  {
+    id: 'freemium',
+    nameKey: 'tier_freemium_name',
+    targetKey: 'tier_freemium_target',
+    priceKey: 'tier_freemium_price',
+  },
+  {
+    id: 'subscription',
+    nameKey: 'tier_subscription_name',
+    targetKey: 'tier_subscription_target',
+    priceKey: 'tier_subscription_price',
+  },
+];
+
+// Shown verbatim, in both languages at once (not toggled), on the
+// "Sell on Hibretfamily" registration form — sellers, not the
+// platform, are liable for what they list, and a registrant must
+// acknowledge this before server/routes/sellers.js will create their
+// account (see the required checkbox in the form).
+export const SELLER_LIABILITY_STATEMENT = {
+  ti: 'ዝዀነ ይኹን ትካል ይኹን ውልቀሰብ ዘየድልይ ንብረት እንተ ሰቒሉ ንዝመጽእ ክሳራ ባዕሉ ሙሉእ ብሙሉእ ተሓታቲ እዩ።',
+  en: 'Any business or individual is solely and fully liable for any damages caused by uploading unauthorized items.',
+};
+
+// The post-checkout welcome, shown together (not toggled) on
+// success.html — see digital_welcome in the platform identity spec.
+export const DIGITAL_WELCOME = { ti: 'የቐንየልና', en: 'Thank You' };
 
 // Point this at your deployed backend. Falls back to localhost for
 // local development against `server/`.
@@ -92,6 +133,20 @@ export const I18N = {
     banner_heading: 'Season Sale — Up to 30% Off',
     banner_subcopy: "Fresh season markdowns across Women's, Men's and Kids' fashion, plus Cosmetics, Books and Electronics — for a limited time only.",
     shop_now: 'Shop Now',
+    add_to_cart: 'Add to Cart',
+
+    nav_sell: 'Sell With Us',
+    seller_hero_eyebrow: 'Global Marketplace',
+    seller_hero_heading: 'Bring your business to the world',
+    seller_cta: 'Register as a Seller',
+    tier_freemium_name: 'Freemium',
+    tier_freemium_target: 'For new and small sellers',
+    tier_freemium_price: 'Free to join',
+    tier_subscription_name: 'Premium',
+    tier_subscription_target: 'For large merchants',
+    tier_subscription_price: 'Lower commission with a monthly plan',
+    liability_heading: 'Seller Responsibility',
+    liability_checkbox_label: 'I have read and agree to the seller liability terms.',
   },
   ti: {
     nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ዕዳጋ',
@@ -117,6 +172,20 @@ export const I18N = {
     banner_heading: 'ናይ ወቕቲ ቅናሽ — ክሳብ 30%',
     banner_subcopy: 'ሓድሽ ናይ ወቕቲ ቅናሽ ኣብ ክዳውንቲ ደቂ ኣንስትዮ፡ ደቂ ተባዕትዮን ቆልዑን፡ ከምኡውን ኣብ ኮስመቲክስ፡ መጻሕፍትን ኤሌክትሮኒክስን — ንውሱን ግዜ ጥራይ።',
     shop_now: 'ሕጂ ዓድግ',
+    add_to_cart: 'ግዛእ',
+
+    nav_sell: 'ንግድኹም ጀምሩ',
+    seller_hero_eyebrow: 'ዓለምለኸ ዕዳጋ',
+    seller_hero_heading: 'ንግድኹም ምስ ዓለም ኣተሓሕዙ',
+    seller_cta: 'ከም ሽያጣይ ተመዝገቡ',
+    tier_freemium_name: 'ብነጻ ደረጃ',
+    tier_freemium_target: 'ንሓደስቲን ንኣሽቱን ሸየጥቲ',
+    tier_freemium_price: 'ብነጻ ይጅመር',
+    tier_subscription_name: 'ፕሪምየም ደረጃ',
+    tier_subscription_target: 'ንዓበይቲ ነጋዶ',
+    tier_subscription_price: 'ብወርሓዊ ክፍሊት፡ ትሑት ኮሚሽን',
+    liability_heading: 'ሓላፍነት ሽያጣይ',
+    liability_checkbox_label: 'ነዚ ሓላፍነት ሽያጣይ ኣንቢበ ተሰማሚዐ ኣለኹ።',
   },
 };
 
@@ -162,76 +231,84 @@ export const STORE_LOCATIONS = [
 
 export const TESTIMONIALS = [
   {
-    quote: 'I stopped opening five different apps to compare deals — Hibretfamily already points me to the right one, for the kids’ shoes, a book, or a new blender.',
+    quote: 'I stopped opening five different apps to compare sellers — Hibretfamily already brings the kids’ shoes, a book, and a new blender together in one checkout.',
     author: 'Selam T.',
     role: 'Verified shopper',
     rating: 5,
   },
   {
-    quote: 'I click "Shop Now" and I’m straight on the retailer’s page, ready to check out. No extra accounts, no middleman slowing things down.',
+    quote: 'I sell handmade crafts from Asmara and get paid the same day, straight to my own account. Hibretfamily never touches my money — I can see exactly what their commission is.',
     author: 'Dawit M.',
-    role: 'Verified shopper',
+    role: 'Verified seller',
     rating: 5,
   },
   {
-    quote: 'Their cosmetics picks are surprisingly well curated, and every link takes me somewhere I already trust.',
+    quote: 'Their cosmetics sellers are surprisingly well curated, and checkout takes seconds.',
     author: 'Rahel A.',
     role: 'Verified shopper',
     rating: 4,
   },
 ];
 
+// Two demo sellers, so previewing the site (with no backend connected)
+// still demonstrates the marketplace's core rule: a cart can only hold
+// one seller's products at a time (see public/js/cart.js). Real
+// sellers come from the `sellers` table once the backend is connected.
+const DEMO_SELLERS = {
+  asmaraStyle: { id: 'demo-seller-asmara-style', name: 'Asmara Style Co.' },
+  redSeaTech: { id: 'demo-seller-red-sea-tech', name: 'Red Sea Tech & Books' },
+};
+
 // ---------------------------------------------------------------------
 // Demo catalog — used ONLY when the backend can't be reached, so the
 // storefront still looks and works fully when previewed on its own
 // (e.g. opened as a static site before the backend is deployed). Shape
-// matches what GET /api/products returns, PLUS an `affiliate_url` the
-// real API deliberately never sends (see server/routes/products.js) —
-// demo mode has no backend to proxy the click through, so it links
-// straight out. Each `affiliate_url` here is a real, working Amazon
-// *search* link (not a fabricated product page); wire up real
-// product-specific affiliate links, including your own Associates
-// tag, once you're editing actual catalog rows in Supabase.
+// matches what GET /api/products returns (price/stock included — this
+// is a real marketplace, not a price-less catalog).
 // ---------------------------------------------------------------------
 export const DEMO_PRODUCTS = [
-  p('Tailored Wool Blazer', 'apparel', 'women'),
-  p('Classic Oxford Shirt', 'apparel', 'men'),
-  p('Kids Rainbow Hoodie', 'apparel', 'kids'),
-  p('Everyday Linen Dress', 'apparel', 'women'),
-  p('Slim Chino Trousers', 'apparel', 'men'),
-  p('Kids Denim Overalls', 'apparel', 'kids'),
-  p('Cropped Puffer Jacket', 'apparel', 'women'),
-  p('Merino Wool Sweater', 'apparel', 'men'),
+  p('Tailored Wool Blazer', 'apparel', 'women', 8900, DEMO_SELLERS.asmaraStyle),
+  p('Classic Oxford Shirt', 'apparel', 'men', 3200, DEMO_SELLERS.asmaraStyle),
+  p('Kids Rainbow Hoodie', 'apparel', 'kids', 1800, DEMO_SELLERS.asmaraStyle),
+  p('Everyday Linen Dress', 'apparel', 'women', 4200, DEMO_SELLERS.asmaraStyle),
+  p('Slim Chino Trousers', 'apparel', 'men', 2900, DEMO_SELLERS.asmaraStyle),
+  p('Kids Denim Overalls', 'apparel', 'kids', 2100, DEMO_SELLERS.asmaraStyle),
+  p('Cropped Puffer Jacket', 'apparel', 'women', 5600, DEMO_SELLERS.asmaraStyle),
+  p('Merino Wool Sweater', 'apparel', 'men', 4700, DEMO_SELLERS.asmaraStyle),
 
-  p('Leather Ankle Boots', 'shoes', 'women'),
-  p('Classic Court Sneakers', 'shoes', 'men'),
-  p('Kids Light-Up Trainers', 'shoes', 'kids'),
-  p('Suede Chelsea Boots', 'shoes', 'unisex'),
+  p('Leather Ankle Boots', 'shoes', 'women', 6200, DEMO_SELLERS.asmaraStyle),
+  p('Classic Court Sneakers', 'shoes', 'men', 3900, DEMO_SELLERS.asmaraStyle),
+  p('Kids Light-Up Trainers', 'shoes', 'kids', 2500, DEMO_SELLERS.asmaraStyle),
+  p('Suede Chelsea Boots', 'shoes', 'unisex', 5400, DEMO_SELLERS.asmaraStyle),
 
-  p('Noise-Cancelling Headphones', 'electronics', 'unisex'),
-  p('Smart Fitness Watch', 'electronics', 'unisex'),
-  p('Portable Bluetooth Speaker', 'electronics', 'unisex'),
-  p('4-Slice Toaster', 'electronics', 'unisex'),
+  p('Noise-Cancelling Headphones', 'electronics', 'unisex', 7900, DEMO_SELLERS.redSeaTech),
+  p('Smart Fitness Watch', 'electronics', 'unisex', 6500, DEMO_SELLERS.redSeaTech),
+  p('Portable Bluetooth Speaker', 'electronics', 'unisex', 3400, DEMO_SELLERS.redSeaTech),
+  p('4-Slice Toaster', 'electronics', 'unisex', 2800, DEMO_SELLERS.redSeaTech),
 
-  p('The Art of Everyday Cooking', 'books', 'unisex'),
-  p('Bedtime Tales for Little Ones', 'books', 'kids'),
-  p('Habits That Stick', 'books', 'unisex'),
-  p('Atlas of the World', 'books', 'kids'),
+  p('The Art of Everyday Cooking', 'books', 'unisex', 1500, DEMO_SELLERS.redSeaTech),
+  p('Bedtime Tales for Little Ones', 'books', 'kids', 900, DEMO_SELLERS.redSeaTech),
+  p('Habits That Stick', 'books', 'unisex', 1200, DEMO_SELLERS.redSeaTech),
+  p('Atlas of the World', 'books', 'kids', 1700, DEMO_SELLERS.redSeaTech),
 
-  p('Hydrating Face Serum', 'cosmetics', 'women'),
-  p('Matte Lipstick Set', 'cosmetics', 'women'),
-  p('Men’s Grooming Kit', 'cosmetics', 'men'),
-  p('Gentle Kids Shampoo', 'cosmetics', 'kids'),
+  p('Hydrating Face Serum', 'cosmetics', 'women', 2200, DEMO_SELLERS.asmaraStyle),
+  p('Matte Lipstick Set', 'cosmetics', 'women', 1800, DEMO_SELLERS.asmaraStyle),
+  p('Men’s Grooming Kit', 'cosmetics', 'men', 2600, DEMO_SELLERS.asmaraStyle),
+  p('Gentle Kids Shampoo', 'cosmetics', 'kids', 900, DEMO_SELLERS.asmaraStyle),
 ];
 
-function p(name, category, audience) {
+function p(name, category, audience, price_cents, seller) {
   return {
     id: `demo-${slug(name)}`,
     name,
     category,
     audience,
+    price_cents,
+    currency: 'usd',
+    stock: 12,
     image_url: null,
-    affiliate_url: `https://www.amazon.com/s?k=${encodeURIComponent(name)}`,
+    seller_id: seller.id,
+    sellerName: seller.name,
     demo: true,
   };
 }

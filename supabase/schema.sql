@@ -1,12 +1,12 @@
 -- Hibretfamily — Supabase schema
 -- Run in the Supabase SQL editor, or via `supabase db push`
 --
--- Hibretfamily is an AFFILIATE storefront: it holds no inventory and
--- processes no payments. Every product row is a curated link to an
--- external store (e.g. Amazon); a purchase happens entirely on that
--- store's own site. This schema reflects that: no price/stock on
--- products, no orders/customers, just a lean catalog plus a click log
--- for commission reconciliation.
+-- Hibretfamily is a MULTI-VENDOR MARKETPLACE: independent sellers list
+-- and price their own products; Hibretfamily never holds their money.
+-- Every sale is a Stripe Connect "destination charge" — the buyer pays
+-- once, Stripe splits it instantly between the seller's own connected
+-- account (their payout) and Hibretfamily's account (its commission).
+-- No wallet, no holding period, no manual payout run.
 
 create extension if not exists "uuid-ossp";
 
@@ -39,67 +39,136 @@ begin
   end if;
 end$$;
 
+-- freemium: new/small sellers, no subscription fee, standard commission.
+-- subscription: larger merchants paying a recurring platform fee —
+-- server/routes/subscriptions.js gives them a reduced commission rate
+-- as the incentive (see PLATFORM_COMMISSION_PERCENT_PREMIUM in .env).
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'seller_tier') then
+    create type seller_tier as enum ('freemium', 'subscription');
+  end if;
+end$$;
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'order_status') then
+    create type order_status as enum ('pending', 'paid', 'refunded', 'disputed', 'cancelled');
+  end if;
+end$$;
+
 -- ---------------------------------------------------------------------
--- products — the curated catalog. No price, no stock: we don't sell
--- these directly, we link to whoever does. `affiliate_url` is the
--- external store/affiliate link and is intentionally NEVER exposed by
--- the public products API (see server/routes/products.js) — the
--- storefront only ever links to it indirectly through
--- /api/track-click, so every outbound click is logged before the
--- redirect happens.
+-- sellers — one row per merchant. `stripe_account_id` is their Stripe
+-- Connect Express account; `charges_enabled` flips to true via the
+-- account.updated webhook once they finish Stripe's own onboarding
+-- (identity, bank details) — Hibretfamily never collects or stores
+-- that itself. `agreed_to_liability_terms` must be true before
+-- server/routes/sellers.js will create the account at all: sellers,
+-- not the platform, are liable for what they list (see the bilingual
+-- disclaimer in public/index.html's "Sell on Hibretfamily" section).
+-- ---------------------------------------------------------------------
+create table if not exists public.sellers (
+  id                        uuid primary key default uuid_generate_v4(),
+  business_name             text not null,
+  email                     text not null unique,
+  tier                      seller_tier not null default 'freemium',
+  stripe_account_id         text unique,
+  charges_enabled           boolean not null default false,
+  stripe_subscription_id    text unique,
+  subscription_status       text,
+  agreed_to_liability_terms boolean not null default false,
+  created_at                timestamptz not null default now()
+);
+
+create index if not exists idx_sellers_stripe_account on public.sellers (stripe_account_id);
+
+-- ---------------------------------------------------------------------
+-- products — now owned by a seller, with a real price and stock count
+-- (this is a real marketplace, not a curated link list). Deactivating
+-- a listing (is_active = false) hides it without losing order history
+-- that references it.
 -- ---------------------------------------------------------------------
 create table if not exists public.products (
-  id             uuid primary key default uuid_generate_v4(),
-  name           text not null,
-  category       product_category not null,
-  audience       product_audience not null default 'unisex',
-  image_url      text,
-  affiliate_url  text not null,
-  created_at     timestamptz not null default now()
+  id           uuid primary key default uuid_generate_v4(),
+  seller_id    uuid not null references public.sellers(id) on delete cascade,
+  name         text not null,
+  category     product_category not null,
+  audience     product_audience not null default 'unisex',
+  price_cents  integer not null check (price_cents >= 0),
+  currency     text not null default 'usd',
+  stock        integer not null default 0 check (stock >= 0),
+  image_url    text,
+  is_active    boolean not null default true,
+  created_at   timestamptz not null default now()
 );
 
+create index if not exists idx_products_seller on public.products (seller_id);
 create index if not exists idx_products_category on public.products (category);
 create index if not exists idx_products_audience on public.products (audience);
+create index if not exists idx_products_active on public.products (is_active);
 
 -- ---------------------------------------------------------------------
--- click_events — one row per outbound click, written by
--- server/routes/track.js right before it redirects the shopper to
--- affiliate_url. This is the ledger a store owner reconciles against
--- the affiliate network's own commission reports; `affiliate_url` is
--- snapshotted here (not just looked up via product_id) so the record
--- stays meaningful even if a product's link is later edited or the
--- row is deleted.
+-- orders — one row per checkout. Deliberately single-seller: a
+-- Stripe destination charge has exactly one `transfer_data.destination`,
+-- so a cart can only ever hold one seller's products at a time (see
+-- public/js/cart.js) and checkout enforces the same server-side.
+-- `commission_cents` is what Hibretfamily's platform account keeps;
+-- `subtotal_cents - commission_cents` is what actually reaches the
+-- seller's own Stripe balance — Hibretfamily's account never holds it.
 -- ---------------------------------------------------------------------
-create table if not exists public.click_events (
-  id             uuid primary key default uuid_generate_v4(),
-  product_id     uuid references public.products(id) on delete set null,
-  affiliate_url  text not null,
-  referrer       text,
-  user_agent     text,
-  clicked_at     timestamptz not null default now()
+create table if not exists public.orders (
+  id                    uuid primary key default uuid_generate_v4(),
+  seller_id             uuid not null references public.sellers(id) on delete restrict,
+  buyer_email           text,
+  status                order_status not null default 'pending',
+  subtotal_cents        integer not null default 0,
+  commission_cents      integer not null default 0,
+  currency              text not null default 'usd',
+  stripe_checkout_session_id text unique,
+  stripe_payment_intent_id   text,
+  created_at            timestamptz not null default now()
 );
 
-create index if not exists idx_click_events_product on public.click_events (product_id);
-create index if not exists idx_click_events_clicked_at on public.click_events (clicked_at);
+create index if not exists idx_orders_seller on public.orders (seller_id);
+create index if not exists idx_orders_stripe_session on public.orders (stripe_checkout_session_id);
+create index if not exists idx_orders_stripe_intent on public.orders (stripe_payment_intent_id);
+
+-- ---------------------------------------------------------------------
+-- order_items — line items, price snapshotted at purchase time so a
+-- later price edit on the product never rewrites order history.
+-- ---------------------------------------------------------------------
+create table if not exists public.order_items (
+  id               uuid primary key default uuid_generate_v4(),
+  order_id         uuid not null references public.orders(id) on delete cascade,
+  product_id       uuid references public.products(id) on delete set null,
+  quantity         integer not null check (quantity > 0),
+  unit_price_cents integer not null check (unit_price_cents >= 0)
+);
+
+create index if not exists idx_order_items_order on public.order_items (order_id);
 
 -- ---------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------
-alter table public.products     enable row level security;
-alter table public.click_events enable row level security;
+alter table public.sellers     enable row level security;
+alter table public.products    enable row level security;
+alter table public.orders      enable row level security;
+alter table public.order_items enable row level security;
 
--- Products: publicly readable (storefront catalog). Writes only via
--- the service-role key from the backend (no policy = no anon writes).
-drop policy if exists "products are publicly readable" on public.products;
-create policy "products are publicly readable"
+-- Products: publicly readable when active (storefront catalog).
+-- Writes only via the service-role key from the backend.
+drop policy if exists "active products are publicly readable" on public.products;
+create policy "active products are publicly readable"
   on public.products for select
-  using (true);
+  using (is_active = true);
 
--- Click events hold commission-sensitive traffic data and are never
--- read by the storefront itself — intentionally NO select policy, so
--- only the service-role key (used from server/routes/track.js) can
--- read or write them. RLS with zero policies denies all anon access.
+-- Sellers, orders and order_items hold commission-sensitive and
+-- Stripe-account data and are never read by the storefront directly —
+-- intentionally NO select policy on any of them. The backend's product
+-- listing joins in just `sellers.business_name` server-side (using the
+-- service-role key, which bypasses RLS) rather than exposing the
+-- sellers table itself. RLS with zero policies denies all anon access.
 
--- Note: inserts/updates to products and click_events are done from
--- server.js using the SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS.
--- Never expose that key to the frontend.
+-- Note: all writes to sellers/products/orders/order_items happen from
+-- server.js using SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS. Never
+-- expose that key to the frontend.

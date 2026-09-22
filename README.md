@@ -1,47 +1,68 @@
 # Hibretfamily
 
-**Hibretfamily is an affiliate storefront.** It holds no inventory and takes
-no payments — it's a curated catalog of fashion (women, men, kids), shoes,
-electronics, books and cosmetics that links out to the external stores
-(e.g. Amazon) that actually sell each item. Every "Shop Now / ሕጂ ዓድግ" click
-is logged for commission reconciliation, then redirected to that item's
-real store.
+**Hibretfamily is a multi-vendor marketplace.** Independent sellers list and
+price their own products (fashion for women/men/kids, shoes, electronics,
+books, cosmetics); Hibretfamily takes a commission on each sale and never
+holds a buyer's payment even momentarily. Every checkout is a single Stripe
+Connect "destination charge" — the sale splits instantly between the
+seller's own connected Stripe account and Hibretfamily's platform account.
 
 ```
 public/            static frontend — no build step required
-├── index.html         all page markup
+├── index.html         storefront: catalog, cart, checkout
+├── sell.html           seller plans, liability terms, registration form
+├── success.html        post-checkout receipt ("የቐንየልና / Thank You")
 ├── css/
 │   ├── theme.css       ← EVERY color/font/spacing value. Edit this to re-theme.
 │   └── style.css       component styles, reads theme.css tokens only
 └── js/
-    ├── config.js       site config, categories, store locations, demo data, i18n
+    ├── config.js       site config, categories, store locations, seller tiers, demo data, i18n
+    ├── cart.js          cart state (localStorage) — single-seller-at-a-time
     ├── catalog.js       fetches products from the backend, with demo fallback
     ├── i18n.js          English / Eritrean Tigrinya toggle
-    ├── ui.js            nav, modal, sliders, toasts (generic DOM helpers)
-    └── main.js          wires everything together, renders the page
+    ├── ui.js            nav, drawers, modal, sliders, toasts (generic DOM helpers)
+    ├── main.js          storefront logic (index.html)
+    ├── sell.js           seller registration page logic (sell.html)
+    └── success.js        receipt page logic (success.html)
 
-server/             Node.js/Express backend — catalog + click tracking
+server/             Node.js/Express backend
 ├── config/supabase.js  Supabase client (service-role key, server-only)
 ├── routes/
-│   ├── products.js     GET /api/products, /api/products/:id (no price/stock — see below)
-│   └── track.js         GET /api/track-click?productId=... — logs the click, then redirects
+│   ├── products.js     GET /api/products — catalog, joined with seller name
+│   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
+│   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
+│   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
+│   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
+│   └── orders.js         GET /api/orders/:id/receipt, POST /api/orders/:id/refund
 └── server.js            app entry point
 
-supabase/schema.sql  products, click_events + Row Level Security
+supabase/schema.sql  sellers, products, orders, order_items + Row Level Security
 scripts/verify-env.sh  checks Node/npm are installed
+marketing/           non-code assets (promotional video script, etc.)
 ```
 
-## Why there's a backend at all (not just a raw link on each card)
+## How the split payment actually works
 
-The frontend never links directly to a product's real affiliate URL — every
-"Shop Now" button points at our own `/api/track-click?productId=...` instead.
-`GET /api/products` deliberately never returns the raw affiliate link either.
-That link is only ever read server-side, inside `track.js`, which logs a row
-to `click_events` (product, timestamp, referrer, user agent) and *then*
-redirects (302) to the real store. That's what makes commission
-reconciliation possible, and it keeps the curated links from being trivially
-scraped out of the public API. It's a plain `<a href>` under the hood, so it
-still works with JavaScript disabled.
+A sale is a single Stripe Checkout Session created with:
+
+```js
+payment_intent_data: {
+  application_fee_amount: commissionCents,       // Hibretfamily's cut
+  transfer_data: { destination: seller.stripe_account_id }, // the rest, straight to the seller
+}
+```
+
+Stripe splits the charge the instant it settles — Hibretfamily's own account
+never holds the buyer's money, so there's no wallet, no holding period, and
+no manual payout run. Because a Stripe destination charge has exactly one
+payout destination, **a cart can only ever hold one seller's products at a
+time** (`public/js/cart.js` enforces this client-side; `routes/checkout.js`
+re-checks it server-side, since the client can't be trusted).
+
+Commission rates (`PLATFORM_COMMISSION_PERCENT`, lower for the
+`subscription` tier) and the premium plan's price (`STRIPE_PREMIUM_PRICE_ID`)
+are **placeholders** in `.env.example` — set real values from your actual
+business terms before launch.
 
 ## Frontend — running it on its own
 
@@ -53,41 +74,61 @@ npx http-server public -p 8080
 # open http://localhost:8080
 ```
 
-If it can't reach the backend, it automatically shows a curated **demo
-catalog** (see `public/js/config.js` → `DEMO_PRODUCTS`) so the site always
-looks and works fully, with a small banner noting it's demo data. Demo
-products link straight to an Amazon search for that product name (a real,
-working link, not a fabricated one) since there's no backend to proxy
-the click through in that mode — wire up real per-product affiliate links
-(with your own Associates tag) once you're editing actual catalog rows.
+If it can't reach the backend, `index.html` automatically shows a curated
+**demo catalog** with two sample sellers (see `public/js/config.js` →
+`DEMO_PRODUCTS`), so the site's cart, seller-switch guard, and quick-view all
+work fully offline, with a banner noting it's demo data. `sell.html` and
+`success.html` show a friendly inline message instead of crashing when the
+backend isn't reachable.
 
-## Backend — full setup (catalog + click tracking)
+## Backend — full setup
+
+This needs a Stripe account with **Connect enabled**.
 
 1. **Check your environment**
    ```bash
    bash scripts/verify-env.sh
    ```
 2. **Create the Supabase schema** — paste `supabase/schema.sql` into the
-   Supabase SQL editor (or `supabase db push`). This creates `products`
-   (name, category, audience, image_url, affiliate_url) and `click_events`
-   (the outbound-click log) — no orders, no customers, no price/stock.
+   Supabase SQL editor (or `supabase db push`). This creates `sellers`,
+   `products` (owned by a seller, with real price/stock), `orders` and
+   `order_items`.
 3. **Configure and run the backend**
    ```bash
    cd server
    cp .env.example .env
-   # fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+   # fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY,
+   # STRIPE_WEBHOOK_SECRET, STRIPE_PREMIUM_PRICE_ID
    npm install
    npm run dev
    ```
    Backend runs at `http://localhost:4000`.
-4. **Point the frontend at it** — before `</body>` in `public/index.html`,
-   set `window.HIBRETFAMILY_API_BASE` to your backend URL (defaults to
-   `http://localhost:4000/api`), or edit `API_BASE` directly in
-   `public/js/config.js`.
-5. **Add products** — insert rows into `products` via the Supabase table
-   editor: `name`, `category` (apparel/shoes/electronics/books/cosmetics),
-   `audience` (women/men/kids/unisex), `image_url`, and `affiliate_url`
-   (your real, tagged affiliate link for that item).
+4. **Point the frontend at it** — set `window.HIBRETFAMILY_API_BASE` before
+   `</body>` in `index.html`/`sell.html`/`success.html`, or edit `API_BASE`
+   directly in `public/js/config.js`.
+5. **Stripe webhook (local dev)**
+   ```bash
+   stripe listen --forward-to localhost:4000/api/webhooks/stripe
+   ```
+6. **Onboard a seller** — go to `/sell.html`, register (this creates a
+   Stripe Express account and a real onboarding link), and complete Stripe's
+   own onboarding flow. `sellers.charges_enabled` flips to true via the
+   `account.updated` webhook once that's done — only then can that seller's
+   products be checked out.
+
+## What's intentionally NOT built yet
+
+- **Seller product management UI.** Sellers register via `sell.html`, but
+  there's no dashboard yet for them to add/edit their own product listings —
+  that has to go through the Supabase table editor for now.
+- **Admin authentication.** `POST /api/orders/:id/refund` has zero auth on
+  it (see the warning in `server/routes/orders.js`) — it's written correctly
+  (refunds come out of the seller's own balance, Hibretfamily's commission
+  is untouched) but must not be exposed publicly until it sits behind real
+  admin auth.
+- **Buyer accounts.** Checkout only asks for an email; there's no login, so
+  a buyer's order history lives only in their Stripe receipt email and the
+  unguessable order-confirmation URL.
 
 ## Re-theming after deployment
 
@@ -104,16 +145,18 @@ live deployment, without touching `style.css`, the JS, or the backend.
   CloudFront). Point it at `public/` as the publish directory.
 - **Backend**: any Node host (Render, Railway, Fly.io, a VM). Set the same
   environment variables as `server/.env.example`, plus `CLIENT_URL`
-  pointing at your deployed frontend origin (used for CORS).
+  pointing at your deployed frontend origin (used for CORS and Stripe
+  redirect URLs).
 - **Database**: Supabase (hosted Postgres + Row Level Security), already
   modeled in `supabase/schema.sql`.
+- **Stripe**: enable Connect on your Stripe account, register a real
+  webhook endpoint pointing at `/api/webhooks/stripe`, and create the
+  premium subscription product/price for `STRIPE_PREMIUM_PRICE_ID`.
 
 ## Roadmap / next steps
 
-- Wire real product photography and real, tagged affiliate links into
-  Supabase in place of the demo catalog.
-- Build a small internal report (or reuse Supabase's table view) over
-  `click_events` for commission reconciliation against each affiliate
-  network's own reporting.
-- Add a lightweight authenticated admin view for managing `products` rows
-  without going through the Supabase dashboard directly.
+- Build a seller dashboard for managing their own `products` rows.
+- Put real admin authentication in front of the refund route.
+- Wire up buyer accounts if order history needs to live anywhere besides
+  Stripe's own receipt emails.
+- Produce the promotional video from `marketing/promotional-video-script.md`.

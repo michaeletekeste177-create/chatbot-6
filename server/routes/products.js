@@ -1,15 +1,10 @@
 // server/routes/products.js
 //
-// Public, read-only catalog endpoints. Anyone can browse; nothing
-// here touches money — Hibretfamily is an affiliate storefront with
-// no inventory or price of its own.
-//
-// Deliberately NOT selected: affiliate_url. The real external link
-// only ever gets read server-side, inside routes/track.js, right
-// before it logs the click and redirects — so a click can't reach the
-// external store without first being counted for commission
-// reconciliation, and the raw links aren't sitting in a public API
-// response for anyone to scrape and reuse untracked.
+// Public, read-only catalog endpoints. Each product belongs to a
+// seller (see supabase/schema.sql); the `sellers` table itself is
+// never exposed publicly (it holds Stripe account IDs), so this route
+// joins in just `business_name` server-side, using the service-role
+// key, and flattens it onto each product as `sellerName`.
 
 const express = require('express');
 const { supabase } = require('../config/supabase');
@@ -18,6 +13,13 @@ const router = express.Router();
 
 const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics'];
 const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
+const PRODUCT_SELECT = 'id, seller_id, name, category, audience, price_cents, currency, stock, image_url, sellers(business_name)';
+
+function flatten(row) {
+  if (!row) return row;
+  const { sellers, ...rest } = row;
+  return { ...rest, sellerName: sellers?.business_name || null };
+}
 
 // GET /api/products?category=shoes&audience=women&limit=24&offset=0
 router.get('/', async (req, res) => {
@@ -36,7 +38,8 @@ router.get('/', async (req, res) => {
 
   let query = supabase
     .from('products')
-    .select('id, name, category, audience, image_url')
+    .select(PRODUCT_SELECT)
+    .eq('is_active', true)
     .order('created_at', { ascending: false })
     .range(Number(offset), Number(offset) + Number(limit) - 1);
 
@@ -54,7 +57,7 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ error: 'Could not load products.' });
   }
 
-  res.json({ products: data });
+  res.json({ products: data.map(flatten) });
 });
 
 // GET /api/products/:id
@@ -63,15 +66,16 @@ router.get('/:id', async (req, res) => {
 
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, category, audience, image_url')
+    .select(PRODUCT_SELECT)
     .eq('id', id)
+    .eq('is_active', true)
     .single();
 
   if (error || !data) {
     return res.status(404).json({ error: 'Product not found.' });
   }
 
-  res.json({ product: data });
+  res.json({ product: flatten(data) });
 });
 
 module.exports = router;
