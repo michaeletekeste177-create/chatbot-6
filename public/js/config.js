@@ -128,10 +128,10 @@ export const I18N = {
     cat_books: 'Books', cat_cosmetics: 'Cosmetics',
     aud_women: 'Women', aud_men: 'Men', aud_kids: 'Kids', aud_unisex: 'Everyone',
 
-    banner_badge: '30% OFF',
-    banner_eyebrow: 'Limited-Time Offer',
-    banner_heading: 'Season Sale — Up to 30% Off',
-    banner_subcopy: "Fresh season markdowns across Women's, Men's and Kids' fashion, plus Cosmetics, Books and Electronics — for a limited time only.",
+    banner_badge: 'New This Season',
+    banner_eyebrow: 'Discover More',
+    banner_heading: 'Fresh Finds Across Every Department',
+    banner_subcopy: "Independent sellers across Women's, Men's and Kids' fashion, plus Cosmetics, Books and Electronics — all in one marketplace, one checkout.",
     shop_now: 'Shop Now',
     add_to_cart: 'Add to Cart',
 
@@ -167,10 +167,10 @@ export const I18N = {
     cat_books: 'መጻሕፍቲ', cat_cosmetics: 'ኮስመቲክስ',
     aud_women: 'ደቂ ኣንስትዮ', aud_men: 'ደቂ ተባዕትዮ', aud_kids: 'ቆልዑ', aud_unisex: 'ንኹሉ',
 
-    banner_badge: 'ክሳብ 30% ቅናሽ',
-    banner_eyebrow: 'ፍሉይ ቅናሽ',
-    banner_heading: 'ናይ ወቕቲ ቅናሽ — ክሳብ 30%',
-    banner_subcopy: 'ሓድሽ ናይ ወቕቲ ቅናሽ ኣብ ክዳውንቲ ደቂ ኣንስትዮ፡ ደቂ ተባዕትዮን ቆልዑን፡ ከምኡውን ኣብ ኮስመቲክስ፡ መጻሕፍትን ኤሌክትሮኒክስን — ንውሱን ግዜ ጥራይ።',
+    banner_badge: 'ሓድሽ ወቕቲ',
+    banner_eyebrow: 'ብዙሕ ምረጻ ርኸቡ',
+    banner_heading: 'ሓደስቲ ፍርያት ኣብ ኩሉ ክፍልታት',
+    banner_subcopy: 'ካብ ክዳውንቲ ደቂ ኣንስትዮ፡ ደቂ ተባዕትዮን ቆልዑን፡ ክሳብ ኮስመቲክስ፡ መጻሕፍትን ኤሌክትሮኒክስን — ብሓደ ዕዳጋ፡ ብሓደ ክፍሊት።',
     shop_now: 'ሕጂ ዓድግ',
     add_to_cart: 'ግዛእ',
 

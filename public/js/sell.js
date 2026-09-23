@@ -60,8 +60,7 @@ async function handleRegisterSubmit(e) {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || 'Registration failed');
 
-    stateEl.textContent = 'Redirecting you to Stripe to finish setting up payouts…';
-    window.location.href = body.onboardingUrl;
+    showDashboardLink(body, stateEl, form, submitBtn);
   } catch (err) {
     console.error(err);
     stateEl.textContent =
@@ -70,6 +69,47 @@ async function handleRegisterSubmit(e) {
         : err.message || 'Something went wrong. Please try again.';
     submitBtn.disabled = false;
   }
+}
+
+// Shown right after registration, before the seller ever leaves for
+// Stripe: dashboard.html's URL (with the one-time access_token baked
+// in) is the seller's only way back to manage their products, and
+// there's no way to recover it once they navigate away — see the
+// access_token comment in supabase/schema.sql.
+function showDashboardLink(body, stateEl, form) {
+  const dashboardUrl = new URL(
+    `dashboard.html?sellerId=${encodeURIComponent(body.sellerId)}&token=${encodeURIComponent(body.accessToken)}`,
+    window.location.href
+  ).toString();
+
+  form.hidden = true;
+  stateEl.hidden = true;
+
+  const panel = document.createElement('div');
+  panel.className = 'liability-notice';
+  panel.id = 'dashboard-link-panel';
+  panel.innerHTML = `
+    <svg class="icon"><use href="#icon-shield"></use></svg>
+    <div>
+      <h3>Save your dashboard link now</h3>
+      <p>This is the only way back into your seller dashboard to add products — there is no password login yet. Bookmark or copy it before continuing to Stripe.</p>
+      <p style="word-break: break-all;"><strong>${dashboardUrl}</strong></p>
+      <div style="display:flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap;">
+        <button type="button" class="btn btn--ghost" id="copy-dashboard-link-sell">Copy link</button>
+        <a class="btn btn--accent" href="${body.onboardingUrl}">Continue to Stripe onboarding</a>
+      </div>
+    </div>
+  `;
+  form.parentElement.appendChild(panel);
+
+  panel.querySelector('#copy-dashboard-link-sell')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(dashboardUrl);
+      showToast('Link copied');
+    } catch {
+      showToast('Could not copy — select and copy the link manually.');
+    }
+  });
 }
 
 async function checkOnboardingStatusFromQuery() {

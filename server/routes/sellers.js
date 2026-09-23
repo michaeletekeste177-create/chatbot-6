@@ -87,6 +87,11 @@ router.post('/register', async (req, res) => {
 
   res.status(201).json({
     sellerId: seller.id,
+    // Shown to the seller exactly once, here — see the access_token
+    // comment in supabase/schema.sql. dashboard.html reads it from the
+    // URL; sell.js must show/save this link before sending them to
+    // Stripe, since there is no way to recover it afterwards.
+    accessToken: seller.access_token,
     onboardingUrl: accountLink.url,
   });
 });

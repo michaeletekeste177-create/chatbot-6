@@ -6,20 +6,40 @@
 // SELLER's own Stripe balance — the charge lives on their connected
 // account — and Hibretfamily's commission is never clawed back.
 //
-// ⚠️ SECURITY GAP, INTENTIONALLY LEFT OPEN FOR NOW: this route has no
-// authentication or authorization check at all. There is no admin
-// login system yet in this project. Do NOT expose this route publicly
-// or wire a frontend button to it until it sits behind real admin
-// auth — for now, treat it as an internal-only tool called directly
-// (e.g. via curl with the server's own network access), never from
-// the public storefront.
+// The refund route requires an admin API key (see requireAdmin below).
+// There's still no full admin login system in this project — this is a
+// single shared secret, good enough to keep the route off the public
+// internet, not a substitute for per-admin accounts/roles. Nothing in
+// the frontend calls this; it's meant to be used directly (curl,
+// Postman, an internal tool) by whoever holds ADMIN_API_KEY.
 
 const express = require('express');
+const crypto = require('crypto');
 const Stripe = require('stripe');
 const { supabase } = require('../config/supabase');
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Shared-secret gate for admin-only routes. Compared with a fixed-length
+// check (timingSafeEqual) so response timing can't be used to guess the
+// key one byte at a time.
+function requireAdmin(req, res, next) {
+  const configuredKey = process.env.ADMIN_API_KEY;
+  if (!configuredKey) {
+    console.error('ADMIN_API_KEY is not set — refusing admin request.');
+    return res.status(503).json({ error: 'Admin routes are not configured on this server.' });
+  }
+  const providedKey = req.get('x-admin-api-key') || '';
+  const configured = Buffer.from(configuredKey);
+  const provided = Buffer.from(providedKey);
+  const isValid =
+    configured.length === provided.length && crypto.timingSafeEqual(configured, provided);
+  if (!isValid) {
+    return res.status(401).json({ error: 'Invalid or missing admin API key.' });
+  }
+  next();
+}
 
 // GET /api/orders/:id/receipt
 //
@@ -58,7 +78,8 @@ router.get('/:id/receipt', async (req, res) => {
 });
 
 // POST /api/orders/:id/refund
-router.post('/:id/refund', async (req, res) => {
+// Requires header: x-admin-api-key: <ADMIN_API_KEY>
+router.post('/:id/refund', requireAdmin, async (req, res) => {
   const { data: order, error } = await supabase
     .from('orders')
     .select('id, status, stripe_payment_intent_id')

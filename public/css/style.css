@@ -78,6 +78,9 @@ img { max-width: 100%; display: block; }
 .btn--accent:hover { box-shadow: var(--shadow-md); }
 .btn--ghost-light { border-color: rgba(255,255,255,0.6); color: #fff; }
 .btn--ghost-light:hover { background: rgba(255,255,255,0.12); }
+.btn--ghost { border-color: var(--color-border); color: var(--color-ink); background: transparent; }
+.btn--ghost:hover { background: var(--color-surface-alt); }
+.btn--sm { padding: 0.5rem 1rem; font-size: var(--fs-xs); }
 .btn--block { width: 100%; }
 .btn--icon { padding: var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-alt); }
 .btn--icon:hover { background: var(--color-accent-soft); }
@@ -1135,6 +1138,9 @@ img { max-width: 100%; display: block; }
 .seller-form label.tier-choice__option { flex-direction: row; align-items: center; gap: var(--space-2); font-weight: 500; }
 .seller-form label.liability-checkbox { flex-direction: row; align-items: flex-start; gap: var(--space-2); font-weight: 400; font-size: var(--fs-sm); }
 .liability-checkbox input { margin-top: 3px; }
+
+.dashboard-products { display: flex; flex-direction: column; gap: var(--space-3); max-width: 720px; margin: 0 auto; }
+.dashboard-product-row { background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-4); border-bottom: none; box-shadow: var(--shadow-sm); }
 
 /* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {

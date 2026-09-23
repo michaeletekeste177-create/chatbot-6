@@ -17,6 +17,7 @@ const morgan = require('morgan');
 
 const productsRouter = require('./routes/products');
 const sellersRouter = require('./routes/sellers');
+const sellerProductsRouter = require('./routes/seller-products');
 const checkoutRouter = require('./routes/checkout');
 const subscriptionsRouter = require('./routes/subscriptions');
 const ordersRouter = require('./routes/orders');
@@ -42,6 +43,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/products', productsRouter);
 app.use('/api/sellers', sellersRouter);
+app.use('/api/seller-products', sellerProductsRouter);
 app.use('/api/checkout', checkoutRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/orders', ordersRouter);

@@ -77,6 +77,14 @@ create table if not exists public.sellers (
   stripe_subscription_id    text unique,
   subscription_status       text,
   agreed_to_liability_terms boolean not null default false,
+  -- The seller dashboard's only "login": there is no password auth in
+  -- this project yet, so a seller manages their own products by going
+  -- back to /dashboard.html?sellerId=<id>&token=<access_token> — the
+  -- same link they're shown once at registration. Treat it exactly
+  -- like a password: server/routes/seller-products.js requires it on
+  -- every write, and it's never included in any publicly-readable
+  -- query (see the RLS note below).
+  access_token              uuid not null default uuid_generate_v4(),
   created_at                timestamptz not null default now()
 );
 

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Dashboard — Hibretfamily</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#10402f" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310402f'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Georgia,serif' fill='%23d68a3a' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <svg style="display:none">
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="index.html" class="logo">Hibretfamily</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Shop</a>
+        <a href="sell.html">Sell With Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section" id="dashboard-gate">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Seller Dashboard</p>
+        <h1 id="dashboard-heading">Manage your products</h1>
+        <p id="dashboard-status-message" class="section__subtitle"></p>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="dashboard-link-box" hidden>
+      <div class="liability-notice">
+        <svg class="icon"><use href="#icon-shield"></use></svg>
+        <div>
+          <h3>Bookmark this link</h3>
+          <p>This page's URL is your only way back into your dashboard — there is no password login yet. Save or bookmark it now.</p>
+          <p style="word-break: break-all;"><strong id="dashboard-link-text"></strong></p>
+          <button type="button" class="btn btn--ghost" id="copy-dashboard-link">Copy link</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="dashboard-content" hidden>
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Add a listing</p>
+        <h2>New product</h2>
+      </div>
+
+      <form id="product-form" class="seller-form" style="max-width: 560px; margin: 0 auto var(--space-8);">
+        <input type="hidden" name="productId" value="" />
+        <label>
+          <span>Name</span>
+          <input type="text" name="name" required />
+        </label>
+        <label>
+          <span>Category</span>
+          <select name="category" required></select>
+        </label>
+        <label>
+          <span>Audience</span>
+          <select name="audience"></select>
+        </label>
+        <label>
+          <span>Price (USD)</span>
+          <input type="number" name="price" min="0" step="0.01" required />
+        </label>
+        <label>
+          <span>Stock</span>
+          <input type="number" name="stock" min="0" step="1" required />
+        </label>
+        <label>
+          <span>Image URL (optional)</span>
+          <input type="url" name="image_url" placeholder="https://…" />
+        </label>
+        <div style="display:flex; gap: var(--space-3);">
+          <button class="btn btn--accent" type="submit" id="product-form-submit">Add product</button>
+          <button class="btn btn--ghost" type="button" id="product-form-cancel" hidden>Cancel edit</button>
+        </div>
+        <p class="state-message" id="product-form-state" hidden></p>
+      </form>
+
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Your listings</p>
+        <h2>Products</h2>
+      </div>
+      <div id="product-list" class="dashboard-products"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__bottom">
+      <p>© <span id="current-year"></span> Hibretfamily. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

@@ -11,6 +11,7 @@ seller's own connected Stripe account and Hibretfamily's platform account.
 public/            static frontend — no build step required
 ├── index.html         storefront: catalog, cart, checkout
 ├── sell.html           seller plans, liability terms, registration form
+├── dashboard.html       seller's own product management (add/edit/deactivate)
 ├── success.html        post-checkout receipt ("የቐንየልና / Thank You")
 ├── css/
 │   ├── theme.css       ← EVERY color/font/spacing value. Edit this to re-theme.
@@ -23,6 +24,7 @@ public/            static frontend — no build step required
     ├── ui.js            nav, drawers, modal, sliders, toasts (generic DOM helpers)
     ├── main.js          storefront logic (index.html)
     ├── sell.js           seller registration page logic (sell.html)
+    ├── dashboard.js       seller product CRUD logic (dashboard.html)
     └── success.js        receipt page logic (success.html)
 
 server/             Node.js/Express backend
@@ -30,10 +32,11 @@ server/             Node.js/Express backend
 ├── routes/
 │   ├── products.js     GET /api/products — catalog, joined with seller name
 │   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
+│   ├── seller-products.js  CRUD for a seller's own listings, gated by their access_token
 │   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
 │   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
 │   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
-│   └── orders.js         GET /api/orders/:id/receipt, POST /api/orders/:id/refund
+│   └── orders.js         GET /api/orders/:id/receipt, POST /api/orders/:id/refund (admin-key gated)
 └── server.js            app entry point
 
 supabase/schema.sql  sellers, products, orders, order_items + Row Level Security
@@ -110,22 +113,37 @@ This needs a Stripe account with **Connect enabled**.
    ```bash
    stripe listen --forward-to localhost:4000/api/webhooks/stripe
    ```
-6. **Onboard a seller** — go to `/sell.html`, register (this creates a
-   Stripe Express account and a real onboarding link), and complete Stripe's
-   own onboarding flow. `sellers.charges_enabled` flips to true via the
+6. **Onboard a seller** — go to `/sell.html`, register. Registration shows
+   the seller their **dashboard link** (`/dashboard.html?sellerId=…&token=…`)
+   before sending them on to Stripe's own onboarding flow — save/bookmark it,
+   since there's no way to recover it afterwards (see below). Complete
+   Stripe's onboarding; `sellers.charges_enabled` flips to true via the
    `account.updated` webhook once that's done — only then can that seller's
    products be checked out.
+7. **Set `ADMIN_API_KEY`** — a long random secret (e.g. `openssl rand -hex 32`)
+   required in the `x-admin-api-key` header to call `POST /api/orders/:id/refund`.
+
+## Seller product management
+
+`/dashboard.html` lets a seller add, edit, and deactivate their own product
+listings, backed by `server/routes/seller-products.js`. There is no password
+login system in this project yet, so the seller's `access_token` (a column
+on `sellers`, generated at registration — see the comment in
+`supabase/schema.sql`) baked into that URL **is** their credential: every
+write to `/api/seller-products` checks it against the matching seller id,
+and it's never included in any publicly-readable query. A seller who loses
+their dashboard link has no self-serve recovery yet — see "What's
+intentionally NOT built yet" below.
 
 ## What's intentionally NOT built yet
 
-- **Seller product management UI.** Sellers register via `sell.html`, but
-  there's no dashboard yet for them to add/edit their own product listings —
-  that has to go through the Supabase table editor for now.
-- **Admin authentication.** `POST /api/orders/:id/refund` has zero auth on
-  it (see the warning in `server/routes/orders.js`) — it's written correctly
-  (refunds come out of the seller's own balance, Hibretfamily's commission
-  is untouched) but must not be exposed publicly until it sits behind real
-  admin auth.
+- **Password-based seller/admin login.** The seller dashboard and the
+  refund route both use a shared-secret pattern (an unguessable
+  `access_token` for sellers, an `ADMIN_API_KEY` header for admins) rather
+  than real accounts with sessions, password reset, or roles — a pragmatic
+  MVP substitute, not a full auth system. A seller who loses their
+  dashboard link, or an org that needs more than one admin, needs real
+  accounts before that's solved.
 - **Buyer accounts.** Checkout only asks for an email; there's no login, so
   a buyer's order history lives only in their Stripe receipt email and the
   unguessable order-confirmation URL.
@@ -155,8 +173,9 @@ live deployment, without touching `style.css`, the JS, or the backend.
 
 ## Roadmap / next steps
 
-- Build a seller dashboard for managing their own `products` rows.
-- Put real admin authentication in front of the refund route.
+- Replace the access-token/admin-key shared-secret patterns with real
+  password-based accounts (seller self-serve recovery, multiple admins,
+  roles) once the project needs them.
 - Wire up buyer accounts if order history needs to live anywhere besides
   Stripe's own receipt emails.
 - Produce the promotional video from `marketing/promotional-video-script.md`.
