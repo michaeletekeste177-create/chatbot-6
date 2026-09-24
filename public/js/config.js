@@ -12,8 +12,8 @@
 export const SITE = {
   name: 'Hibretfamily',
   tagline: 'Eritrea’s marketplace, connecting local sellers to the world',
-  email: 'hello@hibretfamily.com',
-  phone: '+291 7 123 456',
+  email: 'michaeletekeste177@gmail.com',
+  phone: '+31 6 84100875',
   social: {
     instagram: '#',
     facebook: '#',

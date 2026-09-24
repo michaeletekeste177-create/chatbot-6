@@ -180,7 +180,7 @@ async function init() {
 
   if (!sellerId || !token) {
     statusMessage.textContent =
-      "This page needs the dashboard link you were shown when you registered — the one with ?sellerId= and &token= in the address. Lost it? There's no self-serve recovery yet; contact hello@hibretfamily.com.";
+      "This page needs the dashboard link you were shown when you registered — the one with ?sellerId= and &token= in the address. Lost it? There's no self-serve recovery yet; contact michaeletekeste177@gmail.com.";
     return;
   }
 
