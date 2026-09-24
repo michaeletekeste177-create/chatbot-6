@@ -41,6 +41,45 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// GET /api/orders?email=<buyer email>
+//
+// Lets a buyer look up their own order history without an account —
+// there is no buyer login system in this project (see README). This
+// is deliberately the SIMPLE version of that idea: it trusts whatever
+// email is typed in, with no verification (no magic link, no code
+// sent to the address) — sending one would need an email-delivery
+// service this project doesn't set up. That means anyone who knows a
+// buyer's email address can see their order history here, which is a
+// real, accepted trade-off for staying simple, not a security bug to
+// silently work around. It returns only buyer-safe summary fields
+// (never commission_cents or seller Stripe data), same as the
+// per-order receipt route below.
+router.get('/', async (req, res) => {
+  const email = (req.query.email || '').trim().toLowerCase();
+  if (!email) return res.status(400).json({ error: 'email is required.' });
+
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('id, status, subtotal_cents, currency, created_at')
+    .ilike('buyer_email', email)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('order lookup by email failed:', error.message);
+    return res.status(500).json({ error: 'Could not look up orders.' });
+  }
+
+  res.json({
+    orders: orders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      totalCents: order.subtotal_cents,
+      currency: order.currency,
+      createdAt: order.created_at,
+    })),
+  });
+});
+
 // GET /api/orders/:id/receipt
 //
 // Public by design, but deliberately narrow: possessing the order's

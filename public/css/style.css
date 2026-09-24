@@ -954,6 +954,31 @@ img { max-width: 100%; display: block; }
 }
 .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
 
+/* ---------------- Contact widget ---------------- */
+.contact-widget { position: fixed; bottom: var(--space-5); left: var(--space-5); z-index: 30; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.contact-widget__toggle {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--color-accent, var(--color-primary)); color: #fff; border: none;
+  font-size: 1.4rem; cursor: pointer; box-shadow: var(--shadow-md);
+  display: flex; align-items: center; justify-content: center;
+}
+.contact-widget__toggle:hover { transform: translateY(-2px); }
+.contact-widget__menu {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-3); box-shadow: var(--shadow-md);
+}
+.contact-widget__link {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
+  font-size: var(--fs-sm); font-weight: 600; color: var(--color-ink); white-space: nowrap;
+}
+.contact-widget__link:hover { background: var(--color-surface-alt); }
+.contact-widget__icon { font-size: 1.1rem; line-height: 1; }
+@media (max-width: 640px) {
+  .contact-widget { bottom: var(--space-4); left: var(--space-4); }
+}
+
 /* ---------------- Cart drawer ---------------- */
 .cart-drawer {
   position: fixed;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order confirmed — Hibretfamily</title>
+  <title>Track Your Order — Hibretfamily</title>
   <meta name="robots" content="noindex" />
   <meta name="theme-color" content="#10402f" />
 
@@ -17,30 +17,34 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <svg style="display:none">
-    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  </svg>
-
   <header class="site-header">
     <div class="site-header__inner">
       <a href="index.html" class="logo">Hibretfamily</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Shop</a>
+        <a href="sell.html">Sell With Us</a>
+      </nav>
     </div>
   </header>
 
   <main id="main">
-    <section class="success-page">
-      <div class="success-page__icon"><svg class="icon"><use href="#icon-check"></use></svg></div>
-      <p class="eyebrow">Order confirmed</p>
-      <h1 class="success-page__welcome">
-        <span lang="ti">የቐንየልና</span>
-        <span class="cta-divider" aria-hidden="true">/</span>
-        <span>Thank You</span>
-      </h1>
-      <p id="success-summary" class="success-page__summary">Loading your order…</p>
+    <section class="section" id="order-lookup">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Order history</p>
+        <h1>Track your order</h1>
+        <p class="section__subtitle">Enter the email you used at checkout to see your past orders.</p>
+      </div>
 
-      <div id="success-items" class="success-page__items"></div>
+      <form id="lookup-form" class="seller-form" style="max-width: 480px; margin: 0 auto var(--space-8);">
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" required autocomplete="email" placeholder="you@example.com" />
+        </label>
+        <button class="btn btn--accent" type="submit">Find my orders</button>
+        <p class="state-message" id="lookup-state" hidden></p>
+      </form>
 
-      <a href="index.html" class="btn btn--primary">Continue shopping</a>
+      <div id="order-list" class="dashboard-products"></div>
     </section>
   </main>
 
@@ -50,7 +54,7 @@
     </div>
   </footer>
 
-  <script type="module" src="js/success.js"></script>
+  <script type="module" src="js/orders-lookup.js"></script>
   <script type="module" src="js/contact-widget.js"></script>
 </body>
 </html>

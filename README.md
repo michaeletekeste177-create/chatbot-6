@@ -13,6 +13,7 @@ public/            static frontend — no build step required
 ├── sell.html           seller plans, liability terms, registration form
 ├── dashboard.html       seller's own product management (add/edit/deactivate)
 ├── success.html        post-checkout receipt ("የቐንየልና / Thank You")
+├── orders.html          buyer order lookup by email (no account needed)
 ├── css/
 │   ├── theme.css       ← EVERY color/font/spacing value. Edit this to re-theme.
 │   └── style.css       component styles, reads theme.css tokens only
@@ -25,7 +26,9 @@ public/            static frontend — no build step required
     ├── main.js          storefront logic (index.html)
     ├── sell.js           seller registration page logic (sell.html)
     ├── dashboard.js       seller product CRUD logic (dashboard.html)
-    └── success.js        receipt page logic (success.html)
+    ├── success.js        receipt page logic (success.html)
+    ├── orders-lookup.js   order-by-email lookup logic (orders.html)
+    └── contact-widget.js  floating WhatsApp/email contact button, on every page
 
 server/             Node.js/Express backend
 ├── config/supabase.js  Supabase client (service-role key, server-only)
@@ -36,7 +39,8 @@ server/             Node.js/Express backend
 │   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
 │   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
 │   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
-│   └── orders.js         GET /api/orders/:id/receipt, POST /api/orders/:id/refund (admin-key gated)
+│   └── orders.js         GET /api/orders?email=, GET /api/orders/:id/receipt,
+│                         POST /api/orders/:id/refund (admin-key gated)
 └── server.js            app entry point
 
 supabase/schema.sql  sellers, products, orders, order_items + Row Level Security
@@ -135,6 +139,24 @@ and it's never included in any publicly-readable query. A seller who loses
 their dashboard link has no self-serve recovery yet — see "What's
 intentionally NOT built yet" below.
 
+## Order lookup and customer contact (the simple versions)
+
+- **`/orders.html`** lets a buyer see their past orders by typing the email
+  they checked out with — `GET /api/orders?email=` (`server/routes/orders.js`).
+  This is deliberately the simple version of "buyer accounts": there is no
+  password and no email verification (no code or magic link sent to prove
+  the address is theirs), so anyone who knows a buyer's email can see their
+  order history here. That's a real, accepted trade-off for staying simple
+  without adding an email-delivery service — not a bug to quietly patch.
+  It returns only buyer-safe summary fields, same as the per-order receipt.
+- **The floating contact button** (`public/js/contact-widget.js`, shown on
+  every page) links straight to WhatsApp and email using `SITE.phone` /
+  `SITE.email` in `public/js/config.js` — **replace those placeholder
+  values with your real number and address before launch.** It's a simple
+  "contact us" link, not a live chat: no in-page chat window, no support
+  ticket queue, no staff routing. Wiring up real live chat would mean
+  adding a third-party chat service (e.g. Tawk.to, Crisp).
+
 ## What's intentionally NOT built yet
 
 - **Password-based seller/admin login.** The seller dashboard and the
@@ -144,9 +166,11 @@ intentionally NOT built yet" below.
   MVP substitute, not a full auth system. A seller who loses their
   dashboard link, or an org that needs more than one admin, needs real
   accounts before that's solved.
-- **Buyer accounts.** Checkout only asks for an email; there's no login, so
-  a buyer's order history lives only in their Stripe receipt email and the
-  unguessable order-confirmation URL.
+- **Verified buyer accounts.** `/orders.html` (above) covers the common
+  case without a login, but it isn't a substitute for real accounts if
+  order history needs to be kept private from anyone who guesses an email.
+- **Live chat / support tickets.** The contact widget (above) is direct
+  links only — no in-page chat, no ticket history, no staff dashboard.
 
 ## Re-theming after deployment
 
