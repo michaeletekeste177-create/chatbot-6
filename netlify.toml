@@ -1,0 +1,5 @@
+# Tells Netlify exactly which folder to publish, so the site deploys
+# correctly no matter what (or nothing) is typed into the dashboard's
+# own build-settings form. This file always wins over the dashboard.
+[build]
+  publish = "public"
