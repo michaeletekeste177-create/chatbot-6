@@ -77,6 +77,7 @@ function fillFormForEdit(product) {
   form.name.value = product.name;
   form.category.value = product.category;
   form.audience.value = product.audience;
+  form.currency.value = product.currency || 'usd';
   form.price.value = centsToDollarsInput(product.price_cents);
   form.stock.value = product.stock;
   form.image_url.value = product.image_url || '';
@@ -137,6 +138,7 @@ async function handleProductSubmit(e, { sellerId, token }) {
     name: form.name.value.trim(),
     category: form.category.value,
     audience: form.audience.value,
+    currency: form.currency.value,
     price_cents: dollarsInputToCents(form.price.value),
     stock: Number(form.stock.value),
     image_url: form.image_url.value.trim() || null,

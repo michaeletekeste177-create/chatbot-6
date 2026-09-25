@@ -103,7 +103,14 @@
           <select name="audience"></select>
         </label>
         <label>
-          <span>Price (USD)</span>
+          <span>Currency</span>
+          <select name="currency">
+            <option value="usd">USD ($)</option>
+            <option value="eur">EUR (€)</option>
+          </select>
+        </label>
+        <label>
+          <span>Price</span>
           <input type="number" name="price" min="0" step="0.01" required />
         </label>
         <label>

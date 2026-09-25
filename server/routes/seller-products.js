@@ -16,6 +16,12 @@ const router = express.Router();
 
 const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics'];
 const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
+// Real, freely-convertible currencies only — Stripe settles in whichever
+// the seller picks. This is deliberately NOT where Nakfa would go: Nakfa
+// isn't freely convertible and Stripe has no presence in Eritrea at all,
+// so that side stays the separate manual mNakfa contact instead (see the
+// payment-method gate above and the mnakfa_number comment in schema.sql).
+const VALID_CURRENCIES = ['usd', 'eur'];
 
 async function verifySeller(sellerId, token) {
   if (!sellerId || !token) return null;
@@ -62,6 +68,11 @@ function validateProductFields(body, { partial = false } = {}) {
     const price = Number(body.price_cents);
     if (!Number.isInteger(price) || price < 0) errors.push('price_cents must be a non-negative integer.');
     else fields.price_cents = price;
+  }
+  if (body.currency !== undefined) {
+    const currency = String(body.currency).toLowerCase();
+    if (!VALID_CURRENCIES.includes(currency)) errors.push(`currency must be one of: ${VALID_CURRENCIES.join(', ')}`);
+    else fields.currency = currency;
   }
   if (!partial || body.stock !== undefined) {
     const stock = Number(body.stock);

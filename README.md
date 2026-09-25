@@ -164,6 +164,24 @@ deliberately a **manual, non-Stripe path**:
   seller confirms receipt themselves. Building an actual "Pay with
   mNakfa" button into checkout (with a pending-confirmation order state)
   is the natural next step once this manual version is proven out.
+- **Hibretfamily deliberately never computes a Nakfa amount or exchange
+  rate.** Eritrea's official USD/ERN rate and its real (parallel-market)
+  rate differ enormously, and Nakfa isn't freely convertible under
+  Eritrean foreign-exchange law — picking either rate for the platform to
+  display would mean the platform itself setting an FX rate, which is a
+  regulatory question no one asked it to take on. The buyer and seller
+  agree the Nakfa amount directly, off-platform; Hibretfamily only ever
+  shows real, freely-convertible currencies (see below).
+
+## Multi-currency listings (USD / EUR)
+
+A seller picks their listing currency — USD or EUR — per product (the
+`currency` field on `products`, validated in `seller-products.js`). Stripe
+settles in whichever the seller chose; the storefront, cart, and receipts
+already format any ISO currency correctly via `Intl.NumberFormat`
+(`public/js/cart.js`'s `formatPrice`), so no other frontend change was
+needed. A single checkout still has to be one currency at a time (the
+existing single-seller-per-cart rule already guarantees this in practice).
 
 ## Order lookup and customer contact (the simple versions)
 
