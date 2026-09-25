@@ -99,10 +99,12 @@ router.post('/register', async (req, res) => {
 // GET /api/sellers/:id/status — lets the "Sell on Hibretfamily" page
 // poll whether Stripe onboarding actually finished (charges_enabled),
 // kept current by the account.updated webhook in routes/webhooks.js.
+// Also surfaces the mNakfa manual-payout fields (see PATCH below) so
+// the dashboard can show whether a payment method is set at all.
 router.get('/:id/status', async (req, res) => {
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, tier, charges_enabled, subscription_status')
+    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name')
     .eq('id', req.params.id)
     .single();
 
@@ -111,6 +113,45 @@ router.get('/:id/status', async (req, res) => {
   }
 
   res.json({ seller });
+});
+
+// PATCH /api/sellers/:id/payment-info
+// body: { token, mnakfaNumber, mnakfaHolderName }
+//
+// Lets a seller record a manual mNakfa payout contact — for sellers
+// who can't get a Stripe-supported bank account (Stripe has no
+// presence in Eritrea). This is a manual, non-Stripe path: a buyer
+// pays this number directly and the seller confirms receipt
+// themselves. Token-gated the same way as routes/seller-products.js.
+router.patch('/:id/payment-info', async (req, res) => {
+  const { token, mnakfaNumber, mnakfaHolderName } = req.body;
+
+  const { data: seller, error: lookupError } = await supabase
+    .from('sellers')
+    .select('id, access_token')
+    .eq('id', req.params.id)
+    .single();
+  if (lookupError || !seller || seller.access_token !== token) {
+    return res.status(401).json({ error: 'Invalid seller credentials.' });
+  }
+
+  if (!mnakfaNumber || !mnakfaHolderName) {
+    return res.status(400).json({ error: 'mnakfaNumber and mnakfaHolderName are required.' });
+  }
+
+  const { data: updated, error } = await supabase
+    .from('sellers')
+    .update({ mnakfa_number: mnakfaNumber, mnakfa_holder_name: mnakfaHolderName })
+    .eq('id', seller.id)
+    .select('id, mnakfa_number, mnakfa_holder_name')
+    .single();
+
+  if (error) {
+    console.error('failed to save mNakfa payment info:', error.message);
+    return res.status(500).json({ error: 'Could not save your payment details.' });
+  }
+
+  res.json({ seller: updated });
 });
 
 module.exports = router;

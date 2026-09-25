@@ -43,7 +43,7 @@ server/             Node.js/Express backend
 │                         POST /api/orders/:id/refund (admin-key gated)
 └── server.js            app entry point
 
-supabase/schema.sql  sellers, products, orders, order_items + Row Level Security
+supabase/schema.sql  sellers, products, orders, order_items, decrement_product_stock() + RLS
 scripts/verify-env.sh  checks Node/npm are installed
 marketing/           non-code assets (promotional video script, etc.)
 ```
@@ -139,6 +139,34 @@ and it's never included in any publicly-readable query. A seller who loses
 their dashboard link has no self-serve recovery yet — see "What's
 intentionally NOT built yet" below.
 
+A seller cannot list a product at all until they have **some** real way to
+get paid — `POST /api/seller-products` returns a bilingual (EN/TI) 403
+otherwise. That's either Stripe (`charges_enabled`) or the manual mNakfa
+contact described next.
+
+## mNakfa — a manual path for sellers Stripe can't reach
+
+Stripe has no presence in Eritrea at all, so a seller who only has an
+Eritrean bank account can never finish Stripe onboarding. **mNakfa**
+(Himbol Financial Services' mobile-money service, run over EriTel and
+licensed by the Bank of Eritrea) is a real, separate way for such a seller
+to get paid — but it has no public API to integrate with, so this is
+deliberately a **manual, non-Stripe path**:
+
+- A seller records an `mnakfa_number` + `mnakfa_holder_name` on their
+  account via `PATCH /api/sellers/:id/payment-info` (token-gated, same
+  pattern as `seller-products.js`) — the "Payment Settings" section of
+  `dashboard.html`.
+- Having *either* Stripe `charges_enabled` *or* an `mnakfa_number` set is
+  enough to satisfy the "must have a payment method" gate above.
+- There is **no checkout integration yet** — a buyer paying via mNakfa
+  would send payment to that number directly, outside the site, and the
+  seller confirms receipt themselves. Building an actual "Pay with
+  mNakfa" button into checkout (with a pending-confirmation order state)
+  is the natural next step once this manual version is proven out.
+
+## Order lookup and customer contact (the simple versions)
+
 ## Order lookup and customer contact (the simple versions)
 
 - **`/orders.html`** lets a buyer see their past orders by typing the email
@@ -171,6 +199,10 @@ intentionally NOT built yet" below.
   order history needs to be kept private from anyone who guesses an email.
 - **Live chat / support tickets.** The contact widget (above) is direct
   links only — no in-page chat, no ticket history, no staff dashboard.
+- **mNakfa checkout.** Sellers can register an mNakfa number (above), but
+  buyers can't yet pay through the site with it — that money movement
+  happens entirely outside Hibretfamily today, with the seller confirming
+  receipt themselves off-platform.
 
 ## Re-theming after deployment
 
@@ -202,4 +234,7 @@ live deployment, without touching `style.css`, the JS, or the backend.
   roles) once the project needs them.
 - Wire up buyer accounts if order history needs to live anywhere besides
   Stripe's own receipt emails.
+- Build an actual "Pay with mNakfa" checkout path (a pending-confirmation
+  order state, a seller "mark as paid" action) once the manual version
+  above is proven out.
 - Produce the promotional video from `marketing/promotional-video-script.md`.

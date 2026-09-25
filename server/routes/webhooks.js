@@ -59,6 +59,7 @@ async function handleCheckoutCompleted(session) {
       .from('orders')
       .update({ status: 'paid', stripe_payment_intent_id: session.payment_intent })
       .eq('id', orderId);
+    await decrementStockForOrder(orderId);
     return;
   }
 
@@ -73,6 +74,33 @@ async function handleCheckoutCompleted(session) {
         subscription_status: 'active',
       })
       .eq('id', sellerId);
+  }
+}
+
+// Runs the decrement_product_stock() Postgres function (see schema.sql)
+// once per line item, so a sale actually reduces what's left to sell —
+// a plain read-then-write from here could let two sales at the same
+// instant both start from the same stock count and oversell it.
+async function decrementStockForOrder(orderId) {
+  const { data: items, error } = await supabase
+    .from('order_items')
+    .select('product_id, quantity')
+    .eq('order_id', orderId);
+
+  if (error) {
+    console.error('could not load order_items to decrement stock:', error.message);
+    return;
+  }
+
+  for (const item of items) {
+    if (!item.product_id) continue;
+    const { error: rpcError } = await supabase.rpc('decrement_product_stock', {
+      p_product_id: item.product_id,
+      p_quantity: item.quantity,
+    });
+    if (rpcError) {
+      console.error(`stock decrement failed for product ${item.product_id}:`, rpcError.message);
+    }
   }
 }
 
