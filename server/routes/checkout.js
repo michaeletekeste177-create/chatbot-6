@@ -31,13 +31,37 @@ function commissionRateFor(seller) {
   return seller.tier === 'subscription' ? COMMISSION_PERCENT_SUBSCRIPTION : COMMISSION_PERCENT_FREEMIUM;
 }
 
+// A buyer's preferred delivery time is a request, not a promise — kept
+// loose (no slot system, no availability check) since delivery itself
+// happens off-platform (see requested_delivery_at's comment in
+// schema.sql). Only basic sanity checks apply: it must parse as a real
+// date, and the note can't be unbounded.
+const MAX_DELIVERY_NOTE_LENGTH = 500;
+
+function parseRequestedDeliveryAt(value) {
+  if (!value) return { requestedDeliveryAt: null };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return { error: 'requestedDeliveryAt must be a valid date/time.' };
+  }
+  return { requestedDeliveryAt: date.toISOString() };
+}
+
 // POST /api/checkout/create-session
-// body: { items: [{ productId, quantity }], customerEmail? }
+// body: { items: [{ productId, quantity }], customerEmail?, requestedDeliveryAt?, deliveryNote? }
 router.post('/create-session', async (req, res) => {
-  const { items, customerEmail } = req.body;
+  const { items, customerEmail, requestedDeliveryAt, deliveryNote } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty.' });
+  }
+
+  const deliveryResult = parseRequestedDeliveryAt(requestedDeliveryAt);
+  if (deliveryResult.error) {
+    return res.status(400).json({ error: deliveryResult.error });
+  }
+  if (deliveryNote !== undefined && String(deliveryNote).length > MAX_DELIVERY_NOTE_LENGTH) {
+    return res.status(400).json({ error: `deliveryNote must be ${MAX_DELIVERY_NOTE_LENGTH} characters or fewer.` });
   }
 
   const productIds = items.map((i) => i.productId);
@@ -133,6 +157,8 @@ router.post('/create-session', async (req, res) => {
       subtotal_cents: totalCents,
       commission_cents: commissionCents,
       currency,
+      requested_delivery_at: deliveryResult.requestedDeliveryAt,
+      delivery_note: deliveryNote ? String(deliveryNote).trim() || null : null,
     })
     .select()
     .single();

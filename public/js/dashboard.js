@@ -234,6 +234,43 @@ async function handleMnakfaSubmit(e, { sellerId, token }) {
   }
 }
 
+function renderOrders(listEl, orders) {
+  if (!orders.length) {
+    listEl.innerHTML = '<p class="state-message">No orders yet.</p>';
+    return;
+  }
+  listEl.innerHTML = orders
+    .map((order) => {
+      const itemsSummary = order.items.map((item) => `${item.name} × ${item.quantity}`).join(', ');
+      const delivery = order.requestedDeliveryAt
+        ? `<span class="cart-item__category">Requested delivery: ${new Date(order.requestedDeliveryAt).toLocaleString()}</span>`
+        : '';
+      const note = order.deliveryNote
+        ? `<span class="cart-item__category">Note: ${order.deliveryNote}</span>`
+        : '';
+      return `
+    <div class="cart-item dashboard-product-row">
+      <div class="cart-item__info">
+        <strong>${itemsSummary || 'Order'}</strong>
+        <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${order.buyerEmail}` : ''}</span>
+        ${delivery}
+        ${note}
+      </div>
+      <div class="cart-item__price">${formatPrice(order.totalCents, order.currency)}</div>
+    </div>
+  `;
+    })
+    .join('');
+}
+
+async function loadOrders({ sellerId, token }) {
+  const listEl = document.getElementById('order-list');
+  const res = await fetch(`${API_BASE}/seller-orders?sellerId=${encodeURIComponent(sellerId)}&token=${encodeURIComponent(token)}`);
+  if (!res.ok) throw new Error('Could not load your orders.');
+  const { orders } = await res.json();
+  renderOrders(listEl, orders);
+}
+
 async function init() {
   const yearEl = document.getElementById('current-year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
@@ -278,6 +315,7 @@ async function init() {
     content.hidden = false;
     renderPaymentStatus(seller);
     await loadProducts({ sellerId, token });
+    await loadOrders({ sellerId, token });
   } catch (err) {
     statusMessage.textContent = 'Could not reach the Hibretfamily backend, or this link is invalid — connect the backend (see README) and confirm your sellerId/token.';
   }

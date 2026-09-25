@@ -141,6 +141,13 @@ create table if not exists public.orders (
   subtotal_cents        integer not null default 0,
   commission_cents      integer not null default 0,
   currency              text not null default 'usd',
+  -- A buyer's preferred delivery date/time, picked at checkout — a
+  -- request the seller coordinates around, not a guaranteed slot (there
+  -- is no delivery-logistics system in this project; sellers arrange
+  -- delivery themselves, e.g. via Eritrea Post). Both optional: nothing
+  -- here blocks a checkout that leaves them blank.
+  requested_delivery_at timestamptz,
+  delivery_note         text,
   stripe_checkout_session_id text unique,
   stripe_payment_intent_id   text,
   created_at            timestamptz not null default now()

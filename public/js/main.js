@@ -41,6 +41,8 @@ const el = {
   cartCount: document.querySelectorAll('.cart-count'),
   checkoutBtn: document.getElementById('checkout-button'),
   checkoutState: document.getElementById('checkout-state'),
+  deliveryDateTime: document.getElementById('delivery-date-time'),
+  deliveryNote: document.getElementById('delivery-note'),
   quickView: document.getElementById('quick-view-body'),
   searchForm: document.getElementById('search-form'),
   searchInput: document.getElementById('search-input'),
@@ -303,12 +305,17 @@ async function startCheckout() {
   el.checkoutState.textContent = 'Redirecting to secure checkout…';
   el.checkoutState.hidden = false;
 
+  const deliveryDateTimeValue = el.deliveryDateTime?.value;
+  const deliveryNoteValue = el.deliveryNote?.value.trim();
+
   try {
     const res = await fetch(`${API_BASE}/checkout/create-session`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         items: cart.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+        requestedDeliveryAt: deliveryDateTimeValue ? new Date(deliveryDateTimeValue).toISOString() : undefined,
+        deliveryNote: deliveryNoteValue || undefined,
       }),
     });
     if (!res.ok) {
@@ -506,6 +513,12 @@ function syncPillState() {
 
 function init() {
   if (el.yearEl) el.yearEl.textContent = String(new Date().getFullYear());
+
+  if (el.deliveryDateTime) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    el.deliveryDateTime.min = now.toISOString().slice(0, 16);
+  }
 
   initLanguageToggle();
 

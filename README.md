@@ -36,6 +36,7 @@ server/             Node.js/Express backend
 │   ├── products.js     GET /api/products — catalog, joined with seller name
 │   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
 │   ├── seller-products.js  CRUD for a seller's own listings, gated by their access_token
+│   ├── seller-orders.js  GET /api/seller-orders — a seller's own sales, token-gated
 │   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
 │   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
 │   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
@@ -43,7 +44,8 @@ server/             Node.js/Express backend
 │                         POST /api/orders/:id/refund (admin-key gated)
 └── server.js            app entry point
 
-supabase/schema.sql  sellers, products, orders, order_items, decrement_product_stock() + RLS
+supabase/schema.sql  sellers, products, orders (with requested delivery date/note),
+                      order_items, decrement_product_stock() + RLS
 scripts/verify-env.sh  checks Node/npm are installed
 marketing/           non-code assets (promotional video script, etc.)
 ```
@@ -183,7 +185,20 @@ already format any ISO currency correctly via `Intl.NumberFormat`
 needed. A single checkout still has to be one currency at a time (the
 existing single-seller-per-cart rule already guarantees this in practice).
 
-## Order lookup and customer contact (the simple versions)
+## Preferred delivery date/time
+
+At checkout, a buyer can optionally pick a preferred delivery date/time and
+add a short note (`public/index.html`'s cart drawer, wired up in
+`public/js/main.js`'s `startCheckout()`). This is a **request the seller
+coordinates around, not a guaranteed slot** — there's no delivery-logistics
+or routing system in this project; sellers arrange the actual delivery
+themselves (e.g. via Eritrea Post for domestic shipments). Both fields are
+optional and stored on the order (`requested_delivery_at`, `delivery_note`
+in `supabase/schema.sql`), validated in `server/routes/checkout.js`, shown
+back to the buyer on their receipt (`success.html`/`success.js` and
+`GET /api/orders/:id/receipt`), and shown to the seller in their dashboard's
+new **Orders** section (`GET /api/seller-orders`, token-gated the same way
+as `seller-products.js`) so they actually know what was requested.
 
 ## Order lookup and customer contact (the simple versions)
 
