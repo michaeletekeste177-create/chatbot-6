@@ -416,6 +416,18 @@
     </div>
     <div class="cart-drawer__items" id="cart-items"></div>
     <div class="cart-drawer__footer">
+      <div class="cart-drawer__delivery">
+        <label for="delivery-date-time">
+          <span>Preferred delivery date/time (optional)</span>
+          <span lang="ti">ዝደለኻዮ ግዜ ምብጻሕ (ኣብ ምርጫ)</span>
+          <input type="datetime-local" id="delivery-date-time" name="deliveryDateTime" />
+        </label>
+        <label for="delivery-note">
+          <span>Delivery note (optional)</span>
+          <span lang="ti">ተወሳኺ መግለጺ ብዛዕባ ምብጻሕ (ኣብ ምርጫ)</span>
+          <textarea id="delivery-note" name="deliveryNote" rows="2" maxlength="500" placeholder="e.g. call before arriving"></textarea>
+        </label>
+      </div>
       <div class="cart-drawer__total">
         <span>Total</span>
         <strong id="cart-total">$0.00</strong>

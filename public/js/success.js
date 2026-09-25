@@ -29,6 +29,21 @@ function init() {
     })
     .then(({ order }) => {
       summaryEl.textContent = `Order total: ${formatPrice(order.totalCents, order.currency)} — status: ${order.status}`;
+
+      const deliveryEl = document.getElementById('success-delivery');
+      if (deliveryEl && (order.requestedDeliveryAt || order.deliveryNote)) {
+        deliveryEl.hidden = false;
+        const parts = [];
+        if (order.requestedDeliveryAt) {
+          const when = new Date(order.requestedDeliveryAt).toLocaleString();
+          parts.push(`<p><strong>Requested delivery:</strong> ${when}</p>`);
+        }
+        if (order.deliveryNote) {
+          parts.push(`<p><strong>Note:</strong> ${order.deliveryNote}</p>`);
+        }
+        deliveryEl.innerHTML = parts.join('');
+      }
+
       itemsEl.innerHTML = order.items
         .map(
           (item) => `

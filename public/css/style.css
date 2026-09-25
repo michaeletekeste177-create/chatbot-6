@@ -1026,6 +1026,19 @@ img { max-width: 100%; display: block; }
 
 .cart-drawer__footer { padding: var(--space-5); border-top: 1px solid var(--color-border); }
 .cart-drawer__total { display: flex; justify-content: space-between; font-size: var(--fs-md); margin-bottom: var(--space-4); }
+.cart-drawer__delivery { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
+.cart-drawer__delivery label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); font-weight: 600; }
+.cart-drawer__delivery label span[lang="ti"] { font-weight: 400; color: var(--color-ink-soft); }
+.cart-drawer__delivery input,
+.cart-drawer__delivery textarea {
+  padding: 0.6rem var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  font-family: inherit;
+  resize: vertical;
+}
 
 /* ---------------- Modal (quick view) ---------------- */
 .modal {
