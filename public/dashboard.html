@@ -55,6 +55,35 @@
 
     <section class="section" id="dashboard-content" hidden>
       <div class="section__header" data-reveal>
+        <p class="eyebrow">Payment method</p>
+        <h2>Payment Settings</h2>
+      </div>
+
+      <div id="payment-status" class="liability-notice" style="max-width: 560px; margin: 0 auto var(--space-5);"></div>
+
+      <form id="mnakfa-form" class="seller-form" style="max-width: 560px; margin: 0 auto var(--space-8);">
+        <label>
+          <span>mNakfa number</span>
+          <input type="tel" name="mnakfaNumber" placeholder="07XXXXXXX" />
+        </label>
+        <label>
+          <span>Name on the mNakfa account</span>
+          <input type="text" name="mnakfaHolderName" placeholder="Full name" />
+        </label>
+        <button class="btn btn--accent" type="submit">Save mNakfa details</button>
+        <p class="state-message" id="mnakfa-form-state" hidden></p>
+      </form>
+
+      <div id="no-payment-notice" class="liability-notice" style="max-width: 560px; margin: 0 auto var(--space-8);" hidden>
+        <svg class="icon"><use href="#icon-shield"></use></svg>
+        <div>
+          <h3>Payment method required</h3>
+          <p>You need a payment method before you can list a product — finish Stripe onboarding, or add your mNakfa number above.</p>
+          <p lang="ti">ንብረት ቅድሚ ምስቃልካ፡ ናይ ክፍሊት መገዲ ከድልየካ እዩ — ናይ Stripe ምዝገባ ወድእ፡ ወይ ኣብ ላዕሊ ናይ mNakfa ቁጽርኻ ኣእቱ።</p>
+        </div>
+      </div>
+
+      <div class="section__header" data-reveal>
         <p class="eyebrow">Add a listing</p>
         <h2>New product</h2>
       </div>

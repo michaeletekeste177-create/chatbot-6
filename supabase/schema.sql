@@ -85,6 +85,15 @@ create table if not exists public.sellers (
   -- every write, and it's never included in any publicly-readable
   -- query (see the RLS note below).
   access_token              uuid not null default uuid_generate_v4(),
+  -- Manual, non-Stripe payout path: Stripe has no presence in Eritrea,
+  -- so a seller who only has a domestic bank/mobile-money contact (e.g.
+  -- Himbol's mNakfa mobile money service, run over EriTel) records it
+  -- here instead. There is no automation on this path — a buyer sends
+  -- payment to this number directly and the seller confirms receipt in
+  -- their own dashboard (see routes/seller-products.js for the "you
+  -- need at least one payout method before listing" gate that uses it).
+  mnakfa_number             text,
+  mnakfa_holder_name        text,
   created_at                timestamptz not null default now()
 );
 
@@ -140,6 +149,22 @@ create table if not exists public.orders (
 create index if not exists idx_orders_seller on public.orders (seller_id);
 create index if not exists idx_orders_stripe_session on public.orders (stripe_checkout_session_id);
 create index if not exists idx_orders_stripe_intent on public.orders (stripe_payment_intent_id);
+
+-- ---------------------------------------------------------------------
+-- decrement_product_stock — called once per line item from
+-- routes/webhooks.js when Stripe confirms a sale, so a product's stock
+-- count actually goes down. Done as a single atomic UPDATE (not a
+-- read-then-write from the app) so two sales landing at the same
+-- instant can't both read the same starting stock and oversell it.
+-- ---------------------------------------------------------------------
+create or replace function public.decrement_product_stock(p_product_id uuid, p_quantity integer)
+returns void
+language sql
+as $$
+  update public.products
+  set stock = greatest(stock - p_quantity, 0)
+  where id = p_product_id;
+$$;
 
 -- ---------------------------------------------------------------------
 -- order_items — line items, price snapshotted at purchase time so a

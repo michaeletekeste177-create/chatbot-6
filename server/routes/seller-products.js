@@ -21,11 +21,24 @@ async function verifySeller(sellerId, token) {
   if (!sellerId || !token) return null;
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, access_token')
+    .select('id, business_name, access_token, charges_enabled, mnakfa_number')
     .eq('id', sellerId)
     .single();
   if (error || !seller || seller.access_token !== token) return null;
   return seller;
+}
+
+// A seller needs some real way to actually get paid before they can
+// list anything — either Stripe (charges_enabled, for sellers with a
+// Stripe-supported bank account) or the manual mNakfa contact (for
+// sellers who don't — see the mnakfa_number comment in schema.sql).
+// Shown in both languages since it blocks the seller's own action.
+const NO_PAYMENT_METHOD_ERROR =
+  'You need a payment method before listing a product — finish Stripe onboarding or add your mNakfa number in Payment Settings. / ' +
+  'ንብረት ቅድሚ ምስቃልካ፡ ናይ ክፍሊት መገዲ ከድልየካ እዩ — ናይ Stripe ምዝገባ ወድእ ወይ ኣብ "Payment Settings" ናይ mNakfa ቁጽርኻ ኣእቱ።';
+
+function hasPaymentMethod(seller) {
+  return Boolean(seller.charges_enabled || seller.mnakfa_number);
 }
 
 function validateProductFields(body, { partial = false } = {}) {
@@ -88,6 +101,7 @@ router.post('/', async (req, res) => {
   const { sellerId, token } = req.body;
   const seller = await verifySeller(sellerId, token);
   if (!seller) return res.status(401).json({ error: 'Invalid seller credentials.' });
+  if (!hasPaymentMethod(seller)) return res.status(403).json({ error: NO_PAYMENT_METHOD_ERROR });
 
   const { errors, fields } = validateProductFields(req.body);
   if (errors.length) return res.status(400).json({ error: errors.join(' ') });

@@ -169,6 +169,69 @@ async function handleProductSubmit(e, { sellerId, token }) {
   }
 }
 
+// Reflects whether the seller has any real way to get paid yet
+// (Stripe charges_enabled, or a manual mNakfa contact — see the
+// payment-method gate in server/routes/seller-products.js) and
+// shows/hides the product form accordingly.
+function renderPaymentStatus(seller) {
+  const statusEl = document.getElementById('payment-status');
+  const noPaymentNotice = document.getElementById('no-payment-notice');
+  const productForm = document.getElementById('product-form');
+  const hasPaymentMethod = Boolean(seller.charges_enabled || seller.mnakfa_number);
+
+  const lines = [];
+  lines.push(
+    `<p><strong>Stripe:</strong> ${seller.charges_enabled ? 'Connected ✓' : 'Not connected — finish onboarding on sell.html'}</p>`
+  );
+  lines.push(
+    `<p><strong>mNakfa:</strong> ${
+      seller.mnakfa_number ? `${seller.mnakfa_number} (${seller.mnakfa_holder_name || 'no name on file'}) ✓` : 'Not set'
+    }</p>`
+  );
+  statusEl.innerHTML = `<div><h3>Your payment methods</h3>${lines.join('')}</div>`;
+
+  noPaymentNotice.hidden = hasPaymentMethod;
+  productForm.hidden = !hasPaymentMethod;
+
+  const mnakfaForm = document.getElementById('mnakfa-form');
+  if (seller.mnakfa_number) mnakfaForm.mnakfaNumber.value = seller.mnakfa_number;
+  if (seller.mnakfa_holder_name) mnakfaForm.mnakfaHolderName.value = seller.mnakfa_holder_name;
+}
+
+async function handleMnakfaSubmit(e, { sellerId, token }) {
+  e.preventDefault();
+  const form = e.target;
+  const stateEl = document.getElementById('mnakfa-form-state');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  const mnakfaNumber = form.mnakfaNumber.value.trim();
+  const mnakfaHolderName = form.mnakfaHolderName.value.trim();
+
+  submitBtn.disabled = true;
+  stateEl.hidden = false;
+  stateEl.textContent = 'Saving…';
+
+  try {
+    const res = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/payment-info`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, mnakfaNumber, mnakfaHolderName }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Could not save your payment details.');
+
+    stateEl.hidden = true;
+    showToast('mNakfa details saved');
+    const statusRes = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/status`);
+    const { seller } = await statusRes.json();
+    renderPaymentStatus(seller);
+  } catch (err) {
+    stateEl.textContent = err.message || 'Something went wrong. Please try again.';
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
 async function init() {
   const yearEl = document.getElementById('current-year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
@@ -199,6 +262,7 @@ async function init() {
   populateSelects(form);
   form.addEventListener('submit', (e) => handleProductSubmit(e, { sellerId, token }));
   document.getElementById('product-form-cancel').addEventListener('click', resetForm);
+  document.getElementById('mnakfa-form').addEventListener('submit', (e) => handleMnakfaSubmit(e, { sellerId, token }));
 
   try {
     const statusRes = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/status`);
@@ -210,6 +274,7 @@ async function init() {
       : 'Stripe onboarding is still incomplete, so your products will show in the catalog but cannot be checked out yet. Return to sell.html to finish onboarding.';
 
     content.hidden = false;
+    renderPaymentStatus(seller);
     await loadProducts({ sellerId, token });
   } catch (err) {
     statusMessage.textContent = 'Could not reach the Hibretfamily backend, or this link is invalid — connect the backend (see README) and confirm your sellerId/token.';
