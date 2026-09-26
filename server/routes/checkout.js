@@ -20,11 +20,14 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8080';
 
-// Commission rates are a placeholder pending a real business decision —
-// set these from your actual pricing before launch. The subscription
-// tier's lower rate is the incentive for a merchant to pay the
-// recurring fee (see routes/subscriptions.js).
-const COMMISSION_PERCENT_FREEMIUM = Number(process.env.PLATFORM_COMMISSION_PERCENT || 12);
+// Commission rates — 10% freemium / 6% premium, a deliberate decision
+// to sit below industry norms (Etsy ~6.5%, eBay/Amazon ~10-17%) while
+// the marketplace is still new and building trust with its first
+// sellers; these can be raised later once there's real traffic and
+// buyer volume to justify it. The subscription tier's lower rate is
+// the incentive for a merchant to pay the recurring fee (see
+// routes/subscriptions.js).
+const COMMISSION_PERCENT_FREEMIUM = Number(process.env.PLATFORM_COMMISSION_PERCENT || 10);
 const COMMISSION_PERCENT_SUBSCRIPTION = Number(process.env.PLATFORM_COMMISSION_PERCENT_PREMIUM || 6);
 
 function commissionRateFor(seller) {
