@@ -8,7 +8,7 @@
 
 import { API_BASE, CATEGORIES, AUDIENCES } from './config.js';
 import { formatPrice } from './cart.js';
-import { showToast } from './ui.js';
+import { showToast, escapeHtml } from './ui.js';
 
 function getCreds() {
   const params = new URLSearchParams(window.location.search);
@@ -40,7 +40,7 @@ function renderProducts(listEl, products, { sellerId, token }) {
       (product) => `
     <div class="cart-item dashboard-product-row" data-id="${product.id}">
       <div class="cart-item__info">
-        <strong>${product.name}</strong>
+        <strong>${escapeHtml(product.name)}</strong>
         <span class="cart-item__category">${product.category} · ${product.audience} · stock ${product.stock}${product.is_active ? '' : ' · inactive'}</span>
       </div>
       <div class="cart-item__price">${formatPrice(product.price_cents, product.currency)}</div>
@@ -187,7 +187,9 @@ function renderPaymentStatus(seller) {
   );
   lines.push(
     `<p><strong>mNakfa:</strong> ${
-      seller.mnakfa_number ? `${seller.mnakfa_number} (${seller.mnakfa_holder_name || 'no name on file'}) ✓` : 'Not set'
+      seller.mnakfa_number
+        ? `${escapeHtml(seller.mnakfa_number)} (${escapeHtml(seller.mnakfa_holder_name || 'no name on file')}) ✓`
+        : 'Not set'
     }</p>`
   );
   statusEl.innerHTML = `<div><h3>Your payment methods</h3>${lines.join('')}</div>`;
@@ -241,18 +243,23 @@ function renderOrders(listEl, orders) {
   }
   listEl.innerHTML = orders
     .map((order) => {
-      const itemsSummary = order.items.map((item) => `${item.name} × ${item.quantity}`).join(', ');
+      // buyerEmail and deliveryNote are typed by the BUYER at checkout,
+      // then rendered here in the SELLER's dashboard — without
+      // escaping, a crafted value would run as script in the seller's
+      // own logged-in session (their access_token sits right in this
+      // page's URL), not just the buyer's own browser.
+      const itemsSummary = order.items.map((item) => `${escapeHtml(item.name)} × ${item.quantity}`).join(', ');
       const delivery = order.requestedDeliveryAt
         ? `<span class="cart-item__category">Requested delivery: ${new Date(order.requestedDeliveryAt).toLocaleString()}</span>`
         : '';
       const note = order.deliveryNote
-        ? `<span class="cart-item__category">Note: ${order.deliveryNote}</span>`
+        ? `<span class="cart-item__category">Note: ${escapeHtml(order.deliveryNote)}</span>`
         : '';
       return `
     <div class="cart-item dashboard-product-row">
       <div class="cart-item__info">
         <strong>${itemsSummary || 'Order'}</strong>
-        <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${order.buyerEmail}` : ''}</span>
+        <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${escapeHtml(order.buyerEmail)}` : ''}</span>
         ${delivery}
         ${note}
       </div>

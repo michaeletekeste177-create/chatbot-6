@@ -8,6 +8,7 @@
 
 import { API_BASE } from './config.js';
 import { formatPrice } from './cart.js';
+import { escapeHtml } from './ui.js';
 
 function init() {
   const yearEl = document.getElementById('current-year');
@@ -39,7 +40,7 @@ function init() {
           parts.push(`<p><strong>Requested delivery:</strong> ${when}</p>`);
         }
         if (order.deliveryNote) {
-          parts.push(`<p><strong>Note:</strong> ${order.deliveryNote}</p>`);
+          parts.push(`<p><strong>Note:</strong> ${escapeHtml(order.deliveryNote)}</p>`);
         }
         deliveryEl.innerHTML = parts.join('');
       }
@@ -48,7 +49,7 @@ function init() {
         .map(
           (item) => `
         <div class="cart-item">
-          <div class="cart-item__info"><strong>${item.name}</strong></div>
+          <div class="cart-item__info"><strong>${escapeHtml(item.name)}</strong></div>
           <span>× ${item.quantity}</span>
           <div class="cart-item__price">${formatPrice(item.unitPriceCents * item.quantity, order.currency)}</div>
         </div>

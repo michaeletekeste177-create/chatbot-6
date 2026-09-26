@@ -5,6 +5,24 @@
 // slider, toast notifications and scroll-reveal animation. None of
 // this touches cart or catalog data directly — main.js wires those in.
 
+// Escapes a value for safe interpolation into an innerHTML template
+// literal. Template literals do NOT auto-escape like `textContent`
+// does, so any seller- or buyer-typed text (product names, business
+// names, delivery notes, emails, image URLs) rendered this way must
+// be passed through this first — otherwise a value like
+// `<img src=x onerror=...>` typed as a "product name" runs as script
+// for every visitor, and a quote inside it can break out of an
+// attribute (e.g. a crafted image_url escaping `src="..."`).
+export function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[ch]);
+}
+
 export function initHeaderScroll() {
   const header = document.querySelector('.site-header');
   if (!header) return;
