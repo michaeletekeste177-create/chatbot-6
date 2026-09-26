@@ -137,6 +137,12 @@ create table if not exists public.orders (
   id                    uuid primary key default uuid_generate_v4(),
   seller_id             uuid not null references public.sellers(id) on delete restrict,
   buyer_email           text,
+  -- Collected via Stripe Checkout's own phone-number field (enabled in
+  -- checkout.js), not typed on our own page — so it's whatever the
+  -- buyer entered there. Used only to send the order-confirmation
+  -- SMS/WhatsApp message (see server/lib/notify.js); null if the buyer
+  -- left Stripe's phone field blank or Twilio isn't configured at all.
+  buyer_phone           text,
   status                order_status not null default 'pending',
   subtotal_cents        integer not null default 0,
   commission_cents      integer not null default 0,

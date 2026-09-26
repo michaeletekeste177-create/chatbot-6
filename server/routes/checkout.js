@@ -178,6 +178,11 @@ router.post('/create-session', async (req, res) => {
       mode: 'payment',
       line_items: lineItems,
       customer_email: customerEmail || undefined,
+      // Lets Stripe's own hosted page collect a phone number — the only
+      // place a buyer is asked for one, so the order-confirmation
+      // SMS/WhatsApp (server/lib/notify.js) has something to send to.
+      // Optional for the buyer either way; nothing here requires it.
+      phone_number_collection: { enabled: true },
       payment_intent_data: {
         application_fee_amount: commissionCents,
         transfer_data: { destination: seller.stripe_account_id },

@@ -8,6 +8,7 @@
 const express = require('express');
 const Stripe = require('stripe');
 const { supabase } = require('../config/supabase');
+const { notifyBuyerOrderConfirmed } = require('../lib/notify');
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -55,11 +56,24 @@ async function handleCheckoutCompleted(session) {
   if (session.mode === 'payment') {
     const orderId = session.metadata?.order_id;
     if (!orderId) return;
-    await supabase
+
+    const updates = { status: 'paid', stripe_payment_intent_id: session.payment_intent };
+    // Stripe's own hosted Checkout page collects these (email always,
+    // phone only because checkout.js turned on phone_number_collection)
+    // — only set them if Stripe actually returned one, so a session
+    // with no phone doesn't blank out a value some other path set.
+    if (session.customer_details?.email) updates.buyer_email = session.customer_details.email;
+    if (session.customer_details?.phone) updates.buyer_phone = session.customer_details.phone;
+
+    const { data: order } = await supabase
       .from('orders')
-      .update({ status: 'paid', stripe_payment_intent_id: session.payment_intent })
-      .eq('id', orderId);
+      .update(updates)
+      .eq('id', orderId)
+      .select()
+      .single();
+
     await decrementStockForOrder(orderId);
+    if (order) await notifyBuyerOrderConfirmed(order);
     return;
   }
 
