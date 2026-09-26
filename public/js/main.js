@@ -82,7 +82,7 @@ function productCardHTML(product) {
       <button class="product-card__media" data-quick-view="${product.id}" aria-label="Quick view ${product.name}">
         ${
           product.image_url
-            ? `<img src="${product.image_url}" alt="${product.name}" loading="lazy" />`
+            ? `<img src="${product.image_url}" alt="${product.name}" loading="lazy" decoding="async" />`
             : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
         }
         ${audienceTag ? `<span class="product-card__audience">${audienceTag}</span>` : ''}
@@ -248,7 +248,7 @@ function renderQuickView(product) {
     <div class="quick-view__media">
       ${
         product.image_url
-          ? `<img src="${product.image_url}" alt="${product.name}" />`
+          ? `<img src="${product.image_url}" alt="${product.name}" decoding="async" />`
           : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
       }
     </div>

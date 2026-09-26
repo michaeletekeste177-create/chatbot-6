@@ -32,6 +32,7 @@ public/            static frontend — no build step required
 
 server/             Node.js/Express backend
 ├── config/supabase.js  Supabase client (service-role key, server-only)
+├── lib/notify.js       order-confirmation SMS/WhatsApp via Twilio — optional
 ├── routes/
 │   ├── products.js     GET /api/products — catalog, joined with seller name
 │   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
@@ -199,6 +200,50 @@ back to the buyer on their receipt (`success.html`/`success.js` and
 `GET /api/orders/:id/receipt`), and shown to the seller in their dashboard's
 new **Orders** section (`GET /api/seller-orders`, token-gated the same way
 as `seller-products.js`) so they actually know what was requested.
+
+## SMS & WhatsApp order notifications (optional)
+
+Once Stripe confirms a payment, `server/lib/notify.js` can text the buyer a
+short order-confirmation message — over SMS, WhatsApp, or both — using
+[Twilio](https://www.twilio.com), which supports both channels through one
+API. This is **entirely optional infrastructure**: with `TWILIO_ACCOUNT_SID` /
+`TWILIO_AUTH_TOKEN` unset in `.env` (the default), nothing changes — checkout
+and webhooks work exactly as before, just without sending a message.
+
+To turn it on:
+
+1. Create a Twilio account and buy a phone number for SMS
+   (`TWILIO_SMS_FROM`). For WhatsApp, either use Twilio's sandbox number
+   while testing or apply for your own WhatsApp-enabled sender
+   (`TWILIO_WHATSAPP_FROM`) once you're ready to go live.
+2. **WhatsApp has one extra requirement SMS doesn't**: a business can only
+   message a customer *first* (rather than reply within 24 hours of the
+   customer messaging in) using a **pre-approved message template** — this
+   is a WhatsApp/Meta policy, not something Twilio or this code can skip.
+   Register a template for the order-confirmation text in the Twilio
+   Console before relying on WhatsApp delivery; SMS has no such
+   requirement and works immediately.
+3. Set the four `TWILIO_*` variables in `.env` (see `.env.example`) and
+   restart the backend.
+
+A buyer's phone number comes from Stripe Checkout's own hosted page —
+`checkout.js` turns on `phone_number_collection`, so there's no extra field
+on Hibretfamily's own cart drawer. It's optional for the buyer there too;
+if they leave it blank (or Twilio isn't configured), `notifyBuyerOrderConfirmed`
+just does nothing — a failed or skipped notification never blocks the sale
+itself.
+
+## WhatsApp Business (the contact button)
+
+The floating contact button (`public/js/contact-widget.js`) already links to
+`https://wa.me/<SITE.phone>` — that same link works identically whether
+`SITE.phone` is a regular WhatsApp number or one registered with the
+(free) **WhatsApp Business** app. Installing WhatsApp Business on that
+number is a phone-side setup step, not a code change — it gets you a
+business profile (hours, address, catalog), automated greeting/away
+messages, and quick-reply templates. Once you've installed it on your
+shop's number, update `SITE.phone` in `public/js/config.js` if that number
+is different from the placeholder currently there.
 
 ## Order lookup and customer contact (the simple versions)
 
