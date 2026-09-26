@@ -137,7 +137,7 @@ export const I18N = {
 
     nav_sell: 'Sell With Us',
     seller_hero_eyebrow: 'Global Marketplace',
-    seller_hero_heading: 'Bring your business to the world',
+    seller_hero_heading: 'Bring your business to every corner of the world',
     seller_cta: 'Register as a Seller',
     tier_freemium_name: 'Freemium',
     tier_freemium_target: 'For new and small sellers',
@@ -176,7 +176,7 @@ export const I18N = {
 
     nav_sell: 'ንግድኹም ጀምሩ',
     seller_hero_eyebrow: 'ዓለምለኸ ዕዳጋ',
-    seller_hero_heading: 'ንግድኹም ምስ ዓለም ኣተሓሕዙ',
+    seller_hero_heading: 'ንግድኹም ናብ ኩሉ ኩርናዕ ዓለም ኣብጽሑ',
     seller_cta: 'ከም ሽያጣይ ተመዝገቡ',
     tier_freemium_name: 'ብነጻ ደረጃ',
     tier_freemium_target: 'ንሓደስቲን ንኣሽቱን ሸየጥቲ',
