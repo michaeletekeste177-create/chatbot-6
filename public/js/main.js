@@ -25,6 +25,7 @@ import {
   initTestimonialSlider,
   initBackToTop,
   showToast,
+  escapeHtml,
 } from './ui.js';
 
 const cart = new Cart();
@@ -77,12 +78,14 @@ function audienceLabel(audience) {
 
 function productCardHTML(product) {
   const audienceTag = product.audience && product.audience !== 'unisex' ? audienceLabel(product.audience) : '';
+  const name = escapeHtml(product.name);
+  const sellerName = escapeHtml(product.sellerName);
   return `
     <article class="product-card" data-reveal>
-      <button class="product-card__media" data-quick-view="${product.id}" aria-label="Quick view ${product.name}">
+      <button class="product-card__media" data-quick-view="${product.id}" aria-label="Quick view ${name}">
         ${
           product.image_url
-            ? `<img src="${product.image_url}" alt="${product.name}" loading="lazy" decoding="async" />`
+            ? `<img src="${escapeHtml(product.image_url)}" alt="${name}" loading="lazy" decoding="async" />`
             : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
         }
         ${audienceTag ? `<span class="product-card__audience">${audienceTag}</span>` : ''}
@@ -90,11 +93,11 @@ function productCardHTML(product) {
       </button>
       <div class="product-card__body">
         <span class="product-card__category">${categoryLabel(product.category)}</span>
-        <h3 class="product-card__name">${product.name}</h3>
-        ${product.sellerName ? `<span class="product-card__seller">${product.sellerName}</span>` : ''}
+        <h3 class="product-card__name">${name}</h3>
+        ${product.sellerName ? `<span class="product-card__seller">${sellerName}</span>` : ''}
         <div class="product-card__row">
           <span class="price-tag">${formatPrice(product.price_cents, product.currency)}</span>
-          <button class="btn btn--icon btn--add" data-add-to-cart="${product.id}" aria-label="${t('add_to_cart')}: ${product.name}">
+          <button class="btn btn--icon btn--add" data-add-to-cart="${product.id}" aria-label="${t('add_to_cart')}: ${name}">
             <svg class="icon" aria-hidden="true"><use href="#icon-cart"></use></svg>
           </button>
         </div>
@@ -212,13 +215,13 @@ function renderCart() {
     el.checkoutBtn.disabled = true;
   } else {
     el.cartItems.innerHTML = `
-      ${cart.items[0]?.sellerName ? `<p class="cart-drawer__seller">Seller: <strong>${cart.items[0].sellerName}</strong></p>` : ''}
+      ${cart.items[0]?.sellerName ? `<p class="cart-drawer__seller">Seller: <strong>${escapeHtml(cart.items[0].sellerName)}</strong></p>` : ''}
       ${cart.items
         .map(
           (item) => `
       <div class="cart-item">
         <div class="cart-item__info">
-          <strong>${item.name}</strong>
+          <strong>${escapeHtml(item.name)}</strong>
           <span class="cart-item__category">${categoryLabel(item.category)}</span>
         </div>
         <div class="cart-item__controls">
@@ -227,7 +230,7 @@ function renderCart() {
           <button class="qty-btn" data-qty="1" data-id="${item.productId}" aria-label="Increase quantity">+</button>
         </div>
         <div class="cart-item__price">${formatPrice(item.price_cents * item.quantity, item.currency)}</div>
-        <button class="cart-item__remove" data-remove="${item.productId}" aria-label="Remove ${item.name}">
+        <button class="cart-item__remove" data-remove="${item.productId}" aria-label="Remove ${escapeHtml(item.name)}">
           <svg class="icon icon--sm" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
       </div>
@@ -244,18 +247,19 @@ function renderCart() {
 function renderQuickView(product) {
   if (!el.quickView) return;
   const audienceTag = audienceLabel(product.audience);
+  const name = escapeHtml(product.name);
   el.quickView.innerHTML = `
     <div class="quick-view__media">
       ${
         product.image_url
-          ? `<img src="${product.image_url}" alt="${product.name}" decoding="async" />`
+          ? `<img src="${escapeHtml(product.image_url)}" alt="${name}" decoding="async" />`
           : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
       }
     </div>
     <div class="quick-view__info">
       <span class="product-card__category">${categoryLabel(product.category)}${audienceTag && product.audience !== 'unisex' ? ` · ${audienceTag}` : ''}</span>
-      <h2>${product.name}</h2>
-      ${product.sellerName ? `<p class="quick-view__seller">Sold by <strong>${product.sellerName}</strong></p>` : ''}
+      <h2>${name}</h2>
+      ${product.sellerName ? `<p class="quick-view__seller">Sold by <strong>${escapeHtml(product.sellerName)}</strong></p>` : ''}
       <p class="price-tag price-tag--lg">${formatPrice(product.price_cents, product.currency)}</p>
       <button class="btn btn--primary" data-add-to-cart="${product.id}" data-close-modal>${t('add_to_cart')}</button>
     </div>
@@ -348,7 +352,7 @@ function handleSearch(query) {
           .map(
             (p) => `
         <button class="search-result" data-quick-view="${p.id}">
-          <span>${p.name}</span>
+          <span>${escapeHtml(p.name)}</span>
           <span class="search-result__price">${formatPrice(p.price_cents, p.currency)}</span>
         </button>
       `
