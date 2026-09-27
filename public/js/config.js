@@ -65,8 +65,11 @@ export const DIGITAL_WELCOME = { ti: 'የቐንየልና', en: 'Thank You' };
 export const API_BASE = window.HIBRETFAMILY_API_BASE || 'http://localhost:4000/api';
 
 export const CATEGORIES = [
+  { id: 'traditional_wear', label: 'Traditional Wear', icon: 'tradition', blurb: 'Habesha kemis, netsela & more' },
   { id: 'apparel',     label: 'Apparel',     icon: 'shirt',   blurb: 'Everyday & occasion wear' },
   { id: 'shoes',       label: 'Shoes',       icon: 'shoe',    blurb: 'Sneakers, heels & boots' },
+  { id: 'handmade',    label: 'Handmade & Crafts', icon: 'handmade', blurb: 'Original, one-of-a-kind pieces' },
+  { id: 'jewelry',     label: 'Jewelry & Accessories', icon: 'jewelry', blurb: 'Rings, necklaces & more' },
   { id: 'electronics', label: 'Electronics', icon: 'device',  blurb: 'Audio, gadgets & accessories' },
   { id: 'books',       label: 'Books',       icon: 'book',    blurb: 'Stories for every age' },
   { id: 'cosmetics',   label: 'Cosmetics',   icon: 'sparkle', blurb: 'Skincare & beauty' },
@@ -126,6 +129,7 @@ export const I18N = {
     pill_all: 'All departments', pill_everyone: 'Everyone',
     cat_apparel: 'Apparel', cat_shoes: 'Shoes', cat_electronics: 'Electronics',
     cat_books: 'Books', cat_cosmetics: 'Cosmetics',
+    cat_traditional_wear: 'Traditional Wear', cat_handmade: 'Handmade & Crafts', cat_jewelry: 'Jewelry & Accessories',
     aud_women: 'Women', aud_men: 'Men', aud_kids: 'Kids', aud_unisex: 'Everyone',
 
     banner_badge: 'New This Season',
@@ -165,6 +169,7 @@ export const I18N = {
     pill_all: 'ኩሉ ክፍልታት', pill_everyone: 'ንኹሉ',
     cat_apparel: 'ክዳውንቲ', cat_shoes: 'ጫማ', cat_electronics: 'ኤሌክትሮኒክስ',
     cat_books: 'መጻሕፍቲ', cat_cosmetics: 'ኮስመቲክስ',
+    cat_traditional_wear: 'ባህላዊ ክዳውንቲ', cat_handmade: 'ናይ ኢድ ስራሕ', cat_jewelry: 'ኣልማዝን መሸለምያን',
     aud_women: 'ደቂ ኣንስትዮ', aud_men: 'ደቂ ተባዕትዮ', aud_kids: 'ቆልዑ', aud_unisex: 'ንኹሉ',
 
     banner_badge: 'ሓድሽ ወቕቲ',

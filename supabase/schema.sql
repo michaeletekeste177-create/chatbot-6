@@ -11,21 +11,30 @@
 create extension if not exists "uuid-ossp";
 
 -- ---------------------------------------------------------------------
--- Product category enum (apparel, shoes, electronics, books, cosmetics).
--- Values stay in English so they're a stable join/filter key; the
--- storefront renders them in Tigrinya via the I18N table in
--- public/js/config.js (cat_apparel, cat_shoes, ...), so the Tigrinya
--- label is never duplicated — and never able to drift out of sync —
--- across rows.
+-- Product category enum (apparel, shoes, electronics, books, cosmetics,
+-- traditional_wear, handmade, jewelry). Values stay in English so
+-- they're a stable join/filter key; the storefront renders them in
+-- Tigrinya via the I18N table in public/js/config.js (cat_apparel,
+-- cat_shoes, ...), so the Tigrinya label is never duplicated — and
+-- never able to drift out of sync — across rows.
 -- ---------------------------------------------------------------------
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'product_category') then
     create type product_category as enum (
-      'apparel', 'shoes', 'electronics', 'books', 'cosmetics'
+      'apparel', 'shoes', 'electronics', 'books', 'cosmetics',
+      'traditional_wear', 'handmade', 'jewelry'
     );
   end if;
 end$$;
+
+-- traditional_wear/handmade/jewelry were added after the original five —
+-- `add value if not exists` is safe to run again on a database that
+-- already has them (including a fresh install, where the `create type`
+-- above just added them already).
+alter type product_category add value if not exists 'traditional_wear';
+alter type product_category add value if not exists 'handmade';
+alter type product_category add value if not exists 'jewelry';
 
 -- Who a product is aimed at. Only meaningful for apparel/shoes, but
 -- kept on every row (default 'unisex') so the storefront's Women/Men/
