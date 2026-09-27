@@ -11,7 +11,7 @@ const { supabase } = require('../config/supabase');
 
 const router = express.Router();
 
-const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics'];
+const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics', 'traditional_wear', 'handmade', 'jewelry'];
 const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
 const PRODUCT_SELECT = 'id, seller_id, name, category, audience, price_cents, currency, stock, image_url, sellers(business_name)';
 

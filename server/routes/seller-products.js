@@ -14,7 +14,7 @@ const { supabase } = require('../config/supabase');
 
 const router = express.Router();
 
-const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics'];
+const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics', 'traditional_wear', 'handmade', 'jewelry'];
 const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
 // Real, freely-convertible currencies only — Stripe settles in whichever
 // the seller picks. This is deliberately NOT where Nakfa would go: Nakfa
