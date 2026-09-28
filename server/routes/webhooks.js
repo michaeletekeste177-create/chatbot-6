@@ -14,15 +14,29 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // POST /api/webhooks/stripe
+//
+// Two separate Stripe event destinations point here: one for "your
+// account" events (checkout, disputes, subscriptions) and one for
+// "connected account" events (account.updated, fired when a seller's
+// own Stripe account changes) — Stripe signs each destination with its
+// own secret, so both are tried in turn.
 router.post('/stripe', async (req, res) => {
   const sig = req.headers['stripe-signature'];
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRET_CONNECT].filter(Boolean);
   let event;
 
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error('webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, secret);
+      break;
+    } catch (err) {
+      // not signed with this secret — try the next one
+    }
+  }
+
+  if (!event) {
+    console.error('webhook signature verification failed for all configured secrets');
+    return res.status(400).send('Webhook Error: invalid signature');
   }
 
   try {
