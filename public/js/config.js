@@ -61,8 +61,11 @@ export const SELLER_LIABILITY_STATEMENT = {
 export const DIGITAL_WELCOME = { ti: 'የቐንየልና', en: 'Thank You' };
 
 // Point this at your deployed backend. Falls back to localhost for
-// local development against `server/`.
-export const API_BASE = window.HIBRETFAMILY_API_BASE || 'http://localhost:4000/api';
+// local development against `server/`; everywhere else (the live site)
+// uses the Render backend, unless window.HIBRETFAMILY_API_BASE overrides it.
+const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+export const API_BASE =
+  window.HIBRETFAMILY_API_BASE || (isLocalhost ? 'http://localhost:4000/api' : 'https://hibretfamily.onrender.com/api');
 
 export const CATEGORIES = [
   { id: 'traditional_wear', label: 'Traditional Wear', icon: 'tradition', blurb: 'Habesha kemis, netsela & more' },
