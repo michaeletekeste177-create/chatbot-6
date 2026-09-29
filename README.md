@@ -39,7 +39,7 @@ server/             Node.js/Express backend
 │   ├── products.js     GET /api/products — catalog, joined with seller name
 │   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
 │   ├── seller-products.js  CRUD for a seller's own listings, gated by their access_token
-│   ├── seller-orders.js  GET /api/seller-orders (token-gated) + PATCH .../:id/ship
+│   ├── seller-orders.js  GET /api/seller-orders (token-gated) + PATCH .../:id/mark-paid, .../:id/ship
 │   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
 │   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
 │   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
@@ -204,6 +204,32 @@ back to the buyer on their receipt (`success.html`/`success.js` and
 new **Orders** section (`GET /api/seller-orders`, token-gated the same way
 as `seller-products.js`) so they actually know what was requested.
 
+## Checking out with a seller who only has mNakfa
+
+Stripe has no presence in Eritrea, so a seller who's only recorded an mNakfa
+number in **Payment Settings** (no `stripe_account_id`/`charges_enabled`)
+can still be checked out from — `checkout.js` branches on this: instead of
+creating a Stripe Checkout Session, it creates the order directly (status
+`pending`) and returns `{ paymentMethod: 'mnakfa', mnakfaNumber,
+mnakfaHolderName }`. The cart drawer shows those details in place of
+redirecting to Stripe, and the buyer sends the mNakfa transfer themselves,
+outside the platform entirely.
+
+Because there's no Stripe hosted page for this path to collect a buyer's
+email/phone, the cart drawer asks for both directly (`public/index.html`) —
+optional for a Stripe checkout (Stripe's own page collects them there
+instead) but the only way `buyer_phone` gets set for an mNakfa order, which
+the delivery-confirmation flow below depends on.
+
+The seller confirms payment themselves once they've verified the transfer
+(`PATCH /api/seller-orders/:id/mark-paid`, shown as **"Mark as paid
+(mNakfa)"** in the dashboard) — there's no webhook for this path to do it
+automatically. **How Hibretfamily actually collects its commission on an
+mNakfa sale is a deliberately separate, not-yet-decided question** — this
+flow only tracks that a sale happened and was paid; `commission_cents` is
+still recorded on the order for later reference, but nothing here bills or
+collects it yet.
+
 ## SMS & WhatsApp order notifications (optional)
 
 Once Stripe confirms a payment, `server/lib/notify.js` can text the buyer a
@@ -240,9 +266,10 @@ itself.
 
 A Stripe order gets its `paid`/stock-decrement update automatically from the
 `checkout.session.completed` webhook — but an order paid through a seller's
-own mNakfa contact (see the payment-method section below) never touches
-Stripe at all, so there's no webhook to mark anything. This flow closes that
-gap with a manual, seller-triggered confirmation instead:
+own mNakfa contact (see "Checking out with a seller who only has mNakfa"
+above) never touches Stripe at all, so there's no webhook to mark anything.
+This flow closes that gap with a manual, seller-triggered confirmation
+instead:
 
 1. A seller (or their in-country contact) marks an order **"shipped"** from
    their dashboard (`PATCH /api/seller-orders/:id/ship`, token-gated the

@@ -44,6 +44,9 @@ const el = {
   checkoutState: document.getElementById('checkout-state'),
   deliveryDateTime: document.getElementById('delivery-date-time'),
   deliveryNote: document.getElementById('delivery-note'),
+  buyerEmail: document.getElementById('buyer-email'),
+  buyerPhone: document.getElementById('buyer-phone'),
+  mnakfaNotice: document.getElementById('cart-mnakfa-notice'),
   quickView: document.getElementById('quick-view-body'),
   searchForm: document.getElementById('search-form'),
   searchInput: document.getElementById('search-input'),
@@ -306,11 +309,14 @@ function animateAddButton(btn) {
 async function startCheckout() {
   if (cart.items.length === 0) return;
   el.checkoutBtn.disabled = true;
-  el.checkoutState.textContent = 'Redirecting to secure checkout…';
+  el.checkoutState.textContent = 'Starting checkout…';
   el.checkoutState.hidden = false;
+  if (el.mnakfaNotice) el.mnakfaNotice.hidden = true;
 
   const deliveryDateTimeValue = el.deliveryDateTime?.value;
   const deliveryNoteValue = el.deliveryNote?.value.trim();
+  const buyerEmailValue = el.buyerEmail?.value.trim();
+  const buyerPhoneValue = el.buyerPhone?.value.trim();
 
   try {
     const res = await fetch(`${API_BASE}/checkout/create-session`, {
@@ -320,14 +326,43 @@ async function startCheckout() {
         items: cart.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         requestedDeliveryAt: deliveryDateTimeValue ? new Date(deliveryDateTimeValue).toISOString() : undefined,
         deliveryNote: deliveryNoteValue || undefined,
+        customerEmail: buyerEmailValue || undefined,
+        customerPhone: buyerPhoneValue || undefined,
       }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || 'Checkout request failed');
     }
-    const { url } = await res.json();
-    window.location.href = url;
+    const body = await res.json();
+
+    // Two possible outcomes: a Stripe seller redirects to hosted
+    // checkout as before; an mNakfa-only seller has no Stripe page to
+    // send the buyer to, so the order is created directly (status
+    // 'pending') and the buyer pays the seller's mNakfa number
+    // themselves — see checkout.js and the README's manual delivery
+    // confirmation section for the rest of that flow.
+    if (body.paymentMethod === 'mnakfa') {
+      el.checkoutState.hidden = true;
+      if (el.mnakfaNotice) {
+        el.mnakfaNotice.hidden = false;
+        el.mnakfaNotice.innerHTML = `
+          <svg class="icon"><use href="#icon-shield"></use></svg>
+          <div>
+            <h3 lang="ti">ብmNakfa ክትከፍል ኣለካ</h3>
+            <h3>Pay via mNakfa</h3>
+            <p>Send payment to <strong>${escapeHtml(body.mnakfaHolderName || 'the seller')}</strong> at
+              <strong>${escapeHtml(body.mnakfaNumber)}</strong>, then wait for the seller to confirm — you'll get an
+              SMS/WhatsApp update once they do.</p>
+          </div>
+        `;
+      }
+      cart.clear();
+      renderCart();
+      return;
+    }
+
+    window.location.href = body.url;
   } catch (err) {
     console.error(err);
     el.checkoutState.textContent = isUsingDemoData()

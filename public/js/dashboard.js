@@ -255,6 +255,15 @@ function renderOrders(listEl, orders) {
       const note = order.deliveryNote
         ? `<span class="cart-item__category">Note: ${escapeHtml(order.deliveryNote)}</span>`
         : '';
+      // Manual payment confirmation for mNakfa orders — there's no
+      // Stripe webhook for this path, so the seller confirms it
+      // themselves once they've verified the mNakfa transfer (see the
+      // mark-paid route in server/routes/seller-orders.js). Nothing
+      // shown for a Stripe order — its status is already accurate.
+      const payStatus =
+        order.isMnakfa && order.status === 'pending'
+          ? `<button type="button" class="btn btn--ghost btn--sm" data-pay-order="${order.id}">Mark as paid (mNakfa)</button>`
+          : '';
       // Manual delivery-confirmation status, mainly for orders paid
       // outside Stripe (mNakfa) where there's no webhook to update
       // anything automatically — see server/routes/seller-orders.js.
@@ -273,6 +282,7 @@ function renderOrders(listEl, orders) {
         <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${escapeHtml(order.buyerEmail)}` : ''}</span>
         ${delivery}
         ${note}
+        ${payStatus}
         ${shipStatus}
       </div>
       <div class="cart-item__price">${formatPrice(order.totalCents, order.currency)}</div>
@@ -292,17 +302,21 @@ async function loadOrders({ sellerId, token }) {
   if (!listEl.dataset.shipHandlerBound) {
     listEl.dataset.shipHandlerBound = 'true';
     listEl.addEventListener('click', async (e) => {
-      const btn = e.target.closest('[data-ship-order]');
+      const payBtn = e.target.closest('[data-pay-order]');
+      const shipBtn = e.target.closest('[data-ship-order]');
+      const btn = payBtn || shipBtn;
       if (!btn) return;
       btn.disabled = true;
+      const orderId = payBtn ? payBtn.dataset.payOrder : shipBtn.dataset.shipOrder;
+      const action = payBtn ? 'mark-paid' : 'ship';
       try {
-        const res = await fetch(`${API_BASE}/seller-orders/${encodeURIComponent(btn.dataset.shipOrder)}/ship`, {
+        const res = await fetch(`${API_BASE}/seller-orders/${encodeURIComponent(orderId)}/${action}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sellerId, token }),
         });
-        if (!res.ok) throw new Error('Could not mark this order as shipped.');
-        showToast('Marked as shipped — the buyer has been notified.');
+        if (!res.ok) throw new Error(payBtn ? 'Could not mark this order as paid.' : 'Could not mark this order as shipped.');
+        showToast(payBtn ? 'Marked as paid — the buyer has been notified.' : 'Marked as shipped — the buyer has been notified.');
         await loadOrders({ sellerId, token });
       } catch (err) {
         showToast(err.message || 'Something went wrong.');
