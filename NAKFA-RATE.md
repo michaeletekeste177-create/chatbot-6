@@ -11,17 +11,16 @@ back when asked "how much is my commission in Nakfa."
 
 ## Current rate
 
-**Not yet set.** The official Bank of Eritrea peg (1 USD = 15 Nakfa, unchanged
-for many years) does not necessarily reflect real purchasing power on the
-ground, and using it blindly to settle with people in Eritrea risks doing
-them real financial harm. The platform owner will set this after studying
-actual conditions during her visit to Eritrea — not before.
-
-Once set, this section will read:
-
 ```
-1 USD = <rate> Nakfa   (updated <date>)
+1 USD = 15 Nakfa   (updated 2026-09-29)
 ```
+
+This is the **official Bank of Eritrea peg**, unchanged for many years — the
+only verified, sourced number available right now. It does **not** necessarily
+reflect real purchasing power on the ground, and using it to actually settle
+with people in Eritrea could shortchange them. The platform owner plans to
+revisit this number after studying real conditions during her visit to
+Eritrea, and will tell Claude the updated figure once she has one.
 
 To change it: tell Claude the new rate and date, and ask it to update and
 commit this file.
