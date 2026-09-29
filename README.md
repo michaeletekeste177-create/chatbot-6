@@ -14,6 +14,7 @@ public/            static frontend — no build step required
 ├── dashboard.html       seller's own product management (add/edit/deactivate)
 ├── success.html        post-checkout receipt ("የቐንየልና / Thank You")
 ├── orders.html          buyer order lookup by email (no account needed)
+├── confirm-receipt.html buyer's "I received it" page, linked from the shipped SMS
 ├── css/
 │   ├── theme.css       ← EVERY color/font/spacing value. Edit this to re-theme.
 │   └── style.css       component styles, reads theme.css tokens only
@@ -28,6 +29,7 @@ public/            static frontend — no build step required
     ├── dashboard.js       seller product CRUD logic (dashboard.html)
     ├── success.js        receipt page logic (success.html)
     ├── orders-lookup.js   order-by-email lookup logic (orders.html)
+    ├── confirm-receipt.js buyer delivery-confirmation logic (confirm-receipt.html)
     └── contact-widget.js  floating WhatsApp/email contact button, on every page
 
 server/             Node.js/Express backend
@@ -37,16 +39,17 @@ server/             Node.js/Express backend
 │   ├── products.js     GET /api/products — catalog, joined with seller name
 │   ├── sellers.js       POST /api/sellers/register, GET /api/sellers/:id/status
 │   ├── seller-products.js  CRUD for a seller's own listings, gated by their access_token
-│   ├── seller-orders.js  GET /api/seller-orders — a seller's own sales, token-gated
+│   ├── seller-orders.js  GET /api/seller-orders (token-gated) + PATCH .../:id/ship
 │   ├── checkout.js      POST /api/checkout/create-session — the split-payment gateway
 │   ├── subscriptions.js POST /api/subscriptions/create-checkout-session — premium tier billing
 │   ├── webhooks.js       POST /api/webhooks/stripe — the source of truth for payment state
 │   └── orders.js         GET /api/orders?email=, GET /api/orders/:id/receipt,
-│                         POST /api/orders/:id/refund (admin-key gated)
+│                         POST /api/orders/:id/confirm-receipt, POST /:id/refund (admin-key gated)
 └── server.js            app entry point
 
-supabase/schema.sql  sellers, products, orders (with requested delivery date/note),
-                      order_items, decrement_product_stock() + RLS
+supabase/schema.sql  sellers, products, orders (with requested delivery date/note,
+                      manual shipped/received confirmation), order_items,
+                      decrement_product_stock() + RLS
 scripts/verify-env.sh  checks Node/npm are installed
 marketing/           non-code assets (promotional video script, etc.)
 ```
@@ -232,6 +235,32 @@ on Hibretfamily's own cart drawer. It's optional for the buyer there too;
 if they leave it blank (or Twilio isn't configured), `notifyBuyerOrderConfirmed`
 just does nothing — a failed or skipped notification never blocks the sale
 itself.
+
+## Manual delivery confirmation (for orders paid outside Stripe)
+
+A Stripe order gets its `paid`/stock-decrement update automatically from the
+`checkout.session.completed` webhook — but an order paid through a seller's
+own mNakfa contact (see the payment-method section below) never touches
+Stripe at all, so there's no webhook to mark anything. This flow closes that
+gap with a manual, seller-triggered confirmation instead:
+
+1. A seller (or their in-country contact) marks an order **"shipped"** from
+   their dashboard (`PATCH /api/seller-orders/:id/ship`, token-gated the
+   same way as every other seller-products write).
+2. That texts the buyer (via `notifyBuyerOrderShipped` in
+   `server/lib/notify.js`, same optional Twilio setup as above) a link to
+   `public/confirm-receipt.html?order=<id>&token=<delivery_confirmation_token>`.
+3. The buyer taps **"I have received the item(s) sent to me from
+   Hibretfamily"** once it arrives, which calls the public
+   `POST /api/orders/:id/confirm-receipt` — same unguessable-UUID-is-the-
+   authorization model as the existing receipt route, no buyer login needed.
+4. Both timestamps (`shipped_at`, `received_at` in `supabase/schema.sql`)
+   show up in the seller's Orders list, so a seller can see at a glance
+   which mNakfa orders are still awaiting confirmation.
+
+This is deliberately not real-time package tracking (no courier API exists
+to plug into for informal domestic shipping in Eritrea) — it's a simple
+two-step paper trail that also settles "I never received it" disputes.
 
 ## WhatsApp Business (the contact button)
 

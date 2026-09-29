@@ -255,6 +255,17 @@ function renderOrders(listEl, orders) {
       const note = order.deliveryNote
         ? `<span class="cart-item__category">Note: ${escapeHtml(order.deliveryNote)}</span>`
         : '';
+      // Manual delivery-confirmation status, mainly for orders paid
+      // outside Stripe (mNakfa) where there's no webhook to update
+      // anything automatically — see server/routes/seller-orders.js.
+      let shipStatus;
+      if (order.receivedAt) {
+        shipStatus = '<span class="cart-item__category">✅ Buyer confirmed receipt</span>';
+      } else if (order.shippedAt) {
+        shipStatus = '<span class="cart-item__category">📦 Marked shipped — awaiting buyer confirmation</span>';
+      } else {
+        shipStatus = `<button type="button" class="btn btn--ghost btn--sm" data-ship-order="${order.id}">Mark as shipped</button>`;
+      }
       return `
     <div class="cart-item dashboard-product-row">
       <div class="cart-item__info">
@@ -262,6 +273,7 @@ function renderOrders(listEl, orders) {
         <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${escapeHtml(order.buyerEmail)}` : ''}</span>
         ${delivery}
         ${note}
+        ${shipStatus}
       </div>
       <div class="cart-item__price">${formatPrice(order.totalCents, order.currency)}</div>
     </div>
@@ -276,6 +288,28 @@ async function loadOrders({ sellerId, token }) {
   if (!res.ok) throw new Error('Could not load your orders.');
   const { orders } = await res.json();
   renderOrders(listEl, orders);
+
+  if (!listEl.dataset.shipHandlerBound) {
+    listEl.dataset.shipHandlerBound = 'true';
+    listEl.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-ship-order]');
+      if (!btn) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/seller-orders/${encodeURIComponent(btn.dataset.shipOrder)}/ship`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sellerId, token }),
+        });
+        if (!res.ok) throw new Error('Could not mark this order as shipped.');
+        showToast('Marked as shipped — the buyer has been notified.');
+        await loadOrders({ sellerId, token });
+      } catch (err) {
+        showToast(err.message || 'Something went wrong.');
+        btn.disabled = false;
+      }
+    });
+  }
 }
 
 async function init() {

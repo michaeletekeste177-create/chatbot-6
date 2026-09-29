@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ti">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm receipt — Hibretfamily</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#10402f" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310402f'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Georgia,serif' fill='%23d68a3a' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <svg style="display:none">
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7zM6.5 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17.5 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="index.html" class="logo">Hibretfamily</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="success-page">
+      <div class="success-page__icon"><svg class="icon"><use href="#icon-truck"></use></svg></div>
+      <p class="eyebrow">Delivery</p>
+      <h1 class="success-page__welcome" id="confirm-heading">
+        <span lang="ti">ንብረትካ በጺሑካ ድዩ?</span>
+      </h1>
+      <p id="confirm-summary" class="success-page__summary">Checking your order…</p>
+
+      <button type="button" id="confirm-receipt-btn" class="btn btn--primary" hidden>
+        <span lang="ti">ካብ ሕብረትፋሚሊ ዝተላእከለይ ንብረት ተቐቢለ ኣሎኹ</span>
+        <br />
+        <span style="font-size: var(--fs-sm); font-weight: 400;">I have received the item(s) sent to me from Hibretfamily</span>
+      </button>
+
+      <div id="confirm-done" class="liability-notice" style="max-width: 480px; margin: var(--space-4) auto 0;" hidden>
+        <svg class="icon"><use href="#icon-check"></use></svg>
+        <div>
+          <p lang="ti">የቐንየልና! ምቕባልካ ተመዝጊቡ ኣሎ።</p>
+          <p>Thank you — your receipt has been recorded.</p>
+        </div>
+      </div>
+
+      <a href="index.html" class="btn btn--ghost" style="margin-top: var(--space-4);">Back to Hibretfamily</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__bottom">
+      <p>© <span id="current-year"></span> Hibretfamily. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/confirm-receipt.js"></script>
+  <script type="module" src="js/contact-widget.js"></script>
+</body>
+</html>

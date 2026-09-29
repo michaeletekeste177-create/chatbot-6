@@ -8,8 +8,10 @@
 
 const express = require('express');
 const { supabase } = require('../config/supabase');
+const { notifyBuyerOrderShipped } = require('../lib/notify');
 
 const router = express.Router();
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8080';
 
 async function verifySeller(sellerId, token) {
   if (!sellerId || !token) return null;
@@ -30,7 +32,7 @@ router.get('/', async (req, res) => {
   const { data: orders, error } = await supabase
     .from('orders')
     .select(
-      'id, status, subtotal_cents, currency, buyer_email, requested_delivery_at, delivery_note, created_at, order_items(quantity, unit_price_cents, products(name))'
+      'id, status, subtotal_cents, currency, buyer_email, requested_delivery_at, delivery_note, shipped_at, received_at, created_at, order_items(quantity, unit_price_cents, products(name))'
     )
     .eq('seller_id', seller.id)
     .order('created_at', { ascending: false });
@@ -49,6 +51,8 @@ router.get('/', async (req, res) => {
       buyerEmail: order.buyer_email,
       requestedDeliveryAt: order.requested_delivery_at,
       deliveryNote: order.delivery_note,
+      shippedAt: order.shipped_at,
+      receivedAt: order.received_at,
       createdAt: order.created_at,
       items: (order.order_items || []).map((item) => ({
         name: item.products?.name || 'Item',
@@ -57,6 +61,37 @@ router.get('/', async (req, res) => {
       })),
     })),
   });
+});
+
+// PATCH /api/seller-orders/:id/ship
+// body: { sellerId, token }
+//
+// The manual delivery-confirmation trigger for orders paid outside
+// Stripe (mNakfa) — there's no webhook to mark anything automatically
+// for that path, so the seller (or their in-Eritrea contact) marks it
+// shipped themselves, which texts the buyer a confirm-receipt link
+// (see server/lib/notify.js and public/confirm-receipt.html).
+router.patch('/:id/ship', async (req, res) => {
+  const { sellerId, token } = req.body;
+  const seller = await verifySeller(sellerId, token);
+  if (!seller) return res.status(401).json({ error: 'Invalid seller credentials.' });
+
+  const { data: order, error } = await supabase
+    .from('orders')
+    .update({ shipped_at: new Date().toISOString() })
+    .eq('id', req.params.id)
+    .eq('seller_id', seller.id) // scoped: can't ship another seller's order by guessing an id
+    .select('id, buyer_phone, subtotal_cents, currency, delivery_confirmation_token, shipped_at')
+    .single();
+
+  if (error || !order) {
+    return res.status(404).json({ error: 'Order not found.' });
+  }
+
+  const confirmUrl = `${CLIENT_URL}/confirm-receipt.html?order=${order.id}&token=${order.delivery_confirmation_token}`;
+  await notifyBuyerOrderShipped(order, confirmUrl);
+
+  res.json({ shippedAt: order.shipped_at });
 });
 
 module.exports = router;

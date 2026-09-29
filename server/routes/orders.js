@@ -118,6 +118,46 @@ router.get('/:id/receipt', async (req, res) => {
   });
 });
 
+// POST /api/orders/:id/confirm-receipt
+// body: { token }
+//
+// The manual, non-Stripe delivery-confirmation step: a seller marks an
+// order "shipped" from their dashboard (see routes/seller-orders.js),
+// which texts the buyer a link carrying delivery_confirmation_token.
+// Public by design, same unguessable-UUID-is-the-authorization model as
+// the receipt route above — the token is the buyer's proof, not a
+// login. Idempotent: confirming twice just returns the original time.
+router.post('/:id/confirm-receipt', async (req, res) => {
+  const { token } = req.body;
+
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select('id, delivery_confirmation_token, received_at')
+    .eq('id', req.params.id)
+    .single();
+
+  if (error || !order || !token || order.delivery_confirmation_token !== token) {
+    return res.status(404).json({ error: 'Order not found.' });
+  }
+  if (order.received_at) {
+    return res.json({ receivedAt: order.received_at });
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from('orders')
+    .update({ received_at: new Date().toISOString() })
+    .eq('id', order.id)
+    .select('received_at')
+    .single();
+
+  if (updateError) {
+    console.error('confirm-receipt update failed:', updateError.message);
+    return res.status(500).json({ error: 'Could not confirm receipt.' });
+  }
+
+  res.json({ receivedAt: updated.received_at });
+});
+
 // POST /api/orders/:id/refund
 // Requires header: x-admin-api-key: <ADMIN_API_KEY>
 router.post('/:id/refund', requireAdmin, async (req, res) => {
