@@ -24,3 +24,13 @@ Eritrea, and will tell Claude the updated figure once she has one.
 
 To change it: tell Claude the new rate and date, and ask it to update and
 commit this file.
+
+## Worked examples at the current rate
+
+Commission (USD) × 15 = commission (Nakfa).
+
+| Sale price | 10% commission (Freemium) | 6% commission (Premium) |
+|---|---|---|
+| $100 | $10 → **150 Nakfa** | $6 → **90 Nakfa** |
+| $50  | $5 → **75 Nakfa**  | $3 → **45 Nakfa** |
+| $20  | $2 → **30 Nakfa**  | $1.20 → **18 Nakfa** |
