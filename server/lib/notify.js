@@ -35,13 +35,13 @@ function buildOrderConfirmedMessage(order) {
   );
 }
 
-// Best-effort only: a failed notification never blocks or retries the
-// checkout/webhook flow — the sale itself already succeeded.
-async function notifyBuyerOrderConfirmed(order) {
+// Shared send: WhatsApp first (if configured), falling back to SMS.
+// Best-effort only — a failed notification never blocks or retries
+// whatever flow called it (checkout, shipping) since the underlying
+// action already succeeded.
+async function sendToBuyer(order, body) {
   const client = getTwilioClient();
   if (!client || !order?.buyer_phone) return;
-
-  const body = buildOrderConfirmedMessage(order);
 
   if (process.env.TWILIO_WHATSAPP_FROM) {
     try {
@@ -52,7 +52,7 @@ async function notifyBuyerOrderConfirmed(order) {
       });
       return;
     } catch (err) {
-      console.error('WhatsApp order notification failed, trying SMS instead:', err.message);
+      console.error('WhatsApp notification failed, trying SMS instead:', err.message);
     }
   }
 
@@ -64,9 +64,35 @@ async function notifyBuyerOrderConfirmed(order) {
         body,
       });
     } catch (err) {
-      console.error('SMS order notification failed:', err.message);
+      console.error('SMS notification failed:', err.message);
     }
   }
 }
 
-module.exports = { notifyBuyerOrderConfirmed, buildOrderConfirmedMessage };
+async function notifyBuyerOrderConfirmed(order) {
+  await sendToBuyer(order, buildOrderConfirmedMessage(order));
+}
+
+// Sent when a seller marks an order "shipped" from their dashboard —
+// the manual, non-Stripe delivery-confirmation path (mNakfa orders have
+// no webhook to trigger anything automatically). confirmUrl carries the
+// order's delivery_confirmation_token; the buyer tapping "I received
+// it" on that page is the only "login" this needs, same unguessable-UUID
+// model as the receipt route in routes/orders.js.
+function buildOrderShippedMessage(order, confirmUrl) {
+  return (
+    `Hibretfamily: your order is on its way! When it arrives, confirm receipt here: ${confirmUrl} / ` +
+    `ሕብረትፋሚሊ፦ ትእዛዝካ ኣብ መገዲ ኣሎ! ምስ በጽሓካ፡ ኣብዚ ርኸቦ፦ ${confirmUrl}`
+  );
+}
+
+async function notifyBuyerOrderShipped(order, confirmUrl) {
+  await sendToBuyer(order, buildOrderShippedMessage(order, confirmUrl));
+}
+
+module.exports = {
+  notifyBuyerOrderConfirmed,
+  buildOrderConfirmedMessage,
+  notifyBuyerOrderShipped,
+  buildOrderShippedMessage,
+};

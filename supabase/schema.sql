@@ -163,6 +163,17 @@ create table if not exists public.orders (
   -- here blocks a checkout that leaves them blank.
   requested_delivery_at timestamptz,
   delivery_note         text,
+  -- Delivery confirmation, for the mNakfa/manual-shipping path where
+  -- there's no Stripe webhook to mark anything automatically: the
+  -- seller (or their in-Eritrea contact) sets shipped_at from their own
+  -- dashboard, which texts the buyer a link carrying
+  -- delivery_confirmation_token; the buyer confirming sets received_at.
+  -- That token — not a login — is the "authorization" for the public
+  -- confirm-receipt endpoint, the same unguessable-UUID model the
+  -- receipt route already uses (see routes/orders.js).
+  shipped_at             timestamptz,
+  received_at            timestamptz,
+  delivery_confirmation_token uuid not null default uuid_generate_v4(),
   stripe_checkout_session_id text unique,
   stripe_payment_intent_id   text,
   created_at            timestamptz not null default now()
@@ -171,6 +182,14 @@ create table if not exists public.orders (
 create index if not exists idx_orders_seller on public.orders (seller_id);
 create index if not exists idx_orders_stripe_session on public.orders (stripe_checkout_session_id);
 create index if not exists idx_orders_stripe_intent on public.orders (stripe_payment_intent_id);
+
+-- shipped_at/received_at/delivery_confirmation_token were added after the
+-- original orders table — safe to run again on a database that already
+-- has them (including a fresh install, where `create table` above just
+-- added them already).
+alter table public.orders add column if not exists shipped_at timestamptz;
+alter table public.orders add column if not exists received_at timestamptz;
+alter table public.orders add column if not exists delivery_confirmation_token uuid not null default uuid_generate_v4();
 
 -- ---------------------------------------------------------------------
 -- decrement_product_stock — called once per line item from

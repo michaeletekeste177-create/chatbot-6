@@ -51,9 +51,9 @@ function parseRequestedDeliveryAt(value) {
 }
 
 // POST /api/checkout/create-session
-// body: { items: [{ productId, quantity }], customerEmail?, requestedDeliveryAt?, deliveryNote? }
+// body: { items: [{ productId, quantity }], customerEmail?, customerPhone?, requestedDeliveryAt?, deliveryNote? }
 router.post('/create-session', async (req, res) => {
-  const { items, customerEmail, requestedDeliveryAt, deliveryNote } = req.body;
+  const { items, customerEmail, customerPhone, requestedDeliveryAt, deliveryNote } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty.' });
@@ -135,7 +135,7 @@ router.post('/create-session', async (req, res) => {
   const sellerId = [...sellerIds][0];
   const { data: seller, error: sellerError } = await supabase
     .from('sellers')
-    .select('id, tier, stripe_account_id, charges_enabled')
+    .select('id, tier, stripe_account_id, charges_enabled, mnakfa_number, mnakfa_holder_name')
     .eq('id', sellerId)
     .single();
 
@@ -143,19 +143,25 @@ router.post('/create-session', async (req, res) => {
     console.error('checkout seller lookup error:', sellerError?.message);
     return res.status(500).json({ error: 'Could not verify the seller for this order.' });
   }
-  if (!seller.charges_enabled || !seller.stripe_account_id) {
+  const hasStripe = seller.charges_enabled && seller.stripe_account_id;
+  const hasMnakfa = Boolean(seller.mnakfa_number);
+  if (!hasStripe && !hasMnakfa) {
     return res.status(400).json({ error: 'This seller has not finished payment setup yet.' });
   }
 
   const commissionCents = Math.round((totalCents * commissionRateFor(seller)) / 100);
 
   // Create a pending order first so we have an ID to reconcile against
-  // when the Stripe webhook fires.
+  // when the Stripe webhook fires — or, for an mNakfa-only seller, an ID
+  // to reconcile against when THEY mark it paid themselves (see
+  // routes/seller-orders.js's mark-paid route and the README's manual
+  // delivery confirmation section).
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
       seller_id: seller.id,
       buyer_email: customerEmail || null,
+      buyer_phone: customerPhone || null,
       status: 'pending',
       subtotal_cents: totalCents,
       commission_cents: commissionCents,
@@ -174,6 +180,21 @@ router.post('/create-session', async (req, res) => {
   await supabase.from('order_items').insert(
     orderItemRows.map((row) => ({ ...row, order_id: order.id }))
   );
+
+  // mNakfa path: no Stripe account to hand off to, so there's no hosted
+  // page to send the buyer to. The order already exists (above) with a
+  // real commission_cents figure recorded for later reference — HOW
+  // Hibretfamily actually collects that commission on this path is a
+  // deliberately separate, not-yet-decided question (see README), kept
+  // apart from this order-tracking flow on purpose.
+  if (!hasStripe) {
+    return res.status(201).json({
+      paymentMethod: 'mnakfa',
+      orderId: order.id,
+      mnakfaNumber: seller.mnakfa_number,
+      mnakfaHolderName: seller.mnakfa_holder_name || null,
+    });
+  }
 
   let session;
   try {

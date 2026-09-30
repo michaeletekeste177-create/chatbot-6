@@ -426,7 +426,18 @@
     </div>
     <div class="cart-drawer__items" id="cart-items"></div>
     <div class="cart-drawer__footer">
+      <div id="cart-mnakfa-notice" class="liability-notice" hidden></div>
       <div class="cart-drawer__delivery">
+        <label for="buyer-email">
+          <span>Email (for your receipt)</span>
+          <span lang="ti">ኢመይል (ንቅብሊት ክትጥቀመሉ)</span>
+          <input type="email" id="buyer-email" name="buyerEmail" placeholder="you@example.com" />
+        </label>
+        <label for="buyer-phone">
+          <span>Phone (needed if the seller uses mNakfa)</span>
+          <span lang="ti">ተሌፎን (ሸያጣይ mNakfa እንተተጠቒሙ የድሊ)</span>
+          <input type="tel" id="buyer-phone" name="buyerPhone" placeholder="+291..." />
+        </label>
         <label for="delivery-date-time">
           <span>Preferred delivery date/time (optional)</span>
           <span lang="ti">ዝደለኻዮ ግዜ ምብጻሕ (ኣብ ምርጫ)</span>
