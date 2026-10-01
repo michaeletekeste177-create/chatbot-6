@@ -17,13 +17,21 @@
 
 let twilioClient;
 
+// Two ways to authenticate, either is fine: the account's own Auth Token
+// (TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN), or an API Key (TWILIO_ACCOUNT_SID +
+// TWILIO_API_KEY_SID + TWILIO_API_KEY_SECRET) — the latter is easier to copy
+// correctly since Twilio shows the Secret in plain text once, right when you
+// create it, instead of behind a reveal-then-copy step.
 function getTwilioClient() {
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return null;
-  if (!twilioClient) {
-    const Twilio = require('twilio');
-    twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  if (twilioClient) return twilioClient;
+  const Twilio = require('twilio');
+  const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET } = process.env;
+  if (TWILIO_ACCOUNT_SID && TWILIO_API_KEY_SID && TWILIO_API_KEY_SECRET) {
+    twilioClient = new Twilio(TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET, { accountSid: TWILIO_ACCOUNT_SID });
+  } else if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN) {
+    twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
   }
-  return twilioClient;
+  return twilioClient || null;
 }
 
 function buildOrderConfirmedMessage(order) {
