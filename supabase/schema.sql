@@ -222,12 +222,27 @@ create table if not exists public.order_items (
 create index if not exists idx_order_items_order on public.order_items (order_id);
 
 -- ---------------------------------------------------------------------
+-- lesson_interest — a pre-launch signup, not a real class yet: before
+-- building out online lessons (English, Tigrinya, culture) with paid
+-- booking, we're first finding out whether enough people actually want
+-- them. A name and a way to reach back is all this needs to hold.
+-- ---------------------------------------------------------------------
+create table if not exists public.lesson_interest (
+  id         uuid primary key default uuid_generate_v4(),
+  name       text not null,
+  contact    text not null,
+  course     text not null,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------
-alter table public.sellers     enable row level security;
-alter table public.products    enable row level security;
-alter table public.orders      enable row level security;
-alter table public.order_items enable row level security;
+alter table public.sellers         enable row level security;
+alter table public.products        enable row level security;
+alter table public.orders          enable row level security;
+alter table public.order_items     enable row level security;
+alter table public.lesson_interest enable row level security;
 
 -- Products: publicly readable when active (storefront catalog).
 -- Writes only via the service-role key from the backend.

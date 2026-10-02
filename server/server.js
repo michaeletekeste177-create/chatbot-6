@@ -23,6 +23,7 @@ const checkoutRouter = require('./routes/checkout');
 const subscriptionsRouter = require('./routes/subscriptions');
 const ordersRouter = require('./routes/orders');
 const webhooksRouter = require('./routes/webhooks');
+const lessonInterestRouter = require('./routes/lesson-interest');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -50,6 +51,7 @@ app.use('/api/checkout', checkoutRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/webhooks', webhooksRouter);
+app.use('/api/lesson-interest', lessonInterestRouter);
 
 // Fallback error handler
 app.use((err, req, res, next) => {
