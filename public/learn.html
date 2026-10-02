@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Lessons — Hibretfamily</title>
+  <meta name="description" content="English, Tigrinya, and culture lessons over Zoom, taught by native speakers. Tell us what you're interested in." />
+  <meta name="theme-color" content="#10402f" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310402f'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Georgia,serif' fill='%23d68a3a' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="index.html" class="logo">Hibretfamily</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Shop</a>
+        <a href="sell.html">Sell With Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section" style="max-width: 640px; margin: 0 auto;">
+      <div class="section__header" data-reveal>
+        <p class="eyebrow">Coming soon</p>
+        <h1>Online lessons from Hibretfamily</h1>
+        <p class="section__subtitle">
+          English for adults, and Tigrinya &amp; culture lessons for kids growing up abroad — taught live over Zoom
+          by native speakers. We're gauging interest before opening bookings. Leave your details below and we'll
+          reach out once lessons are ready.
+        </p>
+      </div>
+
+      <form id="interest-form" class="seller-form" style="max-width: 480px; margin: 0 auto;">
+        <label>
+          <span>Your name</span>
+          <input type="text" name="name" required autocomplete="name" />
+        </label>
+        <label>
+          <span>Email or WhatsApp number</span>
+          <input type="text" name="contact" required placeholder="you@example.com or +31 6 ..." />
+        </label>
+        <label>
+          <span>Which lessons interest you?</span>
+          <select name="course" required>
+            <option value="" disabled selected>Choose one</option>
+            <option value="english_adults">English for adults</option>
+            <option value="tigrinya_kids">Tigrinya for kids abroad</option>
+            <option value="culture_kids">Eritrean culture for kids abroad</option>
+          </select>
+        </label>
+        <button class="btn btn--accent" type="submit">Notify me</button>
+        <p class="state-message" id="interest-state" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__bottom">
+      <p>© <span id="current-year"></span> Hibretfamily. All rights reserved. · <a href="privacy.html">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/lesson-interest.js"></script>
+  <script type="module" src="js/contact-widget.js"></script>
+</body>
+</html>
