@@ -104,7 +104,7 @@ router.post('/register', async (req, res) => {
 router.get('/:id/status', async (req, res) => {
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name')
+    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name, stripe_account_id')
     .eq('id', req.params.id)
     .single();
 
@@ -112,6 +112,23 @@ router.get('/:id/status', async (req, res) => {
     return res.status(404).json({ error: 'Seller not found.' });
   }
 
+  // The webhook is the normal way this field gets kept current, but a
+  // missed/misconfigured delivery shouldn't permanently strand a seller
+  // whose Stripe account is actually enabled — so a still-false reading
+  // gets double-checked directly against Stripe before being trusted.
+  if (!seller.charges_enabled && seller.stripe_account_id) {
+    try {
+      const account = await stripe.accounts.retrieve(seller.stripe_account_id);
+      if (account.charges_enabled) {
+        await supabase.from('sellers').update({ charges_enabled: true }).eq('id', seller.id);
+        seller.charges_enabled = true;
+      }
+    } catch (err) {
+      console.error('live Stripe status check failed:', err.message);
+    }
+  }
+
+  delete seller.stripe_account_id;
   res.json({ seller });
 });
 
