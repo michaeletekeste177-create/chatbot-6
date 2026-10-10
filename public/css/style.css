@@ -1024,7 +1024,10 @@ img { max-width: 100%; display: block; }
 .cart-item__remove { background: none; border: none; cursor: pointer; color: var(--color-ink-soft); }
 .cart-item__remove:hover { color: var(--color-danger); }
 
-.cart-drawer__footer { padding: var(--space-5); border-top: 1px solid var(--color-border); }
+/* The delivery fields pushed this taller than some viewports (short
+   phones/tablets, or a tablet with the on-screen keyboard open) — without
+   its own scroll, the checkout button below them became unreachable. */
+.cart-drawer__footer { padding: var(--space-5); border-top: 1px solid var(--color-border); overflow-y: auto; max-height: 60vh; }
 .cart-drawer__total { display: flex; justify-content: space-between; font-size: var(--fs-md); margin-bottom: var(--space-4); }
 .cart-drawer__delivery { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4); }
 .cart-drawer__delivery label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); font-weight: 600; }
