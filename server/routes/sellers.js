@@ -16,18 +16,20 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:8080';
 
-const VALID_TIERS = ['freemium', 'subscription'];
-
 // POST /api/sellers/register
-// body: { businessName, email, tier, agreedToLiabilityTerms }
+// body: { businessName, email, agreedToLiabilityTerms }
+//
+// `tier` is deliberately NOT accepted here — it always starts as
+// 'freemium'. It can only become 'subscription' once the webhook in
+// webhooks.js sees a real paid Stripe subscription go active (see
+// subscriptions.js); accepting a client-supplied tier at registration
+// would let anyone register as 'subscription' and get the lower
+// commission rate without ever paying for it.
 router.post('/register', async (req, res) => {
-  const { businessName, email, tier = 'freemium', agreedToLiabilityTerms } = req.body;
+  const { businessName, email, agreedToLiabilityTerms } = req.body;
 
   if (!businessName || !email) {
     return res.status(400).json({ error: 'businessName and email are required.' });
-  }
-  if (!VALID_TIERS.includes(tier)) {
-    return res.status(400).json({ error: `tier must be one of: ${VALID_TIERS.join(', ')}` });
   }
   // Sellers — not Hibretfamily — are liable for what they list (see the
   // disclaimer shown alongside this form). No acknowledgment, no account.
@@ -40,7 +42,7 @@ router.post('/register', async (req, res) => {
     .insert({
       business_name: businessName,
       email,
-      tier,
+      tier: 'freemium',
       agreed_to_liability_terms: true,
     })
     .select()

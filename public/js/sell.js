@@ -38,7 +38,6 @@ async function handleRegisterSubmit(e) {
 
   const businessName = form.businessName.value.trim();
   const email = form.email.value.trim();
-  const tier = form.tier.value;
   const agreedToLiabilityTerms = form.agreedToLiabilityTerms.checked;
 
   if (!agreedToLiabilityTerms) {
@@ -55,7 +54,7 @@ async function handleRegisterSubmit(e) {
     const res = await fetch(`${API_BASE}/sellers/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ businessName, email, tier, agreedToLiabilityTerms }),
+      body: JSON.stringify({ businessName, email, agreedToLiabilityTerms }),
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || 'Registration failed');
