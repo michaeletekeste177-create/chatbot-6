@@ -151,6 +151,24 @@ otherwise. That's either Stripe (`charges_enabled`) or the manual mNakfa
 contact described next, which additionally requires an active subscription
 (see below).
 
+### Product photos
+
+A seller uploads a photo straight from their device (`dashboard.html`'s
+"Product photo" file picker) instead of needing to host one elsewhere and
+paste a URL. `POST /api/seller-products/upload-image` (token-gated the
+same way as every other write here) accepts the file via `multer`
+(`memoryStorage` — never written to this server's own disk, since Render's
+filesystem is ephemeral) and uploads it to a Supabase Storage bucket named
+`product-images`, under a path scoped to the seller's own id so uploads
+can never collide. The returned public URL is saved as the product's
+`image_url`, exactly as if the seller had pasted one in manually.
+
+**Manual setup required**: this bucket is not created by `schema.sql` (it's
+a Storage bucket, not a table) and must exist before any upload will work.
+In the Supabase dashboard: **Storage** → **New bucket** → name it exactly
+`product-images` → **Public bucket**: on (product photos are meant to be
+publicly viewable in the catalog, same as any `image_url` already was).
+
 ## mNakfa — a manual path for sellers Stripe can't reach
 
 Stripe has no presence in Eritrea at all, so a seller who only has an

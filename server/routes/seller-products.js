@@ -10,9 +10,19 @@
 // seller who loses it has no self-serve recovery yet (see README).
 
 const express = require('express');
+const crypto = require('crypto');
+const multer = require('multer');
 const { supabase } = require('../config/supabase');
 
 const router = express.Router();
+
+// Product photos are kept in memory just long enough to forward to
+// Supabase Storage, never written to disk — this process is stateless
+// and could be killed/restarted between requests. 5MB covers a real
+// phone photo; the upload route below also checks it's actually an
+// image before accepting it.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const PRODUCT_IMAGE_BUCKET = 'product-images';
 
 const VALID_CATEGORIES = ['apparel', 'shoes', 'electronics', 'books', 'cosmetics', 'traditional_wear', 'handmade', 'jewelry'];
 const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
@@ -116,6 +126,42 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ error: 'Could not load your products.' });
   }
   res.json({ products: data });
+});
+
+// POST /api/seller-products/upload-image
+// multipart/form-data: { sellerId, token, image: <file> }
+//
+// Lets a seller upload a product photo straight from their phone
+// instead of needing to host it somewhere else first and paste a URL.
+// Stored in Supabase Storage (not this server's own disk — Render's
+// filesystem is ephemeral) under the seller's own id, so one seller's
+// uploads can never collide with or overwrite another's. Returns the
+// public URL the product form then saves as image_url, same as if the
+// seller had pasted one in themselves.
+router.post('/upload-image', upload.single('image'), async (req, res) => {
+  const { sellerId, token } = req.body;
+  const seller = await verifySeller(sellerId, token);
+  if (!seller) return res.status(401).json({ error: 'Invalid seller credentials.' });
+
+  if (!req.file) return res.status(400).json({ error: 'No image file was uploaded.' });
+  if (!req.file.mimetype.startsWith('image/')) {
+    return res.status(400).json({ error: 'That file is not an image.' });
+  }
+
+  const extension = (req.file.originalname.match(/\.[a-zA-Z0-9]+$/) || ['.jpg'])[0];
+  const path = `${seller.id}/${crypto.randomUUID()}${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(PRODUCT_IMAGE_BUCKET)
+    .upload(path, req.file.buffer, { contentType: req.file.mimetype, upsert: false });
+
+  if (uploadError) {
+    console.error('product image upload failed:', uploadError.message);
+    return res.status(500).json({ error: 'Could not upload the image. Please try again.' });
+  }
+
+  const { data } = supabase.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path);
+  res.json({ url: data.publicUrl });
 });
 
 // POST /api/seller-products
