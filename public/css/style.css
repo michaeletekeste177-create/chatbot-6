@@ -1177,6 +1177,7 @@ img { max-width: 100%; display: block; }
 .tier-choice { border: none; padding: 0; margin: 0; display: flex; gap: var(--space-4); }
 .tier-choice legend { font-size: var(--fs-sm); font-weight: 600; margin-bottom: var(--space-2); }
 .seller-form label.tier-choice__option { flex-direction: row; align-items: center; gap: var(--space-2); font-weight: 500; }
+.seller-form__note { margin: 0; font-size: var(--fs-sm); color: var(--color-ink-soft); font-weight: 400; }
 .seller-form label.liability-checkbox { flex-direction: row; align-items: flex-start; gap: var(--space-2); font-weight: 400; font-size: var(--fs-sm); }
 .liability-checkbox input { margin-top: 3px; }
 
