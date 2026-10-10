@@ -27,7 +27,7 @@ async function verifySeller(sellerId, token) {
   if (!sellerId || !token) return null;
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, access_token, charges_enabled, mnakfa_number')
+    .select('id, business_name, access_token, charges_enabled, mnakfa_number, subscription_status')
     .eq('id', sellerId)
     .single();
   if (error || !seller || seller.access_token !== token) return null;
@@ -43,8 +43,20 @@ const NO_PAYMENT_METHOD_ERROR =
   'You need a payment method before listing a product — finish Stripe onboarding or add your mNakfa number in Payment Settings. / ' +
   'ንብረት ቅድሚ ምስቃልካ፡ ናይ ክፍሊት መገዲ ከድልየካ እዩ — ናይ Stripe ምዝገባ ወድእ ወይ ኣብ "Payment Settings" ናይ mNakfa ቁጽርኻ ኣእቱ።';
 
+// A Stripe sale pays Hibretfamily its commission automatically (see
+// checkout.js's commissionCents), but an mNakfa sale pays the seller
+// directly — Hibretfamily has no way to collect anything from it (mNakfa
+// has no API, see checkout.js's comment on the mNakfa path). So an
+// mNakfa-only seller (no Stripe) must be on the paid subscription
+// instead, as the platform's only way to earn anything from them.
+const MNAKFA_NEEDS_SUBSCRIPTION_ERROR =
+  'Since mNakfa sales have no way to pay Hibretfamily a commission, an mNakfa-only seller needs an active subscription before listing a product — see Payment Settings. / ' +
+  'ናይ mNakfa ሽያጣት ንHibretfamily ኮምሽን ዝኸፍሉሉ መገዲ ስለ ዘይብሎም፡ ብmNakfa ጥራይ ዝሰርሕ ሽያጣይ ንብረት ቅድሚ ምስቃሉ ንጡፍ ምዝገባ (subscription) ከድልዮ እዩ — ኣብ "Payment Settings" ርአ።';
+
 function hasPaymentMethod(seller) {
-  return Boolean(seller.charges_enabled || seller.mnakfa_number);
+  if (seller.charges_enabled) return true;
+  if (seller.mnakfa_number) return seller.subscription_status === 'active';
+  return false;
 }
 
 function validateProductFields(body, { partial = false } = {}) {
@@ -112,7 +124,10 @@ router.post('/', async (req, res) => {
   const { sellerId, token } = req.body;
   const seller = await verifySeller(sellerId, token);
   if (!seller) return res.status(401).json({ error: 'Invalid seller credentials.' });
-  if (!hasPaymentMethod(seller)) return res.status(403).json({ error: NO_PAYMENT_METHOD_ERROR });
+  if (!hasPaymentMethod(seller)) {
+    const error = seller.mnakfa_number ? MNAKFA_NEEDS_SUBSCRIPTION_ERROR : NO_PAYMENT_METHOD_ERROR;
+    return res.status(403).json({ error });
+  }
 
   const { errors, fields } = validateProductFields(req.body);
   if (errors.length) return res.status(400).json({ error: errors.join(' ') });

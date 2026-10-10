@@ -171,35 +171,62 @@ async function handleProductSubmit(e, { sellerId, token }) {
   }
 }
 
-// Reflects whether the seller has any real way to get paid yet
-// (Stripe charges_enabled, or a manual mNakfa contact — see the
-// payment-method gate in server/routes/seller-products.js) and
-// shows/hides the product form accordingly.
+// Reflects whether the seller has any real way to get paid yet AND, for
+// an mNakfa seller, whether Hibretfamily has any way to earn from it —
+// an mNakfa sale pays the seller directly (no Stripe commission), so
+// that path only counts once the seller is on the paid subscription
+// (see the matching gate in server/routes/seller-products.js).
 function renderPaymentStatus(seller) {
   const statusEl = document.getElementById('payment-status');
   const noPaymentNotice = document.getElementById('no-payment-notice');
+  const subscribeBox = document.getElementById('subscribe-box');
   const productForm = document.getElementById('product-form');
-  const hasPaymentMethod = Boolean(seller.charges_enabled || seller.mnakfa_number);
+  const isSubscribed = seller.subscription_status === 'active';
+  const mnakfaReady = Boolean(seller.mnakfa_number) && isSubscribed;
+  const hasPaymentMethod = Boolean(seller.charges_enabled || mnakfaReady);
 
   const lines = [];
   lines.push(
     `<p><strong>Stripe:</strong> ${seller.charges_enabled ? 'Connected ✓' : 'Not connected — finish onboarding on sell.html'}</p>`
   );
-  lines.push(
-    `<p><strong>mNakfa:</strong> ${
-      seller.mnakfa_number
-        ? `${escapeHtml(seller.mnakfa_number)} (${escapeHtml(seller.mnakfa_holder_name || 'no name on file')}) ✓`
-        : 'Not set'
-    }</p>`
-  );
+  let mnakfaLine = 'Not set';
+  if (seller.mnakfa_number) {
+    mnakfaLine = `${escapeHtml(seller.mnakfa_number)} (${escapeHtml(seller.mnakfa_holder_name || 'no name on file')})`;
+    mnakfaLine += isSubscribed ? ' ✓' : ' — needs an active subscription before use (see below)';
+  }
+  lines.push(`<p><strong>mNakfa:</strong> ${mnakfaLine}</p>`);
+  lines.push(`<p><strong>Subscription:</strong> ${isSubscribed ? 'Active ✓' : 'Not active'}</p>`);
   statusEl.innerHTML = `<div><h3>Your payment methods</h3>${lines.join('')}</div>`;
 
   noPaymentNotice.hidden = hasPaymentMethod;
   productForm.hidden = !hasPaymentMethod;
+  subscribeBox.hidden = isSubscribed;
 
   const mnakfaForm = document.getElementById('mnakfa-form');
   if (seller.mnakfa_number) mnakfaForm.mnakfaNumber.value = seller.mnakfa_number;
   if (seller.mnakfa_holder_name) mnakfaForm.mnakfaHolderName.value = seller.mnakfa_holder_name;
+}
+
+async function handleSubscribeClick({ sellerId }) {
+  const button = document.getElementById('subscribe-button');
+  const stateEl = document.getElementById('subscribe-state');
+  button.disabled = true;
+  stateEl.hidden = false;
+  stateEl.textContent = 'Starting checkout…';
+
+  try {
+    const res = await fetch(`${API_BASE}/subscriptions/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sellerId }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.url) throw new Error(body.error || 'Could not start the subscription checkout.');
+    window.location.href = body.url;
+  } catch (err) {
+    stateEl.textContent = err.message || 'Something went wrong. Please try again.';
+    button.disabled = false;
+  }
 }
 
 async function handleMnakfaSubmit(e, { sellerId, token }) {
@@ -357,6 +384,7 @@ async function init() {
   form.addEventListener('submit', (e) => handleProductSubmit(e, { sellerId, token }));
   document.getElementById('product-form-cancel').addEventListener('click', resetForm);
   document.getElementById('mnakfa-form').addEventListener('submit', (e) => handleMnakfaSubmit(e, { sellerId, token }));
+  document.getElementById('subscribe-button').addEventListener('click', () => handleSubscribeClick({ sellerId }));
 
   try {
     const statusRes = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/status`);

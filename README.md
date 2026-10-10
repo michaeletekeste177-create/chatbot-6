@@ -148,7 +148,8 @@ intentionally NOT built yet" below.
 A seller cannot list a product at all until they have **some** real way to
 get paid — `POST /api/seller-products` returns a bilingual (EN/TI) 403
 otherwise. That's either Stripe (`charges_enabled`) or the manual mNakfa
-contact described next.
+contact described next, which additionally requires an active subscription
+(see below).
 
 ## mNakfa — a manual path for sellers Stripe can't reach
 
@@ -163,8 +164,9 @@ deliberately a **manual, non-Stripe path**:
   account via `PATCH /api/sellers/:id/payment-info` (token-gated, same
   pattern as `seller-products.js`) — the "Payment Settings" section of
   `dashboard.html`.
-- Having *either* Stripe `charges_enabled` *or* an `mnakfa_number` set is
-  enough to satisfy the "must have a payment method" gate above.
+- Stripe `charges_enabled` alone satisfies the "must have a payment method"
+  gate above. An `mnakfa_number` alone does **not** — see "How Hibretfamily
+  earns from an mNakfa seller" below for why, and what else it takes.
 - There is **no checkout integration yet** — a buyer paying via mNakfa
   would send payment to that number directly, outside the site, and the
   seller confirms receipt themselves. Building an actual "Pay with
@@ -224,11 +226,27 @@ the delivery-confirmation flow below depends on.
 The seller confirms payment themselves once they've verified the transfer
 (`PATCH /api/seller-orders/:id/mark-paid`, shown as **"Mark as paid
 (mNakfa)"** in the dashboard) — there's no webhook for this path to do it
-automatically. **How Hibretfamily actually collects its commission on an
-mNakfa sale is a deliberately separate, not-yet-decided question** — this
-flow only tracks that a sale happened and was paid; `commission_cents` is
-still recorded on the order for later reference, but nothing here bills or
-collects it yet.
+automatically. This flow only tracks that a sale happened and was paid;
+`commission_cents` is still recorded on the order for later reference, but
+nothing here bills or collects it per-order — see the next section for how
+Hibretfamily actually earns from an mNakfa seller.
+
+## How Hibretfamily earns from an mNakfa seller
+
+A Stripe sale pays Hibretfamily its commission automatically
+(`application_fee_amount`, above) — an mNakfa sale can't, since the buyer
+pays the seller directly and mNakfa has no API for Hibretfamily to collect
+through. So instead of a per-sale commission, an mNakfa-only seller (no
+Stripe `charges_enabled`) is required to be on the same paid subscription
+that Stripe sellers can opt into for a lower commission rate
+(`STRIPE_PREMIUM_PRICE_ID`, same price for both): see
+`hasPaymentMethod()` in `server/routes/seller-products.js`, which only
+treats an `mnakfa_number` as a real payment method once
+`subscription_status === 'active'`. `dashboard.html`'s Payment Settings
+section surfaces a **"Subscribe"** button (`POST
+/api/subscriptions/create-checkout-session`) for exactly this. A seller
+with Stripe `charges_enabled` isn't required to subscribe — the
+subscription there is still optional, just for the lower commission rate.
 
 ## SMS & WhatsApp order notifications (optional)
 
