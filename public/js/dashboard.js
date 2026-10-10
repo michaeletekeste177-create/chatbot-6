@@ -71,6 +71,17 @@ function renderProducts(listEl, products, { sellerId, token }) {
 
 let currentProducts = [];
 
+function showImagePreview(url) {
+  const preview = document.getElementById('product-image-preview');
+  if (url) {
+    preview.src = url;
+    preview.hidden = false;
+  } else {
+    preview.hidden = true;
+    preview.src = '';
+  }
+}
+
 function fillFormForEdit(product) {
   const form = document.getElementById('product-form');
   form.productId.value = product.id;
@@ -81,6 +92,7 @@ function fillFormForEdit(product) {
   form.price.value = centsToDollarsInput(product.price_cents);
   form.stock.value = product.stock;
   form.image_url.value = product.image_url || '';
+  showImagePreview(product.image_url);
   document.getElementById('product-form-submit').textContent = 'Save changes';
   document.getElementById('product-form-cancel').hidden = false;
   form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -90,8 +102,39 @@ function resetForm() {
   const form = document.getElementById('product-form');
   form.reset();
   form.productId.value = '';
+  showImagePreview(null);
   document.getElementById('product-form-submit').textContent = 'Add product';
   document.getElementById('product-form-cancel').hidden = true;
+}
+
+// Uploads the picked file to Supabase Storage via our own backend (see
+// POST /api/seller-products/upload-image) and drops the returned public
+// URL into the hidden image_url field — a seller never has to find
+// somewhere else to host a photo or paste a URL themselves.
+async function handleImageFileChange(e, { sellerId, token }) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const form = document.getElementById('product-form');
+  const stateEl = document.getElementById('product-image-state');
+  stateEl.hidden = false;
+  stateEl.textContent = 'Uploading photo…';
+
+  try {
+    const body = new FormData();
+    body.append('sellerId', sellerId);
+    body.append('token', token);
+    body.append('image', file);
+    const res = await fetch(`${API_BASE}/seller-products/upload-image`, { method: 'POST', body });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result.url) throw new Error(result.error || 'Could not upload the photo.');
+
+    form.image_url.value = result.url;
+    showImagePreview(result.url);
+    stateEl.hidden = true;
+  } catch (err) {
+    stateEl.textContent = err.message || 'Something went wrong uploading the photo. Please try again.';
+    e.target.value = '';
+  }
 }
 
 async function toggleActive(product, { sellerId, token }) {
@@ -385,6 +428,7 @@ async function init() {
   populateSelects(form);
   form.addEventListener('submit', (e) => handleProductSubmit(e, { sellerId, token }));
   document.getElementById('product-form-cancel').addEventListener('click', resetForm);
+  document.getElementById('product-image-file').addEventListener('change', (e) => handleImageFileChange(e, { sellerId, token }));
 
   const mnakfaZobaSelect = document.querySelector('#mnakfa-form select[name="mnakfaZoba"]');
   mnakfaZobaSelect.innerHTML = ZOBAS.map((z) => `<option value="${z}">${z}</option>`).join('');
