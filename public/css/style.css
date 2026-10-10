@@ -8,6 +8,15 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
+/* Any class below that sets its own `display` (`.btn`'s `display:
+   inline-flex`, `.seller-form`'s `display: flex`, etc.) silently wins
+   over the browser's built-in `[hidden] { display: none }` rule, since
+   author-stylesheet rules always beat user-agent ones at equal
+   specificity — so a `hidden` button or form with a plain .btn /
+   .seller-form class rendered visible anyway. This one rule restores
+   `hidden` as the one thing in this file no other selector can override. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   font-family: var(--font-body);
