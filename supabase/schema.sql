@@ -103,6 +103,11 @@ create table if not exists public.sellers (
   -- need at least one payout method before listing" gate that uses it).
   mnakfa_number             text,
   mnakfa_holder_name        text,
+  -- Which of Eritrea's 6 zobas (regions) the seller is in — not an ID
+  -- document, just enough location context to be useful for support/
+  -- disputes without collecting anything sensitive (see the PATCH
+  -- payment-info route for the fixed list this is validated against).
+  mnakfa_zoba               text,
   created_at                timestamptz not null default now()
 );
 
