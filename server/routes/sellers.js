@@ -106,7 +106,7 @@ router.post('/register', async (req, res) => {
 router.get('/:id/status', async (req, res) => {
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name, stripe_account_id')
+    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name, mnakfa_zoba, stripe_account_id')
     .eq('id', req.params.id)
     .single();
 
@@ -134,8 +134,14 @@ router.get('/:id/status', async (req, res) => {
   res.json({ seller });
 });
 
+// Eritrea's 6 administrative zobas — not an ID document, just enough
+// location context for support/disputes (see mnakfa_zoba in schema.sql).
+// A fixed list, not free text, so it stays genuinely low-sensitivity and
+// never becomes a place to paste something that wasn't asked for.
+const VALID_ZOBAS = ['Maekel', 'Anseba', 'Gash-Barka', 'Debub', 'Semenawi Keyih Bahri', 'Debubawi Keyih Bahri'];
+
 // PATCH /api/sellers/:id/payment-info
-// body: { token, mnakfaNumber, mnakfaHolderName }
+// body: { token, mnakfaNumber, mnakfaHolderName, mnakfaZoba }
 //
 // Lets a seller record a manual mNakfa payout contact — for sellers
 // who can't get a Stripe-supported bank account (Stripe has no
@@ -143,7 +149,7 @@ router.get('/:id/status', async (req, res) => {
 // pays this number directly and the seller confirms receipt
 // themselves. Token-gated the same way as routes/seller-products.js.
 router.patch('/:id/payment-info', async (req, res) => {
-  const { token, mnakfaNumber, mnakfaHolderName } = req.body;
+  const { token, mnakfaNumber, mnakfaHolderName, mnakfaZoba } = req.body;
 
   const { data: seller, error: lookupError } = await supabase
     .from('sellers')
@@ -154,15 +160,18 @@ router.patch('/:id/payment-info', async (req, res) => {
     return res.status(401).json({ error: 'Invalid seller credentials.' });
   }
 
-  if (!mnakfaNumber || !mnakfaHolderName) {
-    return res.status(400).json({ error: 'mnakfaNumber and mnakfaHolderName are required.' });
+  if (!mnakfaNumber || !mnakfaHolderName || !mnakfaZoba) {
+    return res.status(400).json({ error: 'mnakfaNumber, mnakfaHolderName, and mnakfaZoba are required.' });
+  }
+  if (!VALID_ZOBAS.includes(mnakfaZoba)) {
+    return res.status(400).json({ error: `mnakfaZoba must be one of: ${VALID_ZOBAS.join(', ')}` });
   }
 
   const { data: updated, error } = await supabase
     .from('sellers')
-    .update({ mnakfa_number: mnakfaNumber, mnakfa_holder_name: mnakfaHolderName })
+    .update({ mnakfa_number: mnakfaNumber, mnakfa_holder_name: mnakfaHolderName, mnakfa_zoba: mnakfaZoba })
     .eq('id', seller.id)
-    .select('id, mnakfa_number, mnakfa_holder_name')
+    .select('id, mnakfa_number, mnakfa_holder_name, mnakfa_zoba')
     .single();
 
   if (error) {

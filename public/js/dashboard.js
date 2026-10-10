@@ -6,7 +6,7 @@
 // the seller's only credential — every API call below sends it back
 // to server/routes/seller-products.js, which checks it on every write.
 
-import { API_BASE, CATEGORIES, AUDIENCES } from './config.js';
+import { API_BASE, CATEGORIES, AUDIENCES, ZOBAS } from './config.js';
 import { formatPrice } from './cart.js';
 import { showToast, escapeHtml } from './ui.js';
 
@@ -191,7 +191,7 @@ function renderPaymentStatus(seller) {
   );
   let mnakfaLine = 'Not set';
   if (seller.mnakfa_number) {
-    mnakfaLine = `${escapeHtml(seller.mnakfa_number)} (${escapeHtml(seller.mnakfa_holder_name || 'no name on file')})`;
+    mnakfaLine = `${escapeHtml(seller.mnakfa_number)} (${escapeHtml(seller.mnakfa_holder_name || 'no name on file')}, ${escapeHtml(seller.mnakfa_zoba || 'no zoba on file')})`;
     mnakfaLine += isSubscribed ? ' ✓' : ' — needs an active subscription before use (see below)';
   }
   lines.push(`<p><strong>mNakfa:</strong> ${mnakfaLine}</p>`);
@@ -205,6 +205,7 @@ function renderPaymentStatus(seller) {
   const mnakfaForm = document.getElementById('mnakfa-form');
   if (seller.mnakfa_number) mnakfaForm.mnakfaNumber.value = seller.mnakfa_number;
   if (seller.mnakfa_holder_name) mnakfaForm.mnakfaHolderName.value = seller.mnakfa_holder_name;
+  if (seller.mnakfa_zoba) mnakfaForm.mnakfaZoba.value = seller.mnakfa_zoba;
 }
 
 async function handleSubscribeClick({ sellerId }) {
@@ -237,6 +238,7 @@ async function handleMnakfaSubmit(e, { sellerId, token }) {
 
   const mnakfaNumber = form.mnakfaNumber.value.trim();
   const mnakfaHolderName = form.mnakfaHolderName.value.trim();
+  const mnakfaZoba = form.mnakfaZoba.value;
 
   submitBtn.disabled = true;
   stateEl.hidden = false;
@@ -246,7 +248,7 @@ async function handleMnakfaSubmit(e, { sellerId, token }) {
     const res = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/payment-info`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, mnakfaNumber, mnakfaHolderName }),
+      body: JSON.stringify({ token, mnakfaNumber, mnakfaHolderName, mnakfaZoba }),
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || 'Could not save your payment details.');
@@ -383,6 +385,9 @@ async function init() {
   populateSelects(form);
   form.addEventListener('submit', (e) => handleProductSubmit(e, { sellerId, token }));
   document.getElementById('product-form-cancel').addEventListener('click', resetForm);
+
+  const mnakfaZobaSelect = document.querySelector('#mnakfa-form select[name="mnakfaZoba"]');
+  mnakfaZobaSelect.innerHTML = ZOBAS.map((z) => `<option value="${z}">${z}</option>`).join('');
   document.getElementById('mnakfa-form').addEventListener('submit', (e) => handleMnakfaSubmit(e, { sellerId, token }));
   document.getElementById('subscribe-button').addEventListener('click', () => handleSubscribeClick({ sellerId }));
 

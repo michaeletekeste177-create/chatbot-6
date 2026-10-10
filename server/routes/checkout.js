@@ -183,10 +183,11 @@ router.post('/create-session', async (req, res) => {
 
   // mNakfa path: no Stripe account to hand off to, so there's no hosted
   // page to send the buyer to. The order already exists (above) with a
-  // real commission_cents figure recorded for later reference — HOW
-  // Hibretfamily actually collects that commission on this path is a
-  // deliberately separate, not-yet-decided question (see README), kept
-  // apart from this order-tracking flow on purpose.
+  // commission_cents figure recorded for reference, but nothing here
+  // bills or collects it — an mNakfa-only seller pays Hibretfamily via
+  // the flat subscription fee instead (see seller-products.js's
+  // hasPaymentMethod() and the README's "How Hibretfamily earns from an
+  // mNakfa seller" section), kept apart from this order-tracking flow.
   if (!hasStripe) {
     return res.status(201).json({
       paymentMethod: 'mnakfa',

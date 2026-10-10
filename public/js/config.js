@@ -85,6 +85,18 @@ export const AUDIENCES = [
   { id: 'unisex', label: 'Everyone' },
 ];
 
+// Eritrea's 6 administrative zobas (regions) — the values here must
+// match VALID_ZOBAS in server/routes/sellers.js exactly, since the
+// backend validates against that fixed list.
+export const ZOBAS = [
+  'Maekel',
+  'Anseba',
+  'Gash-Barka',
+  'Debub',
+  'Semenawi Keyih Bahri',
+  'Debubawi Keyih Bahri',
+];
+
 // The six homepage "shop by department" cards. Women/Men/Kids filter by
 // audience (spanning both apparel and shoes); the other three filter by
 // category directly. `labelKey`/`blurbKey` resolve through I18N below,
