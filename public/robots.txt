@@ -1,0 +1,18 @@
+# Hibretfamily — public marketing/catalog pages are open to crawling.
+# Account-specific utility pages (seller dashboard, order tracking,
+# checkout receipts, delivery confirmation) already carry a per-page
+# <meta name="robots" content="noindex"> tag since each one is reached
+# only via a private, unguessable link — they're disallowed again here
+# as a defense-in-depth measure, not the only thing stopping them from
+# being indexed.
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /orders.html
+Disallow: /success.html
+Disallow: /confirm-receipt.html
+
+# TODO: replace with the real deployed frontend URL (your Netlify
+# default subdomain, or a custom domain once you buy one) — see the
+# "Site URL placeholder" note in README.md.
+Sitemap: https://hibretfamily.com/sitemap.xml

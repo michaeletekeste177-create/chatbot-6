@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TODO: replace https://hibretfamily.com in every <loc> below with the
+  real deployed frontend URL (your Netlify default subdomain, or a
+  custom domain once you buy one) — see the "Site URL placeholder" note
+  in README.md. Only public marketing/catalog pages are listed here;
+  account-specific pages (dashboard, orders, success, confirm-receipt)
+  are intentionally left out — see robots.txt.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hibretfamily.com/index.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://hibretfamily.com/sell.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hibretfamily.com/learn.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://hibretfamily.com/privacy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+</urlset>
