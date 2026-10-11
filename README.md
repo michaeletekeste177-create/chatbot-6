@@ -224,6 +224,32 @@ back to the buyer on their receipt (`success.html`/`success.js` and
 new **Orders** section (`GET /api/seller-orders`, token-gated the same way
 as `seller-products.js`) so they actually know what was requested.
 
+## Required shipping address
+
+Unlike the preferred delivery date/note above (both optional), a checkout
+now requires a **shipping address** (`public/index.html`'s cart drawer,
+`deliveryAddress` field) — an order with nowhere to ship it is a seller
+stuck holding paid stock with no way to fulfill it. It's enforced twice:
+client-side in `public/js/main.js`'s `startCheckout()` (so a buyer finds
+out before starting a Stripe session), and authoritatively server-side in
+`server/routes/checkout.js` (since the client-side check can't be trusted
+alone). It's stored as free text on the order (`delivery_address` in
+`supabase/schema.sql`) rather than structured street/city/postal fields,
+since a rigid Western-style address form doesn't fit every place an order
+might ship from or to. It's shown back to the buyer on their receipt
+(`success.html`/`success.js`) and to the seller in their dashboard's
+Orders section, right alongside the requested delivery date/note, since
+it's the first thing a seller needs before packing a shipment.
+
+**Manual migration required**: existing databases need the new column
+added once in the Supabase SQL Editor before this ships to production:
+
+```sql
+alter table public.orders add column if not exists delivery_address text;
+```
+
+(Already included in `supabase/schema.sql` for fresh installs.)
+
 ## Checking out with a seller who only has mNakfa
 
 Stripe has no presence in Eritrea, so a seller who's only recorded an mNakfa

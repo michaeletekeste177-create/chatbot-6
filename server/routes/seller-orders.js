@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
   const { data: orders, error } = await supabase
     .from('orders')
     .select(
-      'id, status, subtotal_cents, currency, buyer_email, requested_delivery_at, delivery_note, shipped_at, received_at, stripe_checkout_session_id, created_at, order_items(quantity, unit_price_cents, products(name))'
+      'id, status, subtotal_cents, currency, buyer_email, requested_delivery_at, delivery_note, delivery_address, shipped_at, received_at, stripe_checkout_session_id, created_at, order_items(quantity, unit_price_cents, products(name))'
     )
     .eq('seller_id', seller.id)
     .order('created_at', { ascending: false });
@@ -51,6 +51,7 @@ router.get('/', async (req, res) => {
       buyerEmail: order.buyer_email,
       requestedDeliveryAt: order.requested_delivery_at,
       deliveryNote: order.delivery_note,
+      deliveryAddress: order.delivery_address,
       shippedAt: order.shipped_at,
       receivedAt: order.received_at,
       // An order with no Stripe session was created via the mNakfa

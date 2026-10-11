@@ -321,6 +321,9 @@ function renderOrders(listEl, orders) {
       // own logged-in session (their access_token sits right in this
       // page's URL), not just the buyer's own browser.
       const itemsSummary = order.items.map((item) => `${escapeHtml(item.name)} × ${item.quantity}`).join(', ');
+      const address = order.deliveryAddress
+        ? `<span class="cart-item__category"><strong>Ship to:</strong> ${escapeHtml(order.deliveryAddress)}</span>`
+        : '<span class="cart-item__category">⚠ No shipping address on file</span>';
       const delivery = order.requestedDeliveryAt
         ? `<span class="cart-item__category">Requested delivery: ${new Date(order.requestedDeliveryAt).toLocaleString()}</span>`
         : '';
@@ -352,6 +355,7 @@ function renderOrders(listEl, orders) {
       <div class="cart-item__info">
         <strong>${itemsSummary || 'Order'}</strong>
         <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${escapeHtml(order.buyerEmail)}` : ''}</span>
+        ${address}
         ${delivery}
         ${note}
         ${payStatus}
