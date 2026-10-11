@@ -12,7 +12,4 @@ Disallow: /orders.html
 Disallow: /success.html
 Disallow: /confirm-receipt.html
 
-# TODO: replace with the real deployed frontend URL (your Netlify
-# default subdomain, or a custom domain once you buy one) — see the
-# "Site URL placeholder" note in README.md.
 Sitemap: https://hibretfamily.com/sitemap.xml

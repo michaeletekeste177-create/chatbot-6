@@ -440,14 +440,24 @@ placeholders.
   `Permissions-Policy`. The backend already had these via `helmet()`;
   Netlify serves the frontend directly and never touches that process.
 
-### Site URL placeholder
+### Site domain
 
-`https://hibretfamily.com` is used as a placeholder in
-`public/robots.txt`, `public/sitemap.xml`, and the `<link rel="canonical">`
-/ `og:url` tags on `index.html`, `sell.html`, and `learn.html` — search
-each file for `hibretfamily.com` and replace it with your real deployed
-frontend URL (your Netlify default subdomain, or a custom domain once
-you buy one) once you know it.
+`https://hibretfamily.com` — registered via Namecheap (10-year
+registration) and used throughout `public/robots.txt`,
+`public/sitemap.xml`, and the `<link rel="canonical">` / `og:url` tags
+on `index.html`, `sell.html`, `learn.html`, and `privacy.html`.
+Registering the domain is only step one, though: it has to be pointed
+at the live site before any of this matters.
+
+- **If the site is hosted on Netlify**: add `hibretfamily.com` as a
+  custom domain in the Netlify dashboard (Site settings → Domain
+  management → Add a domain), then follow Netlify's instructions to
+  either point the domain's nameservers at Netlify DNS or add the
+  A/CNAME records it gives you, in the Namecheap dashboard's Advanced
+  DNS tab. Netlify also issues a free HTTPS certificate once DNS
+  resolves — that can take anywhere from a few minutes to ~24 hours.
+- Until that's done, `hibretfamily.com` won't actually load the site
+  even though it's registered and paid for.
 
 ## What's intentionally NOT built yet
 
