@@ -92,7 +92,7 @@ router.get('/', async (req, res) => {
 router.get('/:id/receipt', async (req, res) => {
   const { data: order, error } = await supabase
     .from('orders')
-    .select('id, status, subtotal_cents, currency, created_at, requested_delivery_at, delivery_note, delivery_address, order_items(quantity, unit_price_cents, products(name))')
+    .select('id, status, subtotal_cents, currency, created_at, requested_delivery_at, delivery_note, delivery_address, size_standard, size_waist_cm, size_chest_cm, size_hip_cm, size_height_cm, order_items(quantity, unit_price_cents, products(name))')
     .eq('id', req.params.id)
     .single();
 
@@ -110,6 +110,11 @@ router.get('/:id/receipt', async (req, res) => {
       requestedDeliveryAt: order.requested_delivery_at,
       deliveryNote: order.delivery_note,
       deliveryAddress: order.delivery_address,
+      sizeStandard: order.size_standard,
+      sizeWaistCm: order.size_waist_cm,
+      sizeChestCm: order.size_chest_cm,
+      sizeHipCm: order.size_hip_cm,
+      sizeHeightCm: order.size_height_cm,
       items: (order.order_items || []).map((item) => ({
         name: item.products?.name || 'Item',
         quantity: item.quantity,

@@ -8,7 +8,7 @@
 
 import { API_BASE, CATEGORIES, AUDIENCES, ZOBAS } from './config.js';
 import { formatPrice } from './cart.js';
-import { showToast, escapeHtml } from './ui.js';
+import { showToast, escapeHtml, formatSize } from './ui.js';
 
 function getCreds() {
   const params = new URLSearchParams(window.location.search);
@@ -330,6 +330,10 @@ function renderOrders(listEl, orders) {
       const note = order.deliveryNote
         ? `<span class="cart-item__category">Note: ${escapeHtml(order.deliveryNote)}</span>`
         : '';
+      const sizeSummary = formatSize(order);
+      const size = sizeSummary
+        ? `<span class="cart-item__category"><strong>Size:</strong> ${escapeHtml(sizeSummary)}</span>`
+        : '';
       // Manual payment confirmation for mNakfa orders — there's no
       // Stripe webhook for this path, so the seller confirms it
       // themselves once they've verified the mNakfa transfer (see the
@@ -356,6 +360,7 @@ function renderOrders(listEl, orders) {
         <strong>${itemsSummary || 'Order'}</strong>
         <span class="cart-item__category">Status: ${order.status}${order.buyerEmail ? ` · ${escapeHtml(order.buyerEmail)}` : ''}</span>
         ${address}
+        ${size}
         ${delivery}
         ${note}
         ${payStatus}

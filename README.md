@@ -250,6 +250,43 @@ alter table public.orders add column if not exists delivery_address text;
 
 (Already included in `supabase/schema.sql` for fresh installs.)
 
+## Clothing size at checkout
+
+For tailored/made-to-order items — traditional wear in particular, where
+there's no fixed off-the-rack stock to pick a listed size from — a buyer
+can optionally give their size at checkout, two ways at once: a standard
+label (XS–XXL) and/or exact body measurements in cm (waist, chest/bust,
+hip, height). Both are entirely optional and independent of each other —
+a buyer might know only one, both, or neither, and most products (books,
+electronics...) need neither at all, so nothing here blocks a checkout
+that leaves every size field blank. Stored on the order (`size_standard`,
+`size_waist_cm`, `size_chest_cm`, `size_hip_cm`, `size_height_cm` in
+`supabase/schema.sql`), validated in `server/routes/checkout.js` (the
+standard label against a fixed list, each measurement as a positive
+number under 300cm), and shown — via the shared `formatSize()` helper in
+`public/js/ui.js`, so the two surfaces can't drift apart — on both the
+buyer's receipt and the seller's dashboard order list, right alongside
+the shipping address, since a seller making or selecting a tailored item
+needs this before they can even start.
+
+**Manual migration required**: existing databases need these new columns
+added once in the Supabase SQL Editor before this ships to production:
+
+```sql
+alter table public.orders add column if not exists delivery_address text;
+alter table public.orders add column if not exists size_standard text;
+alter table public.orders add column if not exists size_waist_cm integer;
+alter table public.orders add column if not exists size_chest_cm integer;
+alter table public.orders add column if not exists size_hip_cm integer;
+alter table public.orders add column if not exists size_height_cm integer;
+```
+
+(Already included in `supabase/schema.sql` for fresh installs. The
+`delivery_address` line above is included here too since — as discovered
+during this feature's audit — it was never actually added to the
+schema's own migration block despite already being in production;
+running it again is harmless if already applied.)
+
 ## Checking out with a seller who only has mNakfa
 
 Stripe has no presence in Eritrea, so a seller who's only recorded an mNakfa

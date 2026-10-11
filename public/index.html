@@ -419,6 +419,47 @@
           <span lang="ti">ተወሳኺ መግለጺ ብዛዕባ ምብጻሕ (ኣብ ምርጫ)</span>
           <textarea id="delivery-note" name="deliveryNote" rows="2" maxlength="500" placeholder="e.g. call before arriving"></textarea>
         </label>
+        <fieldset class="cart-drawer__size">
+          <legend>
+            <span>Clothing size (optional)</span>
+            <span lang="ti">ዓቐን ክዳን (ኣብ ምርጫ)</span>
+          </legend>
+          <label for="size-standard">
+            <span>Standard size</span>
+            <span lang="ti">ልሙድ ዓቐን</span>
+            <select id="size-standard" name="sizeStandard">
+              <option value="">—</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+            </select>
+          </label>
+          <p class="cart-drawer__size-or">
+            <span>— or exact measurements in cm —</span>
+            <span lang="ti">ወይ ልክዕ ዓቐን ብሳንቲሜትር</span>
+          </p>
+          <div class="cart-drawer__size-grid">
+            <label for="size-waist">
+              <span>Waist <span lang="ti">(ማንጣ)</span></span>
+              <input type="number" id="size-waist" name="sizeWaistCm" min="0" max="300" />
+            </label>
+            <label for="size-chest">
+              <span>Chest/Bust <span lang="ti">(ኣፍልቢ)</span></span>
+              <input type="number" id="size-chest" name="sizeChestCm" min="0" max="300" />
+            </label>
+            <label for="size-hip">
+              <span>Hip <span lang="ti">(ጎሎ)</span></span>
+              <input type="number" id="size-hip" name="sizeHipCm" min="0" max="300" />
+            </label>
+            <label for="size-height">
+              <span>Height <span lang="ti">(ቁመት)</span></span>
+              <input type="number" id="size-height" name="sizeHeightCm" min="0" max="300" />
+            </label>
+          </div>
+        </fieldset>
       </div>
       <div class="cart-drawer__total">
         <span>Total</span>

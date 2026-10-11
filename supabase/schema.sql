@@ -175,6 +175,19 @@ create table if not exists public.orders (
   -- fields, since a rigid Western-style address form doesn't fit every
   -- place an order might ship from or to.
   delivery_address      text,
+  -- Clothing size, for tailored/made-to-order items (traditional wear
+  -- in particular, per the business's own sellers) where there's no
+  -- fixed off-the-rack stock to just pick a listed size from — a
+  -- buyer gives either a standard label (size_standard) or their own
+  -- body measurements, whichever they know, and the seller works from
+  -- those directly. All optional and all nullable: most products
+  -- (books, electronics...) need none of this, and even a clothing
+  -- buyer might only know one or the other.
+  size_standard         text,
+  size_waist_cm         integer,
+  size_chest_cm         integer,
+  size_hip_cm           integer,
+  size_height_cm        integer,
   -- Delivery confirmation, for the mNakfa/manual-shipping path where
   -- there's no Stripe webhook to mark anything automatically: the
   -- seller (or their in-Eritrea contact) sets shipped_at from their own
@@ -195,13 +208,19 @@ create index if not exists idx_orders_seller on public.orders (seller_id);
 create index if not exists idx_orders_stripe_session on public.orders (stripe_checkout_session_id);
 create index if not exists idx_orders_stripe_intent on public.orders (stripe_payment_intent_id);
 
--- shipped_at/received_at/delivery_confirmation_token were added after the
--- original orders table — safe to run again on a database that already
--- has them (including a fresh install, where `create table` above just
--- added them already).
+-- shipped_at/received_at/delivery_confirmation_token/delivery_address/
+-- the size_* columns were all added after the original orders table —
+-- safe to run again on a database that already has them (including a
+-- fresh install, where `create table` above just added them already).
 alter table public.orders add column if not exists shipped_at timestamptz;
 alter table public.orders add column if not exists received_at timestamptz;
 alter table public.orders add column if not exists delivery_confirmation_token uuid not null default uuid_generate_v4();
+alter table public.orders add column if not exists delivery_address text;
+alter table public.orders add column if not exists size_standard text;
+alter table public.orders add column if not exists size_waist_cm integer;
+alter table public.orders add column if not exists size_chest_cm integer;
+alter table public.orders add column if not exists size_hip_cm integer;
+alter table public.orders add column if not exists size_height_cm integer;
 
 -- ---------------------------------------------------------------------
 -- decrement_product_stock — called once per line item from
