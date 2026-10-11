@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  TODO: replace https://hibretfamily.com in every <loc> below with the
-  real deployed frontend URL (your Netlify default subdomain, or a
-  custom domain once you buy one) — see the "Site URL placeholder" note
-  in README.md. Only public marketing/catalog pages are listed here;
-  account-specific pages (dashboard, orders, success, confirm-receipt)
-  are intentionally left out — see robots.txt.
+  Only public marketing/catalog pages are listed here; account-specific
+  pages (dashboard, orders, success, confirm-receipt) are intentionally
+  left out — see robots.txt.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
