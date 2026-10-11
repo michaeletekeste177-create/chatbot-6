@@ -44,6 +44,7 @@ const el = {
   checkoutState: document.getElementById('checkout-state'),
   deliveryDateTime: document.getElementById('delivery-date-time'),
   deliveryNote: document.getElementById('delivery-note'),
+  deliveryAddress: document.getElementById('delivery-address'),
   buyerEmail: document.getElementById('buyer-email'),
   buyerPhone: document.getElementById('buyer-phone'),
   mnakfaNotice: document.getElementById('cart-mnakfa-notice'),
@@ -315,8 +316,21 @@ async function startCheckout() {
 
   const deliveryDateTimeValue = el.deliveryDateTime?.value;
   const deliveryNoteValue = el.deliveryNote?.value.trim();
+  const deliveryAddressValue = el.deliveryAddress?.value.trim();
   const buyerEmailValue = el.buyerEmail?.value.trim();
   const buyerPhoneValue = el.buyerPhone?.value.trim();
+
+  // A seller can't ship an order with nowhere to send it — checked
+  // here before even calling the backend (which re-checks it anyway,
+  // since this client-side check can't be trusted alone) so the buyer
+  // gets an immediate, specific message instead of a generic failure.
+  if (!deliveryAddressValue) {
+    el.checkoutState.textContent = 'Please enter a shipping address before checking out.';
+    el.checkoutState.hidden = false;
+    el.checkoutBtn.disabled = false;
+    el.deliveryAddress?.focus();
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/checkout/create-session`, {
@@ -324,6 +338,7 @@ async function startCheckout() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         items: cart.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+        deliveryAddress: deliveryAddressValue,
         requestedDeliveryAt: deliveryDateTimeValue ? new Date(deliveryDateTimeValue).toISOString() : undefined,
         deliveryNote: deliveryNoteValue || undefined,
         customerEmail: buyerEmailValue || undefined,

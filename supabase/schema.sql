@@ -168,6 +168,13 @@ create table if not exists public.orders (
   -- here blocks a checkout that leaves them blank.
   requested_delivery_at timestamptz,
   delivery_note         text,
+  -- Where the seller actually ships the order to. Unlike the two
+  -- fields above, this one is REQUIRED at checkout (see checkout.js) —
+  -- a seller with no address has nothing to pack a courier label
+  -- around. Free text rather than structured street/city/postal
+  -- fields, since a rigid Western-style address form doesn't fit every
+  -- place an order might ship from or to.
+  delivery_address      text,
   -- Delivery confirmation, for the mNakfa/manual-shipping path where
   -- there's no Stripe webhook to mark anything automatically: the
   -- seller (or their in-Eritrea contact) sets shipped_at from their own

@@ -32,9 +32,12 @@ function init() {
       summaryEl.textContent = `Order total: ${formatPrice(order.totalCents, order.currency)} — status: ${order.status}`;
 
       const deliveryEl = document.getElementById('success-delivery');
-      if (deliveryEl && (order.requestedDeliveryAt || order.deliveryNote)) {
+      if (deliveryEl && (order.requestedDeliveryAt || order.deliveryNote || order.deliveryAddress)) {
         deliveryEl.hidden = false;
         const parts = [];
+        if (order.deliveryAddress) {
+          parts.push(`<p><strong>Shipping to:</strong> ${escapeHtml(order.deliveryAddress)}</p>`);
+        }
         if (order.requestedDeliveryAt) {
           const when = new Date(order.requestedDeliveryAt).toLocaleString();
           parts.push(`<p><strong>Requested delivery:</strong> ${when}</p>`);

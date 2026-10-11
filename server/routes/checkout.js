@@ -40,6 +40,7 @@ function commissionRateFor(seller) {
 // schema.sql). Only basic sanity checks apply: it must parse as a real
 // date, and the note can't be unbounded.
 const MAX_DELIVERY_NOTE_LENGTH = 500;
+const MAX_DELIVERY_ADDRESS_LENGTH = 500;
 
 function parseRequestedDeliveryAt(value) {
   if (!value) return { requestedDeliveryAt: null };
@@ -51,12 +52,24 @@ function parseRequestedDeliveryAt(value) {
 }
 
 // POST /api/checkout/create-session
-// body: { items: [{ productId, quantity }], customerEmail?, customerPhone?, requestedDeliveryAt?, deliveryNote? }
+// body: { items: [{ productId, quantity }], deliveryAddress, customerEmail?, customerPhone?, requestedDeliveryAt?, deliveryNote? }
 router.post('/create-session', async (req, res) => {
-  const { items, customerEmail, customerPhone, requestedDeliveryAt, deliveryNote } = req.body;
+  const { items, customerEmail, customerPhone, requestedDeliveryAt, deliveryNote, deliveryAddress } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty.' });
+  }
+
+  // Unlike requestedDeliveryAt/deliveryNote (genuinely optional), an
+  // order with nowhere to ship it is a seller stuck holding stock with
+  // no way to fulfill it — so this one's required, re-checked here
+  // since the client-side check in main.js can't be trusted alone.
+  const trimmedAddress = typeof deliveryAddress === 'string' ? deliveryAddress.trim() : '';
+  if (!trimmedAddress) {
+    return res.status(400).json({ error: 'deliveryAddress is required.' });
+  }
+  if (trimmedAddress.length > MAX_DELIVERY_ADDRESS_LENGTH) {
+    return res.status(400).json({ error: `deliveryAddress must be ${MAX_DELIVERY_ADDRESS_LENGTH} characters or fewer.` });
   }
 
   const deliveryResult = parseRequestedDeliveryAt(requestedDeliveryAt);
@@ -168,6 +181,7 @@ router.post('/create-session', async (req, res) => {
       currency,
       requested_delivery_at: deliveryResult.requestedDeliveryAt,
       delivery_note: deliveryNote ? String(deliveryNote).trim() || null : null,
+      delivery_address: trimmedAddress,
     })
     .select()
     .single();
