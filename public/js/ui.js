@@ -178,6 +178,24 @@ export function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('visible'), 2600);
 }
 
+// Builds a human-readable size summary from an order's size_* fields —
+// shared by success.js (buyer receipt) and dashboard.js (seller order
+// list) so the two surfaces never drift apart on how this reads. Safe
+// to interpolate directly: size_standard is validated server-side
+// against a fixed enum and the measurements are all numbers, never
+// buyer-typed free text.
+export function formatSize(order) {
+  const parts = [];
+  if (order.sizeStandard) parts.push(order.sizeStandard);
+  const measurements = [];
+  if (order.sizeWaistCm) measurements.push(`Waist ${order.sizeWaistCm}cm`);
+  if (order.sizeChestCm) measurements.push(`Chest ${order.sizeChestCm}cm`);
+  if (order.sizeHipCm) measurements.push(`Hip ${order.sizeHipCm}cm`);
+  if (order.sizeHeightCm) measurements.push(`Height ${order.sizeHeightCm}cm`);
+  if (measurements.length) parts.push(measurements.join(', '));
+  return parts.join(' — ');
+}
+
 export function initBackToTop() {
   const btn = document.getElementById('back-to-top');
   if (!btn) return;

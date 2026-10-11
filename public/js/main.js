@@ -44,6 +44,11 @@ const el = {
   deliveryDateTime: document.getElementById('delivery-date-time'),
   deliveryNote: document.getElementById('delivery-note'),
   deliveryAddress: document.getElementById('delivery-address'),
+  sizeStandard: document.getElementById('size-standard'),
+  sizeWaist: document.getElementById('size-waist'),
+  sizeChest: document.getElementById('size-chest'),
+  sizeHip: document.getElementById('size-hip'),
+  sizeHeight: document.getElementById('size-height'),
   buyerEmail: document.getElementById('buyer-email'),
   buyerPhone: document.getElementById('buyer-phone'),
   mnakfaNotice: document.getElementById('cart-mnakfa-notice'),
@@ -272,6 +277,11 @@ async function startCheckout() {
   const deliveryAddressValue = el.deliveryAddress?.value.trim();
   const buyerEmailValue = el.buyerEmail?.value.trim();
   const buyerPhoneValue = el.buyerPhone?.value.trim();
+  const sizeStandardValue = el.sizeStandard?.value;
+  const sizeWaistValue = el.sizeWaist?.value;
+  const sizeChestValue = el.sizeChest?.value;
+  const sizeHipValue = el.sizeHip?.value;
+  const sizeHeightValue = el.sizeHeight?.value;
 
   // A seller can't ship an order with nowhere to send it — checked
   // here before even calling the backend (which re-checks it anyway,
@@ -296,6 +306,11 @@ async function startCheckout() {
         deliveryNote: deliveryNoteValue || undefined,
         customerEmail: buyerEmailValue || undefined,
         customerPhone: buyerPhoneValue || undefined,
+        sizeStandard: sizeStandardValue || undefined,
+        sizeWaistCm: sizeWaistValue || undefined,
+        sizeChestCm: sizeChestValue || undefined,
+        sizeHipCm: sizeHipValue || undefined,
+        sizeHeightCm: sizeHeightValue || undefined,
       }),
     });
     if (!res.ok) {

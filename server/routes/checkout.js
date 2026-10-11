@@ -51,10 +51,39 @@ function parseRequestedDeliveryAt(value) {
   return { requestedDeliveryAt: date.toISOString() };
 }
 
+// Clothing size, for tailored/made-to-order items (see the size_* columns'
+// comment in schema.sql) — entirely optional, and a buyer might give a
+// standard label, exact measurements, both, or neither.
+const VALID_SIZE_STANDARDS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const MAX_SIZE_CM = 300; // generous upper bound; catches typos like "1700"
+
+function parseSizeCm(value, fieldName) {
+  if (value === undefined || value === null || value === '') return { value: null };
+  const num = Number(value);
+  if (!Number.isFinite(num) || num <= 0 || num > MAX_SIZE_CM) {
+    return { error: `${fieldName} must be a number between 1 and ${MAX_SIZE_CM} (cm).` };
+  }
+  return { value: Math.round(num) };
+}
+
 // POST /api/checkout/create-session
-// body: { items: [{ productId, quantity }], deliveryAddress, customerEmail?, customerPhone?, requestedDeliveryAt?, deliveryNote? }
+// body: { items: [{ productId, quantity }], deliveryAddress, customerEmail?,
+//   customerPhone?, requestedDeliveryAt?, deliveryNote?, sizeStandard?,
+//   sizeWaistCm?, sizeChestCm?, sizeHipCm?, sizeHeightCm? }
 router.post('/create-session', async (req, res) => {
-  const { items, customerEmail, customerPhone, requestedDeliveryAt, deliveryNote, deliveryAddress } = req.body;
+  const {
+    items,
+    customerEmail,
+    customerPhone,
+    requestedDeliveryAt,
+    deliveryNote,
+    deliveryAddress,
+    sizeStandard,
+    sizeWaistCm,
+    sizeChestCm,
+    sizeHipCm,
+    sizeHeightCm,
+  } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart is empty.' });
@@ -78,6 +107,22 @@ router.post('/create-session', async (req, res) => {
   }
   if (deliveryNote !== undefined && String(deliveryNote).length > MAX_DELIVERY_NOTE_LENGTH) {
     return res.status(400).json({ error: `deliveryNote must be ${MAX_DELIVERY_NOTE_LENGTH} characters or fewer.` });
+  }
+
+  let sizeStandardValue = null;
+  if (sizeStandard !== undefined && sizeStandard !== '') {
+    if (!VALID_SIZE_STANDARDS.includes(sizeStandard)) {
+      return res.status(400).json({ error: `sizeStandard must be one of: ${VALID_SIZE_STANDARDS.join(', ')}` });
+    }
+    sizeStandardValue = sizeStandard;
+  }
+  const waistResult = parseSizeCm(sizeWaistCm, 'sizeWaistCm');
+  const chestResult = parseSizeCm(sizeChestCm, 'sizeChestCm');
+  const hipResult = parseSizeCm(sizeHipCm, 'sizeHipCm');
+  const heightResult = parseSizeCm(sizeHeightCm, 'sizeHeightCm');
+  const sizeError = waistResult.error || chestResult.error || hipResult.error || heightResult.error;
+  if (sizeError) {
+    return res.status(400).json({ error: sizeError });
   }
 
   const productIds = items.map((i) => i.productId);
@@ -182,6 +227,11 @@ router.post('/create-session', async (req, res) => {
       requested_delivery_at: deliveryResult.requestedDeliveryAt,
       delivery_note: deliveryNote ? String(deliveryNote).trim() || null : null,
       delivery_address: trimmedAddress,
+      size_standard: sizeStandardValue,
+      size_waist_cm: waistResult.value,
+      size_chest_cm: chestResult.value,
+      size_hip_cm: hipResult.value,
+      size_height_cm: heightResult.value,
     })
     .select()
     .single();

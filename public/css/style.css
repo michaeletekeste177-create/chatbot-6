@@ -957,6 +957,42 @@ img { max-width: 100%; display: block; }
   resize: vertical;
 }
 
+/* The size fieldset reuses .cart-drawer__delivery's label/input styling
+   (same markup shape) — only the fieldset reset and the 2-column
+   measurement grid are new. */
+.cart-drawer__size {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.cart-drawer__size legend {
+  padding: 0 var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.cart-drawer__size legend span[lang="ti"] { font-weight: 400; color: var(--color-ink-soft); }
+.cart-drawer__size label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); font-weight: 600; }
+.cart-drawer__size label span[lang="ti"] { font-weight: 400; color: var(--color-ink-soft); }
+.cart-drawer__size select,
+.cart-drawer__size input {
+  padding: 0.6rem var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  font-family: inherit;
+}
+.cart-drawer__size-or { font-size: var(--fs-xs); color: var(--color-ink-soft); text-align: center; margin: 0; }
+.cart-drawer__size-or span[lang="ti"] { display: block; }
+.cart-drawer__size-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2) var(--space-3);
+}
+
 /* ---------------- Modal (quick view) ---------------- */
 .modal {
   position: fixed;

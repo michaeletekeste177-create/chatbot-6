@@ -8,7 +8,7 @@
 
 import { API_BASE } from './config.js';
 import { formatPrice } from './cart.js';
-import { escapeHtml } from './ui.js';
+import { escapeHtml, formatSize } from './ui.js';
 
 function init() {
   const yearEl = document.getElementById('current-year');
@@ -32,11 +32,15 @@ function init() {
       summaryEl.textContent = `Order total: ${formatPrice(order.totalCents, order.currency)} — status: ${order.status}`;
 
       const deliveryEl = document.getElementById('success-delivery');
-      if (deliveryEl && (order.requestedDeliveryAt || order.deliveryNote || order.deliveryAddress)) {
+      const sizeSummary = formatSize(order);
+      if (deliveryEl && (order.requestedDeliveryAt || order.deliveryNote || order.deliveryAddress || sizeSummary)) {
         deliveryEl.hidden = false;
         const parts = [];
         if (order.deliveryAddress) {
           parts.push(`<p><strong>Shipping to:</strong> ${escapeHtml(order.deliveryAddress)}</p>`);
+        }
+        if (sizeSummary) {
+          parts.push(`<p><strong>Size:</strong> ${escapeHtml(sizeSummary)}</p>`);
         }
         if (order.requestedDeliveryAt) {
           const when = new Date(order.requestedDeliveryAt).toLocaleString();
