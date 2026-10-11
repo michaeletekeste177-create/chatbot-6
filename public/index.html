@@ -6,8 +6,25 @@
   <title>Hibretfamily — Eritrea's Marketplace</title>
   <meta name="description" content="Hibretfamily is Eritrea's marketplace, connecting independent local sellers of fashion, shoes, electronics, books and cosmetics with buyers everywhere. Secure checkout, instant seller payouts." />
   <meta name="theme-color" content="#10402f" />
+  <!-- TODO: replace hibretfamily.com below with the real deployed
+       frontend URL (Netlify default subdomain, or a custom domain once
+       you buy one) — see the "Site URL placeholder" note in README.md. -->
+  <link rel="canonical" href="https://hibretfamily.com/index.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Hibretfamily" />
+  <meta property="og:title" content="Hibretfamily — Eritrea's Marketplace" />
+  <meta property="og:description" content="Independent Eritrean sellers, secure checkout, real products shipped from Eritrea to the world." />
+  <meta property="og:image" content="https://hibretfamily.com/assets/og-image.png" />
+  <meta property="og:url" content="https://hibretfamily.com/index.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Hibretfamily — Eritrea's Marketplace" />
+  <meta name="twitter:description" content="Independent Eritrean sellers, secure checkout, real products shipped from Eritrea to the world." />
+  <meta name="twitter:image" content="https://hibretfamily.com/assets/og-image.png" />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310402f'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Georgia,serif' fill='%23d68a3a' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -73,7 +90,6 @@
         <a href="#categories" data-i18n="nav_men">Men</a>
         <a href="#categories" data-i18n="nav_kids">Kids</a>
         <a href="#shop" data-i18n="nav_shop">Shop all</a>
-        <a href="#stores" data-i18n="nav_stores">Stores</a>
         <a href="#about" data-i18n="nav_about">About</a>
         <a href="sell.html" class="nav__sell" data-i18n="nav_sell">Sell With Us</a>
       </nav>
@@ -112,7 +128,6 @@
         <a href="#categories"><svg class="icon icon--sm"><use href="#icon-shirt"></use></svg><span data-i18n="nav_men">Men</span></a>
         <a href="#categories"><svg class="icon icon--sm"><use href="#icon-shirt"></use></svg><span data-i18n="nav_kids">Kids</span></a>
         <a href="#shop"><svg class="icon icon--sm"><use href="#icon-cart"></use></svg><span data-i18n="nav_shop">Shop all</span></a>
-        <a href="#stores"><svg class="icon icon--sm"><use href="#icon-store"></use></svg><span data-i18n="nav_stores_full">Our stores</span></a>
         <a href="#about"><svg class="icon icon--sm"><use href="#icon-user"></use></svg><span data-i18n="nav_about_full">About Hibretfamily</span></a>
         <a href="#newsletter"><svg class="icon icon--sm"><use href="#icon-phone"></use></svg><span data-i18n="nav_contact">Contact</span></a>
         <a href="sell.html"><svg class="icon icon--sm"><use href="#icon-briefcase"></use></svg><span data-i18n="nav_sell">Sell With Us</span></a>
@@ -139,16 +154,9 @@
           <div class="hero-slide__content">
             <p class="eyebrow">New season</p>
             <h1>Style for every member of the family</h1>
-            <p class="hero-slide__copy">Apparel and shoes for women, men and kids — curated in one place, ready online or in-store.</p>
+            <p class="hero-slide__copy">Apparel and shoes for women, men and kids — curated in one place, shipped directly from independent sellers.</p>
             <div class="hero-cta">
               <a class="btn btn--accent" href="#shop">Shop the collection</a>
-              <a class="btn btn--ghost-light" href="#stores">Find a store</a>
-            </div>
-            <div class="hero-rating">
-              <span class="hero-rating__stars" aria-hidden="true">
-                <svg class="icon icon--sm"><use href="#icon-star"></use></svg><svg class="icon icon--sm"><use href="#icon-star"></use></svg><svg class="icon icon--sm"><use href="#icon-star"></use></svg><svg class="icon icon--sm"><use href="#icon-star"></use></svg><svg class="icon icon--sm"><use href="#icon-star"></use></svg>
-              </span>
-              <span>4.8 rated by 2,000+ families</span>
             </div>
           </div>
         </div>
@@ -159,16 +167,6 @@
             <p class="hero-slide__copy">Everything the household needs, with secure checkout every step of the way.</p>
             <div class="hero-cta">
               <a class="btn btn--accent" href="#shop">Explore essentials</a>
-            </div>
-          </div>
-        </div>
-        <div class="hero-slide hero-slide--3">
-          <div class="hero-slide__content">
-            <p class="eyebrow">Online + in person</p>
-            <h1>Browse online, get advice in person</h1>
-            <p class="hero-slide__copy">Three Hibretfamily locations, ready with friendly styling advice while you shop picks from independent Eritrean sellers.</p>
-            <div class="hero-cta">
-              <a class="btn btn--accent" href="#stores">See our locations</a>
             </div>
           </div>
         </div>
@@ -187,7 +185,6 @@
           <button class="hero-dot active" aria-label="Slide 1"></button>
           <button class="hero-dot" aria-label="Slide 2"></button>
           <button class="hero-dot" aria-label="Slide 3"></button>
-          <button class="hero-dot" aria-label="Slide 4"></button>
         </div>
       </div>
     </section>
@@ -208,7 +205,7 @@
       </div>
       <div class="trust-item" data-reveal>
         <svg class="icon"><use href="#icon-store"></use></svg>
-        <span>3 stores across Eritrea</span>
+        <span>Supporting independent Eritrean sellers directly</span>
       </div>
     </section>
 
@@ -290,31 +287,6 @@
       <div class="product-grid" id="product-grid" aria-live="polite" aria-busy="true"></div>
     </section>
 
-    <!-- ================= STORES ================= -->
-    <section class="section" id="stores">
-      <div class="section__header" data-reveal>
-        <p class="eyebrow">Online + offline</p>
-        <h2>Visit us in person</h2>
-        <p class="section__subtitle">Try things on, pick up online orders, or get styling advice from our team.</p>
-      </div>
-      <div class="store-list" id="store-list"></div>
-    </section>
-
-    <!-- ================= TESTIMONIALS ================= -->
-    <section class="section section--alt" id="testimonials">
-      <div class="section__header" data-reveal>
-        <p class="eyebrow">Loved by families</p>
-        <h2>What our customers say</h2>
-      </div>
-      <div class="testimonial-carousel">
-        <button class="testimonial-nav testimonial-nav--prev" aria-label="Previous testimonial">‹</button>
-        <div class="testimonial-viewport">
-          <div class="testimonial-track"></div>
-        </div>
-        <button class="testimonial-nav testimonial-nav--next" aria-label="Next testimonial">›</button>
-      </div>
-    </section>
-
     <!-- ================= ABOUT ================= -->
     <!-- ================= HOW IT WORKS ================= -->
     <section class="section" id="how-it-works">
@@ -368,11 +340,8 @@
     <div class="site-footer__grid">
       <div class="footer-brand">
         <span class="logo logo--light">Hibretfamily</span>
-        <p>Fashion, tech and everyday essentials for the whole family — online and in-store.</p>
+        <p>Fashion, tech and everyday essentials for the whole family, from independent Eritrean sellers.</p>
         <div class="footer-social">
-          <a href="#" aria-label="Instagram">IG</a>
-          <a href="#" aria-label="Facebook">FB</a>
-          <a href="#" aria-label="TikTok">TT</a>
           <a href="https://youtube.com/channel/UCfJUVrDU7fNpHsv9uRvlnlg" target="_blank" rel="noopener" aria-label="YouTube">YT</a>
         </div>
       </div>
@@ -391,7 +360,6 @@
 
       <div class="footer-col">
         <h4>Customer service</h4>
-        <a href="#stores">Store locations</a>
         <a href="#newsletter">Contact us</a>
         <a href="#how-it-works">How it works</a>
         <a href="orders.html">Track your order</a>

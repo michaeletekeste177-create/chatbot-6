@@ -3,3 +3,24 @@
 # own build-settings form. This file always wins over the dashboard.
 [build]
   publish = "public"
+
+# A request for a page that doesn't exist (a typo'd URL, an old/removed
+# link) gets our own branded 404.html instead of Netlify's generic
+# "Page not found" — status = 404 keeps it a real 404 for crawlers,
+# not a redirect.
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# Security headers for every page. Express's `helmet()` already covers
+# the backend API (server/server.js); this is the same baseline for the
+# static frontend Netlify serves directly, which never touches that
+# backend process.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

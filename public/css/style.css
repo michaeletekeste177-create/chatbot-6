@@ -363,21 +363,6 @@ img { max-width: 100%; display: block; }
 .hero-slide__decor--2 { bottom: 18%; right: 22%; width: 90px; height: 90px; }
 .hero-slide__decor--3 { top: 55%; right: -2%; width: 140px; height: 140px; transform: rotate(8deg); }
 
-.hero-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-5);
-  padding: 0.6rem 1rem;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: #fff;
-  backdrop-filter: blur(6px);
-}
-.hero-rating__stars { display: inline-flex; gap: 2px; color: var(--color-star); }
 
 .hero-slide__content {
   position: relative;
@@ -445,8 +430,7 @@ img { max-width: 100%; display: block; }
 .section--alt .filter-bar,
 .section--alt .product-grid,
 .section--alt .demo-banner,
-.section--alt #grid-state,
-.section--alt .testimonial-carousel {
+.section--alt #grid-state {
   padding-left: var(--space-5);
   padding-right: var(--space-5);
 }
@@ -793,85 +777,6 @@ img { max-width: 100%; display: block; }
 }
 
 .state-message { text-align: center; color: var(--color-ink-soft); padding: var(--space-7) 0; }
-
-/* ---------------- Store list ---------------- */
-.store-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-4);
-}
-.store-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-}
-.store-card h3 { font-size: var(--fs-md); margin-bottom: var(--space-1); }
-.store-card p { display: flex; align-items: center; font-size: var(--fs-sm); margin-bottom: var(--space-2); }
-.store-card__honor {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--color-accent-dark);
-  margin-bottom: var(--space-3);
-}
-.store-card__gloss { color: var(--color-ink-soft); font-size: var(--fs-xs); margin-left: var(--space-1); }
-
-/* ---------------- Testimonials ---------------- */
-.testimonial-carousel { display: flex; align-items: center; gap: var(--space-4); }
-.testimonial-viewport { overflow: hidden; flex: 1; }
-.testimonial-track { display: flex; transition: transform var(--transition-slow); }
-.testimonial-card {
-  position: relative;
-  min-width: 100%;
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--space-7);
-  text-align: center;
-  max-width: 640px;
-  margin: 0 auto;
-  box-shadow: var(--shadow-sm);
-}
-.testimonial-card__quotemark {
-  position: absolute;
-  top: var(--space-3);
-  left: var(--space-5);
-  font-family: var(--font-heading);
-  font-size: 4.5rem;
-  line-height: 1;
-  color: var(--color-accent-soft);
-  z-index: 0;
-}
-.testimonial-card__stars { display: flex; justify-content: center; gap: 3px; margin-bottom: var(--space-3); position: relative; }
-.testimonial-card__stars .is-filled { color: var(--color-star); }
-.testimonial-card__stars .is-empty { color: var(--color-border); }
-.testimonial-card__quote { position: relative; font-family: var(--font-heading); font-size: var(--fs-lg); color: var(--color-ink); font-style: italic; }
-.testimonial-card__byline { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin-top: var(--space-4); }
-.testimonial-card__avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--gradient-hero);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: var(--fs-sm);
-  flex-shrink: 0;
-}
-.testimonial-card__author { font-size: var(--fs-sm); font-weight: 600; text-align: left; margin: 0; color: var(--color-ink); }
-.testimonial-card__author span { display: block; font-weight: 400; color: var(--color-ink-soft); }
-.testimonial-nav {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.4rem;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.testimonial-nav:hover { background: var(--color-accent-soft); }
 
 /* ---------------- About ---------------- */
 .about__content { max-width: 720px; margin: 0 auto; text-align: center; }

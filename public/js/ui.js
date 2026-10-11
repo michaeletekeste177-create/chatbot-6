@@ -1,9 +1,9 @@
 // public/js/ui.js
 //
 // Generic, DOM-only interaction helpers shared across the page:
-// mobile nav, header scroll state, drawers/modals, a hero + testimonial
-// slider, toast notifications and scroll-reveal animation. None of
-// this touches cart or catalog data directly — main.js wires those in.
+// mobile nav, header scroll state, drawers/modals, a hero slider,
+// toast notifications and scroll-reveal animation. None of this
+// touches cart or catalog data directly — main.js wires those in.
 
 // Escapes a value for safe interpolation into an innerHTML template
 // literal. Template literals do NOT auto-escape like `textContent`
@@ -160,30 +160,6 @@ export function initHeroSlider(rootId, { interval = 6000 } = {}) {
   );
 
   restart();
-}
-
-export function initTestimonialSlider(rootId) {
-  const root = document.getElementById(rootId);
-  if (!root) return;
-  const track = root.querySelector('.testimonial-track');
-  const prev = root.querySelector('.testimonial-nav--prev');
-  const next = root.querySelector('.testimonial-nav--next');
-  const cards = Array.from(root.querySelectorAll('.testimonial-card'));
-  if (!track || cards.length === 0) return;
-
-  let index = 0;
-  const update = () => {
-    track.style.transform = `translateX(-${index * 100}%)`;
-  };
-
-  next?.addEventListener('click', () => {
-    index = (index + 1) % cards.length;
-    update();
-  });
-  prev?.addEventListener('click', () => {
-    index = (index - 1 + cards.length) % cards.length;
-    update();
-  });
 }
 
 let toastTimer;

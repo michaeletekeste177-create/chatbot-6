@@ -11,7 +11,7 @@
 // public/js/cart.js). Checkout hands off to Stripe's own hosted page;
 // nothing here ever sees a card number.
 
-import { API_BASE, CATEGORIES, DEPARTMENTS, STORE_LOCATIONS, TESTIMONIALS } from './config.js';
+import { API_BASE, CATEGORIES, DEPARTMENTS } from './config.js';
 import { Cart, formatPrice } from './cart.js';
 import { fetchProducts, getProductById, isUsingDemoData } from './catalog.js';
 import { t, initLanguageToggle } from './i18n.js';
@@ -22,7 +22,6 @@ import {
   initModal,
   initScrollReveal,
   initHeroSlider,
-  initTestimonialSlider,
   initBackToTop,
   showToast,
   escapeHtml,
@@ -161,52 +160,6 @@ function renderAdBannerCategories() {
       ${categoryIconSvg(d.category || 'apparel')}
       <span>${t(d.labelKey)}</span>
     </a>
-  `
-  ).join('');
-}
-
-function renderStoreLocations() {
-  const container = document.getElementById('store-list');
-  if (!container) return;
-  container.innerHTML = STORE_LOCATIONS.map(
-    (s) => `
-    <div class="store-card" data-reveal>
-      <h3>${s.name}</h3>
-      ${s.honorTi ? `<p class="store-card__honor" lang="ti">${s.honorTi}</p>` : ''}
-      <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-map-pin"></use></svg>${s.address}${s.addressTi ? ` <span class="store-card__gloss" lang="ti">(${s.addressTi})</span>` : ''}</p>
-      <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-clock"></use></svg>${s.hours}</p>
-      <p><svg class="icon icon--sm" aria-hidden="true"><use href="#icon-phone"></use></svg>${s.phone}</p>
-    </div>
-  `
-  ).join('');
-}
-
-function initials(name) {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
-function renderTestimonials() {
-  const track = document.querySelector('.testimonial-track');
-  if (!track) return;
-  track.innerHTML = TESTIMONIALS.map(
-    (tm) => `
-    <div class="testimonial-card">
-      <span class="testimonial-card__quotemark" aria-hidden="true">“</span>
-      <div class="testimonial-card__stars" aria-hidden="true">
-        ${Array.from({ length: 5 }, (_, i) => `<svg class="icon icon--sm ${i < tm.rating ? 'is-filled' : 'is-empty'}"><use href="#icon-star"></use></svg>`).join('')}
-      </div>
-      <p class="testimonial-card__quote">${tm.quote}</p>
-      <div class="testimonial-card__byline">
-        <span class="testimonial-card__avatar">${initials(tm.author)}</span>
-        <p class="testimonial-card__author">${tm.author} <span>${tm.role}</span></p>
-      </div>
-    </div>
   `
   ).join('');
 }
@@ -578,8 +531,6 @@ function init() {
 
   renderCategoryTiles();
   renderAdBannerCategories();
-  renderStoreLocations();
-  renderTestimonials();
   renderCart();
   renderGrid();
 
@@ -587,7 +538,6 @@ function init() {
   initMobileNav();
   initScrollReveal();
   initHeroSlider('hero-slider');
-  initTestimonialSlider('testimonials');
   initBackToTop();
 
   const cartDrawer = initDrawer({ toggleId: 'cart-toggle', drawerId: 'cart-drawer', closeId: 'cart-close' });

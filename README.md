@@ -381,6 +381,74 @@ is different from the placeholder currently there.
   ticket queue, no staff routing. Wiring up real live chat would mean
   adding a third-party chat service (e.g. Tawk.to, Crisp).
 
+## Site completeness audit (October 2026)
+
+A full pass over every page and route looking for anything a real,
+production e-commerce site needs that was missing or incorrect — not a
+new feature, just closing gaps. Two kinds of findings came out of it:
+
+**Removed: fabricated content.** The original template build shipped
+with placeholder "demo" copy that was never swapped for anything real
+before launch, and it was live on the site: a "Visit us in person"
+section listing three physical store addresses with invented Eritrean
+phone numbers, a "What our customers say" testimonials carousel with
+quotes attributed to named people who don't exist, a "4.8 rated by
+2,000+ families" badge, and "online or in-store" / "online and
+in-store" copy implying physical locations. None of this was true —
+Hibretfamily has no physical stores and no collected reviews yet — and
+in the Netherlands/EU, presenting fabricated reviews as genuine is a
+real legal risk (unfair commercial practices), not just a trust
+problem. All of it has been removed: `STORE_LOCATIONS` and
+`TESTIMONIALS` are gone from `public/js/config.js`, their rendering
+code is gone from `public/js/main.js`/`ui.js`, their markup and CSS
+are gone from `index.html`/`style.css`, and the trust-strip/hero copy
+was rewritten to claims that are actually true today. Also removed:
+three dead placeholder social links (Instagram/Facebook/TikTok, all
+`href="#"`) and an "Advertising" clause in the privacy policy
+describing Google AdSense, which isn't actually integrated anywhere.
+When Hibretfamily does open a physical store or collect real reviews,
+add that content back with real data — don't restore the old
+placeholders.
+
+**Added: missing technical essentials.**
+- **Social sharing previews** (Open Graph + Twitter Card meta tags,
+  plus a generated `public/assets/og-image.png`) on the public pages,
+  so a WhatsApp/Facebook link share shows a real title, description,
+  and branded image instead of nothing.
+- **`public/robots.txt` and `public/sitemap.xml`** so Google can
+  actually find and index the site; account-specific pages (dashboard,
+  orders, success, confirm-receipt) are excluded from both, on top of
+  their existing per-page `noindex` tag.
+- **`public/404.html`**, a branded bilingual not-found page, wired up
+  in `netlify.toml` so a bad/old link gets this instead of a generic
+  host error page.
+- **`public/site.webmanifest`** plus real PNG icons
+  (`public/assets/icon-192.png`, `icon-512.png`,
+  `apple-touch-icon.png`, `favicon.png`) so the site can be added to a
+  phone's home screen with a proper icon — relevant given how many
+  sellers and buyers here are on mobile.
+- **Rate limiting** (`express-rate-limit` in `server/server.js`): a
+  generous whole-API ceiling against scraping/DoS-ish traffic, plus a
+  tighter limit on the two endpoints that are cheap to spam with no
+  payment or auth involved (`POST /api/sellers/register`,
+  `POST /api/lesson-interest`).
+- **A clean JSON 404** for any unmatched API route, instead of
+  Express's default HTML error page — this backend is API-only, so
+  every response should be JSON.
+- **Security headers on the static frontend** (`netlify.toml`):
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`. The backend already had these via `helmet()`;
+  Netlify serves the frontend directly and never touches that process.
+
+### Site URL placeholder
+
+`https://hibretfamily.com` is used as a placeholder in
+`public/robots.txt`, `public/sitemap.xml`, and the `<link rel="canonical">`
+/ `og:url` tags on `index.html`, `sell.html`, and `learn.html` — search
+each file for `hibretfamily.com` and replace it with your real deployed
+frontend URL (your Netlify default subdomain, or a custom domain once
+you buy one) once you know it.
+
 ## What's intentionally NOT built yet
 
 - **Password-based seller/admin login.** The seller dashboard and the

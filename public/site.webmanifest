@@ -1,0 +1,13 @@
+{
+  "name": "Hibretfamily — Eritrea's Marketplace",
+  "short_name": "Hibretfamily",
+  "description": "Independent Eritrean sellers, secure checkout, real products shipped from Eritrea to the world.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#faf7f1",
+  "theme_color": "#10402f",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
