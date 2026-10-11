@@ -14,17 +14,7 @@ export const SITE = {
   tagline: 'Eritrea’s marketplace, connecting local sellers to the world',
   email: 'michaeletekeste177@gmail.com',
   phone: '+31 6 84100875',
-  social: {
-    instagram: '#',
-    facebook: '#',
-    tiktok: '#',
-  },
 };
-
-// The landmarks Hibretfamily's brand and store honors are drawn from
-// (see STORE_LOCATIONS below and the "Our inspiration" note in
-// index.html's about section).
-export const INSPIRATION = ['Harnet Avenue (Asmara)', 'Massawa Port Heritage', 'Sematat Avenue'];
 
 // The two seller plans (business_model.tiers). `costLabelKey`/
 // `targetKey` resolve through I18N; the actual commission percentages
@@ -129,8 +119,7 @@ export const DEPARTMENTS = [
 export const I18N = {
   en: {
     nav_women: 'Women', nav_men: 'Men', nav_kids: 'Kids', nav_shop: 'Shop all',
-    nav_stores: 'Stores', nav_about: 'About', nav_stores_full: 'Our stores',
-    nav_about_full: 'About Hibretfamily', nav_contact: 'Contact',
+    nav_about: 'About', nav_about_full: 'About Hibretfamily', nav_contact: 'Contact',
 
     dept_women: 'Women', dept_men: 'Men', dept_kids: 'Kids',
     dept_cosmetics: 'Cosmetics', dept_books: 'Books', dept_electronics: 'Electronics',
@@ -169,8 +158,7 @@ export const I18N = {
   },
   ti: {
     nav_women: 'ደቂ ኣንስትዮ', nav_men: 'ደቂ ተባዕትዮ', nav_kids: 'ቆልዑ', nav_shop: 'ኩሉ ዕዳጋ',
-    nav_stores: 'ድኳናት', nav_about: 'ብዛዕባና', nav_stores_full: 'ድኳናትና',
-    nav_about_full: 'ብዛዕባ ሂብረትፋሚሊ', nav_contact: 'ርኸቡና',
+    nav_about: 'ብዛዕባና', nav_about_full: 'ብዛዕባ ሂብረትፋሚሊ', nav_contact: 'ርኸቡና',
 
     dept_women: 'ደቂ ኣንስትዮ', dept_men: 'ደቂ ተባዕትዮ', dept_kids: 'ቆልዑ',
     dept_cosmetics: 'ኮስመቲክስ', dept_books: 'መጻሕፍቲ', dept_electronics: 'ኤሌክትሮኒክስ',
@@ -208,67 +196,6 @@ export const I18N = {
     liability_checkbox_label: 'ነዚ ሓላፍነት ሽያጣይ ኣንቢበ ተሰማሚዐ ኣለኹ።',
   },
 };
-
-// Offline / in-person store locations. Edit freely — this list is
-// rendered as-is on the "Visit us" section and needs no backend.
-//
-// `addressTi` is the Tigrinya gloss of `address`, shown alongside it in
-// parentheses (see renderStoreLocations in main.js). Word order follows
-// Tigrinya's noun-then-name construct — "ጎደና ሓርነት" (Avenue [of] Harnet),
-// not the reversed "ሓርነት ጎደና" — the same pattern used for "ጎደና ሰማዕታት"
-// (Sematat Avenue) and "ደሴት ጣውሎት" (Taulud Island) below.
-//
-// `honorTi` is each city's honorific tagline: Asmara's is often
-// described as the country's foremost showcase of modernist
-// architecture and national identity; Massawa, the historic Red Sea
-// port, as its "pearl" and a hub of international transit traffic.
-export const STORE_LOCATIONS = [
-  {
-    name: 'Hibretfamily — Harnet Flagship',
-    address: 'Harnet Avenue, near Cinema Roma, Asmara',
-    addressTi: 'ጎደና ሓርነት፣ ጥቓ ሲነማ ሮማ፣ ኣስመራ',
-    honorTi: 'ቀንዲ ማእከል ንድፊ ሃገራዊ መንነት',
-    hours: 'Mon–Sat 9:00–20:00, Sun 10:00–18:00',
-    phone: '+291 7 123 457',
-  },
-  {
-    name: 'Hibretfamily — Sematat',
-    address: 'Sematat Avenue, Asmara',
-    addressTi: 'ጎደና ሰማዕታት፣ ኣስመራ',
-    honorTi: 'ቀንዲ ማእከል ንድፊ ሃገራዊ መንነት',
-    hours: 'Mon–Sat 9:00–19:00',
-    phone: '+291 7 123 458',
-  },
-  {
-    name: 'Hibretfamily — Massawa',
-    address: 'Taulud Island, Massawa',
-    addressTi: 'ደሴት ጣውሎት፣ ምጽዋዕ',
-    honorTi: 'ናይ ቀይሕ ባሕሪ ዕንቁ - ማእከል ኣህጉራዊ መተሓላለፊ ትራፊክ',
-    hours: 'Mon–Sat 9:00–19:00',
-    phone: '+291 7 123 459',
-  },
-];
-
-export const TESTIMONIALS = [
-  {
-    quote: 'I stopped opening five different apps to compare sellers — Hibretfamily already brings the kids’ shoes, a book, and a new blender together in one checkout.',
-    author: 'Selam T.',
-    role: 'Verified shopper',
-    rating: 5,
-  },
-  {
-    quote: 'I sell handmade crafts from Asmara and get paid the same day, straight to my own account. Hibretfamily never touches my money — I can see exactly what their commission is.',
-    author: 'Dawit M.',
-    role: 'Verified seller',
-    rating: 5,
-  },
-  {
-    quote: 'Their cosmetics sellers are surprisingly well curated, and checkout takes seconds.',
-    author: 'Rahel A.',
-    role: 'Verified shopper',
-    rating: 4,
-  },
-];
 
 // Two demo sellers, so previewing the site (with no backend connected)
 // still demonstrates the marketplace's core rule: a cart can only hold
