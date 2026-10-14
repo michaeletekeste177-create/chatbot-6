@@ -838,7 +838,12 @@ img { max-width: 100%; display: block; }
   border-top: 1px solid rgba(255,255,255,0.12);
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-4) var(--space-5);
+  /* Extra bottom padding keeps this legal text (incl. the VAT/btw-id
+     line, which must stay "easily and permanently accessible") clear of
+     the fixed-position contact widget and back-to-top button, which
+     would otherwise sit on top of it once the page is scrolled fully
+     down. */
+  padding: var(--space-4) var(--space-5) var(--space-9);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
