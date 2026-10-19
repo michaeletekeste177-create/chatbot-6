@@ -71,15 +71,41 @@ function renderProducts(listEl, products, { sellerId, token }) {
 
 let currentProducts = [];
 
-function showImagePreview(url) {
-  const preview = document.getElementById('product-image-preview');
-  if (url) {
-    preview.src = url;
-    preview.hidden = false;
-  } else {
-    preview.hidden = true;
-    preview.src = '';
+// The in-progress listing's photos, in display order — element 0 is
+// the cover photo shown in the product-card grid (see form.image_url,
+// kept in sync alongside this on every change). Lives only in memory
+// for the duration of editing this one form; loaded fresh from the
+// product on edit, cleared on reset.
+let currentImageUrls = [];
+const MAX_PRODUCT_IMAGES = 8;
+
+function renderImageGallery() {
+  const form = document.getElementById('product-form');
+  const gallery = document.getElementById('product-image-gallery');
+  form.image_url.value = currentImageUrls[0] || '';
+
+  if (!currentImageUrls.length) {
+    gallery.innerHTML = '';
+    return;
   }
+  gallery.innerHTML = currentImageUrls
+    .map(
+      (url, i) => `
+    <div class="product-image-gallery__item${i === 0 ? ' product-image-gallery__item--cover' : ''}">
+      <img src="${escapeHtml(url)}" alt="" />
+      ${i === 0 ? '<span class="product-image-gallery__badge">Cover</span>' : ''}
+      <button type="button" class="product-image-gallery__remove" data-remove-image="${i}" aria-label="Remove photo">×</button>
+    </div>
+  `
+    )
+    .join('');
+
+  gallery.querySelectorAll('[data-remove-image]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentImageUrls.splice(Number(btn.dataset.removeImage), 1);
+      renderImageGallery();
+    });
+  });
 }
 
 function fillFormForEdit(product) {
@@ -91,8 +117,8 @@ function fillFormForEdit(product) {
   form.currency.value = product.currency || 'usd';
   form.price.value = centsToDollarsInput(product.price_cents);
   form.stock.value = product.stock;
-  form.image_url.value = product.image_url || '';
-  showImagePreview(product.image_url);
+  currentImageUrls = product.image_urls?.length ? [...product.image_urls] : product.image_url ? [product.image_url] : [];
+  renderImageGallery();
   document.getElementById('product-form-submit').textContent = 'Save changes';
   document.getElementById('product-form-cancel').hidden = false;
   form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -102,37 +128,39 @@ function resetForm() {
   const form = document.getElementById('product-form');
   form.reset();
   form.productId.value = '';
-  showImagePreview(null);
+  currentImageUrls = [];
+  renderImageGallery();
   document.getElementById('product-form-submit').textContent = 'Add product';
   document.getElementById('product-form-cancel').hidden = true;
 }
 
-// Uploads the picked file to Supabase Storage via our own backend (see
-// POST /api/seller-products/upload-image) and drops the returned public
-// URL into the hidden image_url field — a seller never has to find
-// somewhere else to host a photo or paste a URL themselves.
+// Uploads each picked file to Supabase Storage via our own backend (see
+// POST /api/seller-products/upload-image) one at a time, appending the
+// returned public URL to the in-progress photo list — a seller never
+// has to find somewhere else to host a photo or paste a URL themselves.
 async function handleImageFileChange(e, { sellerId, token }) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const form = document.getElementById('product-form');
+  const files = Array.from(e.target.files || []).slice(0, MAX_PRODUCT_IMAGES - currentImageUrls.length);
+  if (!files.length) return;
   const stateEl = document.getElementById('product-image-state');
   stateEl.hidden = false;
-  stateEl.textContent = 'Uploading photo…';
 
   try {
-    const body = new FormData();
-    body.append('sellerId', sellerId);
-    body.append('token', token);
-    body.append('image', file);
-    const res = await fetch(`${API_BASE}/seller-products/upload-image`, { method: 'POST', body });
-    const result = await res.json().catch(() => ({}));
-    if (!res.ok || !result.url) throw new Error(result.error || 'Could not upload the photo.');
-
-    form.image_url.value = result.url;
-    showImagePreview(result.url);
+    for (let i = 0; i < files.length; i++) {
+      stateEl.textContent = files.length > 1 ? `Uploading photo ${i + 1} of ${files.length}…` : 'Uploading photo…';
+      const body = new FormData();
+      body.append('sellerId', sellerId);
+      body.append('token', token);
+      body.append('image', files[i]);
+      const res = await fetch(`${API_BASE}/seller-products/upload-image`, { method: 'POST', body });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.url) throw new Error(result.error || 'Could not upload the photo.');
+      currentImageUrls.push(result.url);
+      renderImageGallery();
+    }
     stateEl.hidden = true;
   } catch (err) {
     stateEl.textContent = err.message || 'Something went wrong uploading the photo. Please try again.';
+  } finally {
     e.target.value = '';
   }
 }
@@ -184,7 +212,7 @@ async function handleProductSubmit(e, { sellerId, token }) {
     currency: form.currency.value,
     price_cents: dollarsInputToCents(form.price.value),
     stock: Number(form.stock.value),
-    image_url: form.image_url.value.trim() || null,
+    image_urls: currentImageUrls,
   };
 
   submitBtn.disabled = true;

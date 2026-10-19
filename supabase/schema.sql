@@ -141,9 +141,22 @@ create table if not exists public.products (
   currency     text not null default 'usd',
   stock        integer not null default 0 check (stock >= 0),
   image_url    text,
+  -- The full, ordered set of photos for this listing — image_url above
+  -- is kept in lockstep as image_urls[1] (first element) purely so
+  -- older code that only ever reads image_url (the product-card grid
+  -- thumbnail) keeps working untouched. The storefront's quick-view
+  -- (public/js/main.js) reads this array to show a gallery when a
+  -- seller has uploaded more than one photo; an empty array just means
+  -- "no photos yet", same as image_url being null.
+  image_urls   text[] not null default '{}',
   is_active    boolean not null default true,
   created_at   timestamptz not null default now()
 );
+
+-- `image_urls` was added after the original table — safe to run again
+-- on a database that already has it (including a fresh install, where
+-- `create table` above just added it already).
+alter table public.products add column if not exists image_urls text[] not null default '{}';
 
 create index if not exists idx_products_seller on public.products (seller_id);
 create index if not exists idx_products_category on public.products (category);

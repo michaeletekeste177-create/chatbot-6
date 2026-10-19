@@ -210,13 +210,22 @@ function renderQuickView(product) {
   if (!el.quickView) return;
   const audienceTag = audienceLabel(product.audience);
   const name = escapeHtml(product.name);
+  const photos = product.image_urls?.length ? product.image_urls : product.image_url ? [product.image_url] : [];
+  const mainMedia = photos.length
+    ? `<img src="${escapeHtml(photos[0])}" alt="${name}" decoding="async" />`
+    : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`;
+  const thumbs =
+    photos.length > 1
+      ? `<div class="quick-view__thumbs">${photos
+          .map(
+            (url, i) => `<button type="button" class="quick-view__thumb${i === 0 ? ' quick-view__thumb--active' : ''}" data-gallery-thumb="${i}"><img src="${escapeHtml(url)}" alt="" /></button>`
+          )
+          .join('')}</div>`
+      : '';
   el.quickView.innerHTML = `
     <div class="quick-view__media">
-      ${
-        product.image_url
-          ? `<img src="${escapeHtml(product.image_url)}" alt="${name}" decoding="async" />`
-          : `<span class="product-card__placeholder product-card__placeholder--${product.category}">${categoryIconSvg(product.category)}</span>`
-      }
+      <div class="quick-view__media-main">${mainMedia}</div>
+      ${thumbs}
     </div>
     <div class="quick-view__info">
       <span class="product-card__category">${categoryLabel(product.category)}${audienceTag && product.audience !== 'unisex' ? ` · ${audienceTag}` : ''}</span>
@@ -227,6 +236,18 @@ function renderQuickView(product) {
       <button class="btn btn--primary" data-add-to-cart="${product.id}" data-close-modal>${t('add_to_cart')}</button>
     </div>
   `;
+
+  if (photos.length > 1) {
+    const mainEl = el.quickView.querySelector('.quick-view__media-main');
+    el.quickView.querySelectorAll('[data-gallery-thumb]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.galleryThumb);
+        mainEl.innerHTML = `<img src="${escapeHtml(photos[i])}" alt="${name}" decoding="async" />`;
+        el.quickView.querySelectorAll('.quick-view__thumb').forEach((t) => t.classList.remove('quick-view__thumb--active'));
+        btn.classList.add('quick-view__thumb--active');
+      });
+    });
+  }
 }
 
 // ---------------------------------------------------------------------

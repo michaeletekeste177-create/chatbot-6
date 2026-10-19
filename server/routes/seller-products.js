@@ -32,6 +32,10 @@ const VALID_AUDIENCES = ['women', 'men', 'kids', 'unisex'];
 // so that side stays the separate manual mNakfa contact instead (see the
 // payment-method gate above and the mnakfa_number comment in schema.sql).
 const VALID_CURRENCIES = ['usd', 'eur'];
+// A listing's own photo gallery, not a general file dump — keeps a
+// seller from pasting in dozens of unrelated images (and keeps the
+// quick-view gallery UI from needing to scroll forever).
+const MAX_PRODUCT_IMAGES = 8;
 
 async function verifySeller(sellerId, token) {
   if (!sellerId || !token) return null;
@@ -101,7 +105,24 @@ function validateProductFields(body, { partial = false } = {}) {
     if (!Number.isInteger(stock) || stock < 0) errors.push('stock must be a non-negative integer.');
     else fields.stock = stock;
   }
-  if (body.image_url !== undefined) fields.image_url = body.image_url || null;
+  // image_urls is the new source of truth for a listing's photos (see
+  // the schema.sql comment); image_url is kept in sync as its first
+  // element so older reads of the single field (the product-card grid
+  // thumbnail) keep working. A bare image_url with no image_urls still
+  // works too, for any caller that hasn't moved to the gallery field.
+  if (body.image_urls !== undefined) {
+    if (!Array.isArray(body.image_urls) || !body.image_urls.every((u) => typeof u === 'string')) {
+      errors.push('image_urls must be an array of URL strings.');
+    } else if (body.image_urls.length > MAX_PRODUCT_IMAGES) {
+      errors.push(`image_urls can hold at most ${MAX_PRODUCT_IMAGES} photos.`);
+    } else {
+      const urls = body.image_urls.map((u) => u.trim()).filter(Boolean);
+      fields.image_urls = urls;
+      fields.image_url = urls[0] || null;
+    }
+  } else if (body.image_url !== undefined) {
+    fields.image_url = body.image_url || null;
+  }
   if (body.is_active !== undefined) fields.is_active = !!body.is_active;
 
   return { errors, fields };
@@ -117,7 +138,7 @@ router.get('/', async (req, res) => {
 
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, category, audience, price_cents, currency, stock, image_url, is_active, created_at')
+    .select('id, name, category, audience, price_cents, currency, stock, image_url, image_urls, is_active, created_at')
     .eq('seller_id', seller.id)
     .order('created_at', { ascending: false });
 
