@@ -169,6 +169,17 @@ In the Supabase dashboard: **Storage** → **New bucket** → name it exactly
 `product-images` → **Public bucket**: on (product photos are meant to be
 publicly viewable in the catalog, same as any `image_url` already was).
 
+### Seller story (optional bio)
+
+`dashboard.html`'s "Your story" section lets a seller write a short,
+free-text bio (`sellers.story`, up to 1000 characters) — who they are, what
+they make, why — saved via `PATCH /api/sellers/:id/story` (token-gated the
+same way as every other write here). `GET /api/products` and
+`GET /api/products/:id` join it in alongside `sellerName` as `sellerStory`,
+and the storefront shows it in the product quick-view (`public/js/main.js`)
+under "Sold by". An empty story is treated as "not set", not an error —
+a seller taking their bio down is a legitimate thing to want.
+
 ## mNakfa — a manual path for sellers Stripe can't reach
 
 Stripe has no presence in Eritrea at all, so a seller who only has an

@@ -222,6 +222,7 @@ function renderQuickView(product) {
       <span class="product-card__category">${categoryLabel(product.category)}${audienceTag && product.audience !== 'unisex' ? ` · ${audienceTag}` : ''}</span>
       <h2>${name}</h2>
       ${product.sellerName ? `<p class="quick-view__seller">Sold by <strong>${escapeHtml(product.sellerName)}</strong></p>` : ''}
+      ${product.sellerStory ? `<p class="quick-view__seller-story">${escapeHtml(product.sellerStory)}</p>` : ''}
       <p class="price-tag price-tag--lg">${formatPrice(product.price_cents, product.currency)}</p>
       <button class="btn btn--primary" data-add-to-cart="${product.id}" data-close-modal>${t('add_to_cart')}</button>
     </div>

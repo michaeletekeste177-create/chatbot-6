@@ -106,7 +106,7 @@ router.post('/register', async (req, res) => {
 router.get('/:id/status', async (req, res) => {
   const { data: seller, error } = await supabase
     .from('sellers')
-    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name, mnakfa_zoba, stripe_account_id')
+    .select('id, business_name, tier, charges_enabled, subscription_status, mnakfa_number, mnakfa_holder_name, mnakfa_zoba, story, stripe_account_id')
     .eq('id', req.params.id)
     .single();
 
@@ -177,6 +177,53 @@ router.patch('/:id/payment-info', async (req, res) => {
   if (error) {
     console.error('failed to save mNakfa payment info:', error.message);
     return res.status(500).json({ error: 'Could not save your payment details.' });
+  }
+
+  res.json({ seller: updated });
+});
+
+// A generous cap, not a tight one — this is a short bio, not a free
+// text field for anything else, but sellers write in two scripts
+// (Tigrinya/Ge'ez and Latin) that can run longer per idea than a
+// single-script sentence. Blocks abuse (pasting a whole document)
+// without forcing an awkwardly short story.
+const MAX_STORY_LENGTH = 1000;
+
+// PATCH /api/sellers/:id/story
+// body: { token, story }
+//
+// A short seller-written bio shown on the storefront quick-view (see
+// public/js/main.js) — who they are, what they make, why. Token-gated
+// the same way as payment-info above. `story: ''` (or any falsy value)
+// clears it back to "not set" rather than being rejected, since a
+// seller taking their bio down is a legitimate thing to want.
+router.patch('/:id/story', async (req, res) => {
+  const { token, story } = req.body;
+
+  const { data: seller, error: lookupError } = await supabase
+    .from('sellers')
+    .select('id, access_token')
+    .eq('id', req.params.id)
+    .single();
+  if (lookupError || !seller || seller.access_token !== token) {
+    return res.status(401).json({ error: 'Invalid seller credentials.' });
+  }
+
+  const trimmed = typeof story === 'string' ? story.trim() : '';
+  if (trimmed.length > MAX_STORY_LENGTH) {
+    return res.status(400).json({ error: `Story must be ${MAX_STORY_LENGTH} characters or fewer.` });
+  }
+
+  const { data: updated, error } = await supabase
+    .from('sellers')
+    .update({ story: trimmed || null })
+    .eq('id', seller.id)
+    .select('id, story')
+    .single();
+
+  if (error) {
+    console.error('failed to save seller story:', error.message);
+    return res.status(500).json({ error: 'Could not save your story.' });
   }
 
   res.json({ seller: updated });

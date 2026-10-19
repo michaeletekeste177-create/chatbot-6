@@ -249,6 +249,36 @@ function renderPaymentStatus(seller) {
   if (seller.mnakfa_number) mnakfaForm.mnakfaNumber.value = seller.mnakfa_number;
   if (seller.mnakfa_holder_name) mnakfaForm.mnakfaHolderName.value = seller.mnakfa_holder_name;
   if (seller.mnakfa_zoba) mnakfaForm.mnakfaZoba.value = seller.mnakfa_zoba;
+
+  document.getElementById('story-form').story.value = seller.story || '';
+}
+
+async function handleStorySubmit(e, { sellerId, token }) {
+  e.preventDefault();
+  const form = e.target;
+  const stateEl = document.getElementById('story-form-state');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  submitBtn.disabled = true;
+  stateEl.hidden = false;
+  stateEl.textContent = 'Saving…';
+
+  try {
+    const res = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/story`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, story: form.story.value }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Could not save your story.');
+
+    stateEl.hidden = true;
+    showToast('Story saved');
+  } catch (err) {
+    stateEl.textContent = err.message || 'Something went wrong. Please try again.';
+  } finally {
+    submitBtn.disabled = false;
+  }
 }
 
 async function handleSubscribeClick({ sellerId }) {
@@ -443,6 +473,7 @@ async function init() {
   mnakfaZobaSelect.innerHTML = ZOBAS.map((z) => `<option value="${z}">${z}</option>`).join('');
   document.getElementById('mnakfa-form').addEventListener('submit', (e) => handleMnakfaSubmit(e, { sellerId, token }));
   document.getElementById('subscribe-button').addEventListener('click', () => handleSubscribeClick({ sellerId }));
+  document.getElementById('story-form').addEventListener('submit', (e) => handleStorySubmit(e, { sellerId, token }));
 
   try {
     const statusRes = await fetch(`${API_BASE}/sellers/${encodeURIComponent(sellerId)}/status`);

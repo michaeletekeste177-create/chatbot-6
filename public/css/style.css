@@ -750,6 +750,7 @@ img { max-width: 100%; display: block; }
 .product-card__name { font-size: var(--fs-md); margin: 0; }
 .product-card__seller { font-size: var(--fs-xs); color: var(--color-ink-soft); }
 .quick-view__seller { font-size: var(--fs-sm); color: var(--color-ink-soft); margin: 0; }
+.quick-view__seller-story { font-size: var(--fs-sm); color: var(--color-ink-soft); line-height: 1.5; margin: var(--space-2) 0 0; white-space: pre-wrap; }
 .product-card__row { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
 
 .price-tag {
@@ -1122,13 +1123,16 @@ img { max-width: 100%; display: block; }
 }
 .seller-form label { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--fs-sm); font-weight: 600; }
 .seller-form input[type="text"],
-.seller-form input[type="email"] {
+.seller-form input[type="email"],
+.seller-form textarea {
   padding: 0.7rem var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: var(--fs-base);
   font-weight: 400;
+  font-family: inherit;
 }
+.seller-form textarea { resize: vertical; }
 .tier-choice { border: none; padding: 0; margin: 0; display: flex; gap: var(--space-4); }
 .tier-choice legend { font-size: var(--fs-sm); font-weight: 600; margin-bottom: var(--space-2); }
 .seller-form label.tier-choice__option { flex-direction: row; align-items: center; gap: var(--space-2); font-weight: 500; }
