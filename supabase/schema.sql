@@ -108,8 +108,20 @@ create table if not exists public.sellers (
   -- disputes without collecting anything sensitive (see the PATCH
   -- payment-info route for the fixed list this is validated against).
   mnakfa_zoba               text,
+  -- A short, seller-written bio shown on the storefront (quick-view —
+  -- see public/js/main.js) alongside their products: who they are, what
+  -- they make, why — the kind of context a buyer can't get from a
+  -- product photo alone. Optional, free text, seller's own words in
+  -- whichever language they write it (Tigrinya or English); nothing
+  -- here is validated beyond length (see the PATCH /story route).
+  story                     text,
   created_at                timestamptz not null default now()
 );
+
+-- `story` was added after the original table — safe to run again on a
+-- database that already has it (including a fresh install, where
+-- `create table` above just added it already).
+alter table public.sellers add column if not exists story text;
 
 create index if not exists idx_sellers_stripe_account on public.sellers (stripe_account_id);
 
