@@ -158,10 +158,10 @@
           <input type="number" name="stock" min="0" step="1" required />
         </label>
         <label>
-          <span>Product photo (optional)</span>
-          <input type="file" id="product-image-file" accept="image/*" />
+          <span>Product photos (optional — first one is the cover photo)</span>
+          <input type="file" id="product-image-file" accept="image/*" multiple />
           <input type="hidden" name="image_url" />
-          <img id="product-image-preview" alt="" hidden style="max-width: 160px; border-radius: var(--radius-sm); margin-top: var(--space-2);" />
+          <div id="product-image-gallery" class="product-image-gallery"></div>
           <p class="state-message" id="product-image-state" hidden></p>
         </label>
         <div style="display:flex; gap: var(--space-3);">

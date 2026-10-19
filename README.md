@@ -153,15 +153,26 @@ contact described next, which additionally requires an active subscription
 
 ### Product photos
 
-A seller uploads a photo straight from their device (`dashboard.html`'s
-"Product photo" file picker) instead of needing to host one elsewhere and
-paste a URL. `POST /api/seller-products/upload-image` (token-gated the
-same way as every other write here) accepts the file via `multer`
-(`memoryStorage` — never written to this server's own disk, since Render's
-filesystem is ephemeral) and uploads it to a Supabase Storage bucket named
-`product-images`, under a path scoped to the seller's own id so uploads
-can never collide. The returned public URL is saved as the product's
-`image_url`, exactly as if the seller had pasted one in manually.
+A seller uploads photos straight from their device (`dashboard.html`'s
+"Product photos" file picker, which accepts multiple files at once) instead
+of needing to host them elsewhere and paste a URL. `POST
+/api/seller-products/upload-image` (token-gated the same way as every other
+write here) accepts one file per call via `multer` (`memoryStorage` — never
+written to this server's own disk, since Render's filesystem is ephemeral)
+and uploads it to a Supabase Storage bucket named `product-images`, under a
+path scoped to the seller's own id so uploads can never collide; the
+dashboard calls it once per selected file and collects the returned URLs.
+
+The full, ordered set of photos is saved as the product's `image_urls`
+(`text[]`, up to 8 per listing — see `MAX_PRODUCT_IMAGES` in
+`seller-products.js`); `image_url` is kept in sync as `image_urls[0]` so
+existing code that only reads the single field (the product-card grid
+thumbnail) keeps working untouched. The storefront's quick-view
+(`public/js/main.js`) shows a thumbnail strip beneath the main photo when a
+listing has more than one, letting a buyer click through them. A seller can
+remove any photo from the in-progress listing before saving (the × on each
+thumbnail in the dashboard) — the first remaining photo becomes the new
+cover automatically.
 
 **Manual setup required**: this bucket is not created by `schema.sql` (it's
 a Storage bucket, not a table) and must exist before any upload will work.
