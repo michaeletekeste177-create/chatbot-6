@@ -58,6 +58,7 @@ const strictSignupLimiter = rateLimit({
   message: { error: 'Too many requests. Please try again later.' },
 });
 app.use('/api/sellers/register', strictSignupLimiter);
+app.use('/api/sellers/recover-link', strictSignupLimiter);
 app.use('/api/lesson-interest', strictSignupLimiter);
 
 // Stripe's webhook signature check needs the exact raw request body,

@@ -126,6 +126,18 @@
           <button class="btn btn--accent btn--block" type="submit" data-i18n="seller_cta">Register as a Seller</button>
           <p class="state-message" id="seller-form-state" hidden></p>
         </form>
+
+        <p class="seller-form__note" style="text-align:center;">
+          Already registered? <button type="button" class="link-button" id="recover-link-toggle">Forgot your dashboard link?</button>
+        </p>
+        <form id="recover-link-form" class="seller-form" hidden style="margin-top: var(--space-4);">
+          <label>
+            <span>Your email</span>
+            <input type="email" name="email" required autocomplete="email" />
+          </label>
+          <button class="btn btn--ghost btn--block" type="submit">Email me my dashboard link</button>
+          <p class="state-message" id="recover-link-state" hidden></p>
+        </form>
       </div>
     </section>
 

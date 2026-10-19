@@ -11,6 +11,7 @@
 const express = require('express');
 const Stripe = require('stripe');
 const { supabase } = require('../config/supabase');
+const { sendDashboardLinkEmail } = require('../lib/mail');
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -227,6 +228,38 @@ router.patch('/:id/story', async (req, res) => {
   }
 
   res.json({ seller: updated });
+});
+
+// POST /api/sellers/recover-link
+// body: { email }
+//
+// A seller who loses their dashboard link (the only way in — there's
+// no password, see access_token's comment in schema.sql) otherwise has
+// no self-serve way back in. Always returns the same generic message
+// regardless of whether the email matches an account or the send
+// actually succeeded — the same anti-enumeration pattern any
+// password-reset flow uses, so this can't be used to fish for whether
+// a given email has a seller account here.
+router.post('/recover-link', async (req, res) => {
+  const { email } = req.body;
+  const GENERIC_MESSAGE = 'If that email has a Hibretfamily seller account, we just sent its dashboard link to it.';
+
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ error: 'email is required.' });
+  }
+
+  const { data: seller } = await supabase
+    .from('sellers')
+    .select('id, email, access_token')
+    .ilike('email', email.trim())
+    .maybeSingle();
+
+  if (seller) {
+    const dashboardUrl = `${CLIENT_URL}/dashboard.html?sellerId=${seller.id}&token=${seller.access_token}`;
+    await sendDashboardLinkEmail(seller, dashboardUrl);
+  }
+
+  res.json({ message: GENERIC_MESSAGE });
 });
 
 module.exports = router;
