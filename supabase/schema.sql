@@ -317,3 +317,31 @@ create policy "active products are publicly readable"
 -- Note: all writes to sellers/products/orders/order_items happen from
 -- server.js using SUPABASE_SERVICE_ROLE_KEY, which bypasses RLS. Never
 -- expose that key to the frontend.
+
+-- ---------------------------------------------------------------------
+-- Data API grants — Supabase stopped auto-granting these to new public
+-- tables from 2026-10-30 onward (existing tables, including all of
+-- ours as of that date, keep what they already had and need nothing
+-- here — this section only matters for a table created AFTER that
+-- date, e.g. a fresh project, a preview branch, or a local
+-- `supabase db reset`). Without an explicit grant, PostgREST (what
+-- supabase-js talks to) refuses the table outright with "permission
+-- denied", before RLS is even evaluated — RLS decides which ROWS a
+-- grantee can see, this decides whether that role can reach the table
+-- at all.
+--
+-- server.js is the only thing that ever queries these tables (see
+-- config/supabase.js) and always does it as service_role, so that's
+-- the only role that needs write access. `anon` gets read-only access
+-- to products, matching the "publicly readable when active" RLS policy
+-- above — harmless to grant even though nothing in this project
+-- currently queries Supabase directly as anon (the frontend only talks
+-- to our own API), and it keeps the grant truthful to the policy's own
+-- documented intent.
+grant select, insert, update, delete on public.sellers        to service_role;
+grant select, insert, update, delete on public.products        to service_role;
+grant select, insert, update, delete on public.orders           to service_role;
+grant select, insert, update, delete on public.order_items      to service_role;
+grant select, insert, update, delete on public.lesson_interest  to service_role;
+
+grant select on public.products to anon;
