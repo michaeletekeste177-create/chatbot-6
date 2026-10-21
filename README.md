@@ -191,6 +191,29 @@ and the storefront shows it in the product quick-view (`public/js/main.js`)
 under "Sold by". An empty story is treated as "not set", not an error —
 a seller taking their bio down is a legitimate thing to want.
 
+### Dashboard-link recovery (email)
+
+Since there's no password login, a seller's `dashboard.html?sellerId=&token=`
+link is their only way in — until now, losing it meant emailing the site
+owner directly. `sell.html` now has a "Forgot your dashboard link?" form
+under the registration form; it posts to `POST /api/sellers/recover-link`
+with just an email address.
+
+That route always returns the same generic message regardless of whether
+the email matched an account or an email actually got sent — the same
+anti-enumeration pattern any password-reset flow uses, so the form can't be
+used to check whether a given email is registered here. When it does match,
+`server/lib/mail.js` sends the dashboard link via **Resend**'s HTTP API —
+optional infrastructure, same pattern as Twilio in `notify.js`: with
+`RESEND_API_KEY`/`MAIL_FROM` unset, the route still responds normally, it
+just silently doesn't send anything. The route is also rate-limited
+alongside `/sellers/register` (`strictSignupLimiter` in `server.js`), since
+it's unauthenticated and otherwise cheap to spam.
+
+**Setup**: create a free Resend account, verify a sending domain, and set
+`RESEND_API_KEY` + `MAIL_FROM` (e.g. `Hibretfamily <noreply@hibretfamily.com>`)
+in the server's environment.
+
 ## mNakfa — a manual path for sellers Stripe can't reach
 
 Stripe has no presence in Eritrea at all, so a seller who only has an

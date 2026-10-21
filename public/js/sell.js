@@ -111,6 +111,40 @@ function showDashboardLink(body, stateEl, form) {
   });
 }
 
+// Lets a seller who lost their dashboard link (no password login yet —
+// see the access_token comment in supabase/schema.sql) get it re-sent
+// by email instead of having to contact support. The backend always
+// returns the same generic message whether or not the email matched an
+// account, so this form can't be used to check whether a given email
+// is registered.
+async function handleRecoverLinkSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const stateEl = document.getElementById('recover-link-state');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const email = form.email.value.trim();
+
+  submitBtn.disabled = true;
+  stateEl.hidden = false;
+  stateEl.textContent = 'Sending…';
+
+  try {
+    const res = await fetch(`${API_BASE}/sellers/recover-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Something went wrong.');
+    stateEl.textContent = body.message;
+    form.reset();
+  } catch (err) {
+    stateEl.textContent = err.message || 'Something went wrong. Please try again.';
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
 async function checkOnboardingStatusFromQuery() {
   const params = new URLSearchParams(window.location.search);
   const sellerId = params.get('sellerId');
@@ -156,6 +190,11 @@ function init() {
   initScrollReveal();
 
   document.getElementById('seller-form')?.addEventListener('submit', handleRegisterSubmit);
+  document.getElementById('recover-link-toggle')?.addEventListener('click', (e) => {
+    document.getElementById('recover-link-form').hidden = false;
+    e.target.hidden = true;
+  });
+  document.getElementById('recover-link-form')?.addEventListener('submit', handleRecoverLinkSubmit);
 
   document.addEventListener('languagechange', renderTiers);
 }
