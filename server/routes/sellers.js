@@ -112,6 +112,7 @@ router.get('/:id/status', async (req, res) => {
     .single();
 
   if (error || !seller) {
+    console.error('seller status lookup failed:', JSON.stringify(error));
     return res.status(404).json({ error: 'Seller not found.' });
   }
 
